@@ -11,5 +11,5 @@ if __name__ == '__main__':
     print(db.get_targets('fwt'))
     print(db.get_hws('fwt'))
     print(db.get_prices('fwt'))
-    print(db.get_hws_and_prices('fwt'))
+    print(db.get_prices_per_hw('fwt'))
     # ...

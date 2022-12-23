@@ -118,7 +118,7 @@ def HADA(db: ConfigDB,
     # Handling non-estimated target (price) and robustness coefficients: 
     # 1.Equality constraints, fixing each price variable y_hw_price to the usage price of the corresponding hw,
     # as required by the hw provider
-    for target in set(list(request.user_constraints.get_constraints()) + [request.target, 'price']):
+    for target in set(list(request.user_constraints.get_constraints()) + [request.target]):
         for hw in hws: 
             mdl.add_constraint(mdl.get_var_by_name(f"y_{hw}_price") == request.hws_prices.get_prices_per_hw()[hw],
                                ctname = f"{hw}_price")
@@ -160,7 +160,7 @@ def HADA(db: ConfigDB,
             if sol[f'b_{hw}'] == 1:
                 chosen_hw = hw
                 break
-        targets_values = {target:sol[f"y_{chosen_hw}_{target}"] for target in targets + ['price']} 
+        targets_values = {target:sol[f"y_{chosen_hw}_{target}"] for target in targets} 
         hyperparams_values = {hyperparam: sol[f"var_{hyperparam}"] for hyperparam in hyperparams}
 
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}

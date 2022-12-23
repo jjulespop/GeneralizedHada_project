@@ -1,0 +1,13 @@
+{
+    "name": "mockalgo1",
+    "HW_ID": "fantasy_hw",
+    "HW_price": 80,
+    "hyperparams": [
+        {"ID": "a", "type": "int", "LB": 20, "UB": null},
+        {"ID": "b", "type": "int", "LB": null, "UB": 30}
+    ],
+    "targets": [
+        {"ID": "Truthfulness", "type": "float", "LB": null, "UB": null},
+        {"ID": "Niceness", "type": "float", "LB":null, "UB": null}
+    ]
+}

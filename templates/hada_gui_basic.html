@@ -1,0 +1,68 @@
+<!doctype html>
+<head>
+<title>HADA (demo)</title>
+</head>
+<body>
+<h3>HADA (demo)</h3>
+
+<form action="/" method="POST">
+    <label>Algorithm:</label>
+    <select name="algorithm" id="algorithm"> 
+    {% for algo in algorithms %}
+    <option value="{{algo}}">{{algo}}</option>
+    {% endfor %}
+    </select>
+    <br/>
+
+    <label>Target:</label>
+    <select name="target" id="target">
+    {% for target in targets %}
+    <option value="{{target}}">{{target}}</option>
+    {% endfor %}
+    <select/>
+    <label>min</label>
+    <input type="radio" name="objective_type" id="min" value="min" checked/> 
+    <label>max</label>
+    <input type="radio" name="objective_type" id="max" value="max" /> 
+    <br/>
+
+    <label>Robustness factor (not applied if empty):</label> 
+    <input type="text" name="robust_factor" id="robust_factor" placeholder="None">
+
+    <h4>Constraints (not applied if empty):</h4>
+    {% for target in targets %}
+    <label>{{target.capitalize()}}</label><br/>
+    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}">
+    <label>leq</label>
+    <input type="radio" name="constraint_{{target}}_type"  id="{{target}}_leq" value="leq" checked/> 
+    <label>eq</label>
+    <input type="radio" name="constraint_{{target}}_type"  id="{{target}}_eq" value="eq"/> 
+    <label>geq</label>
+    <input type="radio" name="constraint_{{target}}_type"  id="{{target}}_geq" value="geq"/>
+    <br/>
+    {% endfor %}
+
+    <h4>Prices:</h4>
+    {% for i in range(hws|length) %}
+    <label>{{hws[i].upper()}}</label><br/>
+    <input type="text" name="price_{{hws[i]}}" id="price_{{hws[i]}}" value="{{hws_prices[i]}}"><br/>
+    {% endfor %}
+
+    <br/>
+    <input type="submit" id="submit" name="submit" value="Optimize"/>    
+</form>
+
+    {% if out is not none %}
+        {% if out is mapping %}
+            <h3>Solution:</h3>
+            <ul>
+            {% for k,v in out.items() %}
+                <li>{{k}}: {{v[0]}}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <h3>Solution not found.</h3>
+        {% endif %}
+    {% endif %}
+</body>
+</html>

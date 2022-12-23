@@ -69,7 +69,8 @@ class ConfigDB():
 
     def get_targets(self, algorithm):
         '''Get list of targets for a given algorithm.'''
-        return list(self.db[algorithm]['targets'].keys())
+        # price is the only "special" target, with possibly different handling
+        return list(self.db[algorithm]['targets'].keys()) + ['price']
 
     def get_hws(self, algorithm):
         '''Get list of hardware platforms for a given algorithm.'''
@@ -79,9 +80,12 @@ class ConfigDB():
         '''Get list of hardware prices for a given algorithm.'''
         return list(self.db[algorithm]['hws'].values())
 
-    def get_hws_and_prices(self, algorithm):
-        '''Get list of (HW_name, price) for all hws found for a given algorithm.'''
-        return list(self.db[algorithm]['hws'].items())
+    def get_prices_per_hw(self, algorithm):
+        #'''Get list of (HW_name, price) for all hws found for a given algorithm.'''
+        #return list(self.db[algorithm]['hws'].items())
+        '''Get dict HW_name:price for all hws found for a given algorithm.'''
+        return {hw:price for hw,price in self.db[algorithm]['hws'].items()}
+
 
     def get_lb_per_var(self, algorithm):
         '''Get LBs for all variables (hyperparameters and targets).'''

@@ -25,9 +25,10 @@ class Datasets():
     def _check_dataset_consistency(self, df, algorithm, hw):
         '''Checking the columns are the expected ones and that they are numericals.'''
         hyperparams = self.db.get_hyperparams(algorithm)
-        targets = self.db.get_targets(algorithm)
+        data_targets = self.db.get_targets(algorithm)
+        data_targets.remove('price')
 
-        if set(df.columns) != set(hyperparams + targets):
+        if set(df.columns) != set(hyperparams + data_targets):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
@@ -111,7 +112,7 @@ class Datasets():
 
         if request.robustness_fact or request.robustness_fact == 0:
             robust_coeff = {}
-            for target in self.db.get_targets(request.algorithm) + ['price']: 
+            for target in self.db.get_targets(request.algorithm): 
                 for hw in self.db.get_hws(request.algorithm): 
                     # The target price is not estimated: it does not require any robustness coefficient 
                     if target == 'price': 

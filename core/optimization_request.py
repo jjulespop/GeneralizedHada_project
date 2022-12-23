@@ -58,7 +58,7 @@ class UserConstraints():
         self.constraints =  {}
 
     def add_constraint(self, target, constr_type, value):
-        if target not in self.db.get_targets(self.algorithm) + ['price']:
+        if target not in self.db.get_targets(self.algorithm):
             raise AttributeError(f'Target {target} not available for algorithm {self.algorithm}.')
 
         if constr_type not in ['eq', 'leq', 'geq']:

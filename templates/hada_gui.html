@@ -1,0 +1,132 @@
+<!doctype html>
+
+<head>
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='font.css') }}">
+    <!-- CSS Reset -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
+    <!-- Milligram CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='milligram.css') }}">
+
+    <title>HADA (demo)</title>
+
+    <style>
+        div.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .column {
+            align-self: baseline;
+        }
+    </style>
+
+    <script>
+        window.onload = function() {
+            dropdown = document.querySelector('#algorithm');
+
+            dropdown.addEventListener('change', function() {
+                const form = document.querySelector('#select_algorithm_form');
+                form.submit();
+
+            })
+        };
+    </script>
+
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <h3>HADA (demo)</h3>
+        </div>
+
+            <div class="row">
+                <div class="column column-100">
+                    <form action="/" method="POST" id="select_algorithm_form">
+                        <input value = "select_algo" type="hidden" name="form_id">
+                        <label class="label-inline">Algorithm</label>
+                        <select name="algorithm" id="algorithm">
+                            {% for algo in algorithms %}
+                            <option value="{{algo}}" {% if algo==selected_algo %}selected{% endif %}>{{algo}}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+        <form action="/" method="POST" id="optimization_request_form">
+        <input value = "optimize" type="hidden" name="form_id">
+            <div class="row">
+                <div class="column column-50">
+                    <label class="label-inline">Target</label>
+                    <select name="target" id="target">
+                        {% for target in targets %}
+                        <option value="{{target}}">{{target}}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="label-inline">minimize</label>
+                    <input type="radio" name="objective_type" id="min" value="min" checked />
+                    <label class="label-inline">maximize</label>
+                    <input type="radio" name="objective_type" id="max" value="max" />
+                    <br />
+                </div>
+
+                <div class="column column-50">
+                    <label class="label-inline">Robustness factor</label>
+                    <input type="text" name="robust_factor" id="robust_factor" placeholder="None">
+                </div>
+            </div>
+
+            <div class="row">
+                <h4>Constraints</h4>
+            </div>
+
+            {% for target in targets %}
+            <div class="row">
+                <div class="column column-10">
+                    <label class="label-inline">{{target.capitalize()}}</label>
+                </div>
+                <div class="column column-10">
+                    <select name="constraint_{{target}}_type" id="constraint_{{target}}_type">
+                        <option value="leq">&#8804;</option>
+                        <option value="eq">=</option>
+                        <option value="geq">&#8805;</option>
+                    </select>
+                </div>
+                <div class="column column-80">
+                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="None">
+                </div>
+                </br>
+            </div>
+            {% endfor %}
+
+            <div class="row">
+                <h4>Prices</h4>
+            </div>
+
+            {% for hw, price in price_per_hw.items() %}
+            <div class="row">
+                <div class="column column-10">
+                    <label class="label-inline">{{hw}}</label><br />
+                </div>
+                <div class="column column-90">
+                    <input type="text" name="price_{{hw}}" id="price_{{hw}}" value="{{price if price else ''}}"><br />
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="row">
+                <div class="center">
+                    <input class="button" type="submit" id="submit" name="submit" value="Optimize" />
+                </div>
+            </div>
+        </form>
+        {% if out %}
+        {{out}}
+        {% endif %}
+</body>
+
+</html>
