@@ -1,0 +1,14 @@
+{
+    "name": "saxpy",
+    "HW_ID": "vm",
+    "HW_price": null,
+    "hyperparams": [
+        {"ID": "var_0", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_1", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_2", "type": "int", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "time", "type": "float", "LB": null, "UB": null},
+        {"ID": "memory", "type": "float", "LB":null, "UB": null}
+    ]
+}

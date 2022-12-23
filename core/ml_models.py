@@ -1,13 +1,11 @@
 '''
-TEMP: maybe not needed.
 Class that handles operations that have to be carried out on the ML models.
-Alternative: make it model_utils.py and use functions instead of class!!!
 '''
 import os
 import pickle
 
 class MLModels():
-    def __init__(self, db, models_path) -> None:
+    def __init__(self, db, models_path):
         self.db = db
         self.models_path = models_path
 

@@ -1,19 +1,14 @@
 '''
 Class that handles operations that have to be carried out on the datasets.
-Alternative: make it data_utils.py and use functions instead of class!!!
-Alternative: make it data_utils.py and use functions instead of class!!!
-Alternative: make it data_utils.py and use functions instead of class!!!
-Alternative: make it data_utils.py and use functions instead of class!!!
-Alternative: make it data_utils.py and use functions instead of class!!!
 '''
 import os
 from collections import defaultdict
 import pandas as pd
-from optimization_request import OptimizationRequest
+from core.optimization_request import OptimizationRequest
 
 
 class Datasets():
-    def __init__(self, db, data_path) -> None:
+    def __init__(self, db, data_path):
         self.db = db
         self.data_path = data_path
 
@@ -22,7 +17,7 @@ class Datasets():
         dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
         dataset = pd.read_csv(dataset_path)
 
-        # checking data consistency
+        # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw)
 
         return dataset
@@ -44,7 +39,7 @@ class Datasets():
     def extract_var_bounds(self, request: OptimizationRequest):
         '''
         Compute upper and lower bounds of each variable.
-        TODO: if UB/LB specified in configs, use that instead of extracting from data.
+        If UB/LB specified in configs, use that instead of extracting from data.
         
         PARAMETERS
         ---------
@@ -98,49 +93,6 @@ class Datasets():
                           for var in lb_per_var}
             return var_bounds
         
-    def extract_var_bounds_old(self, request: OptimizationRequest):
-        '''
-        Compute upper and lower bounds of each variable.
-        TODO: if UB/LB specified in configs, use that instead of extracting from data.
-        
-        PARAMETERS
-        ---------
-        request [OptimizationRequest]: request for which we want to extract variable bounds
-
-        RETURN
-        ------
-        var_bounds [pd.DataFrame]: a frame with lower/upper bound for each variable
-        '''
-
-
-        bounds_min = {}
-        bounds_max = {}
-
-        for hw in self.db.get_hws(request.algorithm):
-            
-            dataset = self.get_dataset(request.algorithm, hw)
-            bounds_min[hw] = dataset.min()
-            bounds_max[hw] = dataset.max()
-
-        var_bounds = pd.DataFrame({
-                "min" : pd.DataFrame(bounds_min).transpose().min(), 
-                "max" : pd.DataFrame(bounds_max).transpose().max()
-                })
-
-        # Why? Algo-specific I guess...
-        #for i in range(len(self.db.get_hyperparams(request.algorithm))):
-        #    var_bounds.loc["var_" + str(i), "max"] = 53
-
-        
-        # This is in the case prices are mandatory in configs
-        # in case they can be null, users can define them, logic has to be different
-        #prices = self.db.get_prices(request.algorithm)
-
-        prices = request.hws_prices.get_prices_per_hw().values()
-        var_bounds = var_bounds.append(pd.DataFrame(
-            {"min": [min(prices)], "max": [max(prices)]}, 
-            index = ["price"]))
-        return var_bounds
 
     def extract_robust_coeff(self, models, request):
         
@@ -175,3 +127,47 @@ class Datasets():
         else:
             return None 
 
+
+#def extract_var_bounds_old(self, request: OptimizationRequest):
+#    '''
+#    Compute upper and lower bounds of each variable.
+#    TODO: if UB/LB specified in configs, use that instead of extracting from data.
+#    
+#    PARAMETERS
+#    ---------
+#    request [OptimizationRequest]: request for which we want to extract variable bounds
+#
+#    RETURN
+#    ------
+#    var_bounds [pd.DataFrame]: a frame with lower/upper bound for each variable
+#    '''
+#
+#
+#    bounds_min = {}
+#    bounds_max = {}
+#
+#    for hw in self.db.get_hws(request.algorithm):
+#        
+#        dataset = self.get_dataset(request.algorithm, hw)
+#        bounds_min[hw] = dataset.min()
+#        bounds_max[hw] = dataset.max()
+#
+#    var_bounds = pd.DataFrame({
+#            "min" : pd.DataFrame(bounds_min).transpose().min(), 
+#            "max" : pd.DataFrame(bounds_max).transpose().max()
+#            })
+#
+#    # Why? Algo-specific I guess...
+#    #for i in range(len(self.db.get_hyperparams(request.algorithm))):
+#    #    var_bounds.loc["var_" + str(i), "max"] = 53
+#
+#    
+#    # This is in the case prices are mandatory in configs
+#    # in case they can be null, users can define them, logic has to be different
+#    #prices = self.db.get_prices(request.algorithm)
+#
+#    prices = request.hws_prices.get_prices_per_hw().values()
+#    var_bounds = var_bounds.append(pd.DataFrame(
+#        {"min": [min(prices)], "max": [max(prices)]}, 
+#        index = ["price"]))
+#    return var_bounds

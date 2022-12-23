@@ -1,0 +1,18 @@
+{
+    "name": "correlation",
+    "HW_ID": "g100",
+    "HW_price": null,
+    "hyperparams": [
+        {"ID": "var_0", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_1", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_2", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_3", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_4", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_5", "type": "int", "LB": null, "UB": null},
+        {"ID": "var_6", "type": "int", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "time", "type": "float", "LB": null, "UB": null},
+        {"ID": "memory", "type": "float", "LB":null, "UB": null}
+    ]
+}

@@ -3,7 +3,6 @@ Class to operate with the JSON configs related to (algorithm, HW) couples.
 """
 import os
 import json
-from collections import defaultdict
 
 class ConfigDB():
     def __init__(self, path):
@@ -17,7 +16,7 @@ class ConfigDB():
         #                    'var_1': {'type': 'int', 'LB': None, 'UB': None}},
         #    'targets': {'time': {'type': 'float', 'LB': None, 'UB': None},
         #                'memory': {'type': 'float', 'LB': None, 'UB': None}},
-        #    'HWs': {'vm': None,
+        #    'hws': {'vm': None,
         #            'pc': None, 
         #            'g100': None}
         #}
@@ -42,49 +41,49 @@ class ConfigDB():
                             for target in config['targets']}
 
 
-            # checking consistency across HWs for a given algorithm
+            # checking consistency across hws for a given algorithm
             if config['name'] not in self.db:
                 self.db[config['name']] = {'hyperparams': hyperparams,
                                            'targets': targets,
-                                           'HWs': {config['HW_ID']: config['HW_price']}}
+                                           'hws': {config['HW_ID']: config['HW_price']}}
             else:
-                # checking consistency of hyperparameters across HWs for a given algorithm
+                # checking consistency of hyperparameters across hws for a given algorithm
                 if self.db[config['name']]['hyperparams'] != hyperparams:
-                    raise AttributeError(f'Hyperparameters not matching for algorithm {config["name"]} on different HWs.')
-                # checking consistency of targets across HWs for a given algorithm
+                    raise AttributeError(f'Hyperparameters not matching for algorithm {config["name"]} on different hws.')
+                # checking consistency of targets across hws for a given algorithm
                 if self.db[config['name']]['targets'] != targets:
-                    raise AttributeError(f'Targets not matching for algorithm {config["name"]} on different HWs.')
+                    raise AttributeError(f'Targets not matching for algorithm {config["name"]} on different hws.')
 
                 # TODO (eventually): check consistency of HW prices (suggested in config) for a given HW across all algorithms.
 
-                # just adding the new HW and its price, the rest must be the same across HWs for the given algorithm.
-                self.db[config['name']]['HWs'][config['HW_ID']] = config['HW_price']
+                # just adding the new HW and its price, the rest must be the same across hws for the given algorithm.
+                self.db[config['name']]['hws'][config['HW_ID']] = config['HW_price']
 
-    def get_algorithms(self) -> list[str]:
+    def get_algorithms(self):
         '''Get list of all available algorithms.'''
         return list(self.db.keys())
 
-    def get_hyperparams(self, algorithm) -> list[str]:
+    def get_hyperparams(self, algorithm):
         '''Get list of hyperparameters for a given algorithm.'''
         return list(self.db[algorithm]['hyperparams'].keys())
 
-    def get_targets(self, algorithm) -> list[str]:
+    def get_targets(self, algorithm):
         '''Get list of targets for a given algorithm.'''
         return list(self.db[algorithm]['targets'].keys())
 
-    def get_hws(self, algorithm) -> list[tuple[str, float]]:
+    def get_hws(self, algorithm):
         '''Get list of hardware platforms for a given algorithm.'''
-        return list(self.db[algorithm]['HWs'].keys())
+        return list(self.db[algorithm]['hws'].keys())
 
-    def get_prices(self, algorithm) -> list[tuple[str, float]]:
+    def get_prices(self, algorithm):
         '''Get list of hardware prices for a given algorithm.'''
-        return list(self.db[algorithm]['HWs'].values())
+        return list(self.db[algorithm]['hws'].values())
 
-    def get_hws_and_prices(self, algorithm) -> list[tuple[str, float]]:
-        '''Get list of (HW_name, price) for all HWs found for a given algorithm.'''
-        return list(self.db[algorithm]['HWs'].items())
+    def get_hws_and_prices(self, algorithm):
+        '''Get list of (HW_name, price) for all hws found for a given algorithm.'''
+        return list(self.db[algorithm]['hws'].items())
 
-    def get_lb_per_var(self, algorithm) -> dict[str,float]:
+    def get_lb_per_var(self, algorithm):
         '''Get LBs for all variables (hyperparameters and targets).'''
         lb_per_var = {}
 
@@ -96,7 +95,7 @@ class ConfigDB():
 
         return lb_per_var
 
-    def get_ub_per_var(self, algorithm) -> dict[str,float]:
+    def get_ub_per_var(self, algorithm):
         '''Get UBs for all variables (hyperparameters and targets).'''
         ub_per_var = {}
 
@@ -117,8 +116,7 @@ class ConfigDB():
             # checking hardware
             if type(config['HW_ID']) is not str:
                 AttributeError('Hardware platform name must be a string')
-            print(config['HW_price'])
-            print(type(config['HW_price']))
+
             if config['HW_price'] is not None and type(config['HW_price']) not in [int, float]:
                     raise AttributeError("Hardware platform price must be a number or None")
 
@@ -126,7 +124,6 @@ class ConfigDB():
             for hyperparam in config['hyperparams']:
                 if type(hyperparam['ID']) is not str:
                     raise AttributeError(f'ID of hyperparameters must be strings')
-                    #raise AttributeError(f'ID of hyperparameters must be strings; config: {fname}')
 
                 if hyperparam['type'] not in ['int', 'float']:
                     raise AttributeError("Hyperparameter type must be 'int' or 'float'")
@@ -151,12 +148,3 @@ class ConfigDB():
         except AttributeError as e:
             print(f'Error in {fname}')
             raise e
-
-
-    #def _is_consistent_hws(self, algorithm) -> bool:
-    #    '''Checking for consistency across HW configurations for a given algorithm.'''
-    #    pass
-
-    #def _is_data_valid(self, algorithm) -> bool:
-    #    '''Checking if data follows what described in the corresponding config.'''
-    #    pass

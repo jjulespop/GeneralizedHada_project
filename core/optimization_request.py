@@ -13,7 +13,7 @@ class OptimizationRequest():
                  opt_type,
                  robustness_fact,
                  user_constraints,
-                 hws_prices) -> None:
+                 hws_prices):
 
         if algorithm not in db.get_algorithms():
             raise AttributeError(f'Algorithm {algorithm} not available.')
@@ -42,24 +42,6 @@ class OptimizationRequest():
         if not isinstance(hws_prices, HardwarePrices):
             raise AttributeError("Hardware prices must be specified via HardwarePrices class.")
         self.hws_prices = hws_prices
-
-    #def submit():
-    #    '''Calls HADA by passing the validated arguments'''
-    #    
-    #    # TODO
-    #    # need to handle ML model(s); load for all hws for that algorithm. If models are not present -> do something
-    #    #ml_models = ...
-    #    # need to handle var_bounds
-    #    #var_bounds = ...
-    #    # need to handle robust coeff
-    #    #robust_coeff = ...
-    #    # log is an UI thing, can be external. HADA will return a Solution object of some sort.
-
-    #    # current
-    #    #x = HADA(self.algorithm, self.target, self.opt_type, self.user_constraints)
-    #    # og
-    #    #x = HADA(algorithm, objective, user_constraint, price, var_bounds, mlmodel_files, export_log=False, robust_coeff=None):
-    #    pass
 
 
 class UserConstraints():
@@ -91,8 +73,7 @@ class UserConstraints():
         return self.constraints
 
 class HardwarePrices():
-    """TODO... Class that represents the chosen price for each hw platform (algorithm-specific). Arguments are checked.
-       IDEA:"""
+    """Class that represents the chosen price for each hw platform (algorithm-specific). Arguments are checked."""
     def __init__(self, configdb, algorithm) -> None:
 
         self.db = configdb

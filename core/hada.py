@@ -3,8 +3,8 @@ from eml.backend import cplex_backend
 from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
 from docplex.mp.model_reader import ModelReader
-from configdb import ConfigDB
-from solution import OptimizationSolution
+from core.configdb import ConfigDB
+from core.solution import OptimizationSolution
 #response =
 
 def HADA(db: ConfigDB,
@@ -14,7 +14,8 @@ def HADA(db: ConfigDB,
         robust_coeff):
     '''
     TODO: handle integer and continous vars both for targets and hyperparams (based on the declared "type")
-    TODO: hyperparams are not necessarily called "var_{i}" anymore
+    TODO: hyperparams are not necessarily called "var_{i}" anymore -> Done
+
     Implement HADA:
         1. Declare variables and basic constraints
         2. Embed predictive models 
@@ -155,39 +156,15 @@ def HADA(db: ConfigDB,
     
     solution = None
     if sol:
-        hyperparams_values = {hyperparam: sol[f"var_{hyperparam}"] for hyperparam in hyperparams}
         for hw in hws:
             if sol[f'b_{hw}'] == 1:
                 chosen_hw = hw
                 break
         targets_values = {target:sol[f"y_{chosen_hw}_{target}"] for target in targets + ['price']} 
+        hyperparams_values = {hyperparam: sol[f"var_{hyperparam}"] for hyperparam in hyperparams}
 
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
         solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values)
 
-    return solution, mdl
-
-    #solution = {}
-
-    #hw_vars = {}
-    #hyperparam_vars = {}
-    #target_vars_per_hw = defaultdict(dict)
-
-    ####### MODEL #######
-    #hw_sol = {hw:sol[f"b_{hw}"] for hw in db.get_hws(request.algorithm)}
-    #hyparparams_sol = {hyperparam: sol[f"var_{hyperparam}"] for hyperparam in hyperparams}
-    #targets_sol_per_hw = {hw:{target:sol[f"y_{hw}_{target}"] for target in targets} for hw in hws}
-    #for var in DECLARED_VARS:
-    #    if var.startswith('b_'):
-    #        clean_name = var[2:]
-    #        hw_vars[clean_name] = sol[var]
-    #    elif var.startswith('var_'):
-    #        clean_name = var[4:]
-    #        hyperparam_vars[clean_name] = sol[var]
-    #    elif var.startswith('y_'):
-    #        clean_name = var[4:]
-    #        hyperparam_vars[clean_name] = sol[var]
-    #        elif var.startswith('var_')
-    #for var in variables:
-    #    if var.startswith('b_') and variables[var] == 1:
-    #        solution['hw'] = var[2:]
+    #return solution, mdl
+    return solution

@@ -1,7 +1,7 @@
-from configdb import ConfigDB
+from core.configdb import ConfigDB
 
 if __name__ == '__main__':
-    path = '../algorithms/configs'
+    path = './algorithms/configs'
     
     db = ConfigDB(path)
     #print(db.fnames)
@@ -9,6 +9,7 @@ if __name__ == '__main__':
     print(db.get_algorithms())
     print(db.get_hyperparams('fwt'))
     print(db.get_targets('fwt'))
-    print(db.get_HWs('fwt'))
+    print(db.get_hws('fwt'))
     print(db.get_prices('fwt'))
-    print(db.get_HWs_and_prices('fwt'))
+    print(db.get_hws_and_prices('fwt'))
+    # ...
