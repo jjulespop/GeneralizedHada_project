@@ -97,7 +97,11 @@
                     </select>
                 </div>
                 <div class="column column-80">
-                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="None">
+                    {% if target|lower=='price' %}
+                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
+                    {% else %}
+                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="[{{lb_per_var[target]}},{{ub_per_var[target]}}]">
+                    {% endif %}
                 </div>
                 </br>
             </div>
@@ -124,8 +128,41 @@
                 </div>
             </div>
         </form>
-        {% if out %}
+        <!--{% if out %}
         {{out}}
+        {% endif %}-->
+
+        {% if out %}
+        {% if out is string %}
+        <div class="row">
+            <h4>{{out}}</h4>
+        </div>
+        {% else %}
+        <div class="row">
+            <h4>Solution</h4>
+        </div>
+
+        <div class="row">
+            <div class="center">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for k in out.keys() %}
+                            <th>{{k}}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for v in out.values() %}
+                            <td>{{v}}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
         {% endif %}
 </body>
 

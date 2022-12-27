@@ -1,13 +1,13 @@
 {
     "name": "mockalgo1",
-    "HW_ID": "fantasy_hw",
+    "HW_ID": "fantasy",
     "HW_price": 80,
     "hyperparams": [
-        {"ID": "a", "type": "int", "LB": 20, "UB": null},
-        {"ID": "b", "type": "int", "LB": null, "UB": 30}
+        {"ID": "a", "type": "int", "LB": 20, "UB": 40},
+        {"ID": "b", "type": "int", "LB": 20, "UB": 30}
     ],
     "targets": [
-        {"ID": "Truthfulness", "type": "float", "LB": null, "UB": null},
-        {"ID": "Niceness", "type": "float", "LB":null, "UB": null}
+        {"ID": "Truthfulness", "type": "float", "LB": 50, "UB": 60},
+        {"ID": "Niceness", "type": "float", "LB":0, "UB": 1}
     ]
 }

@@ -15,6 +15,9 @@ class Datasets():
 
     def get_dataset(self, algorithm, hw):
         dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
+        if not os.path.exists(dataset_path):
+            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
+
         dataset = pd.read_csv(dataset_path)
 
         # checking if data complies to configs
@@ -37,26 +40,25 @@ class Datasets():
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
         
 
-    def extract_var_bounds(self, request: OptimizationRequest):
+    def extract_var_bounds(self, algorithm):
         '''
         Compute upper and lower bounds of each variable.
         If UB/LB specified in configs, use that instead of extracting from data.
         
         PARAMETERS
         ---------
-        request [OptimizationRequest]: request for which we want to extract variable bounds
+        algorithm [str]: algorithm for which we want to extract variable bounds
 
         RETURN
         ------
         var_bounds [pd.DataFrame]: a frame with lower/upper bound for each variable
         '''
-
         # check if both UB and LB are specified in the configs
         # otherwise add to "missing_bounds"; if any extract from data and calculate those
 
         # retrieving LBs/UBs from configs
-        lb_per_var = self.db.get_lb_per_var(request.algorithm)
-        ub_per_var = self.db.get_ub_per_var(request.algorithm)
+        lb_per_var = self.db.get_lb_per_var(algorithm)
+        ub_per_var = self.db.get_ub_per_var(algorithm)
 
         # handling non-specified bounds by extracting them from data
         lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None]
@@ -71,9 +73,9 @@ class Datasets():
             all_mins_per_var = defaultdict(list)
             all_maxes_per_var = defaultdict(list)
 
-            for hw in self.db.get_hws(request.algorithm):
+            for hw in self.db.get_hws(algorithm):
             
-                dataset = self.get_dataset(request.algorithm, hw)
+                dataset = self.get_dataset(algorithm, hw)
 
                 for var in lb_missing_vars:
                     all_mins_per_var[var].append(dataset[var].min())
@@ -81,21 +83,25 @@ class Datasets():
                     all_maxes_per_var[var].append(dataset[var].max())
 
             for var in lb_missing_vars:
-                lb_per_var[var] = min(all_mins_per_var[var])
+                lb_per_var[var] = min(all_mins_per_var[var]).item()
             for var in ub_missing_vars:
-                ub_per_var[var] = max(all_maxes_per_var[var])
+                ub_per_var[var] = max(all_maxes_per_var[var]).item()
 
+        return lb_per_var, ub_per_var
 
-            # Adding price UB and LB
-            lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
-            ub_per_var['price'] = max(request.hws_prices.get_prices_per_hw().values())
+    def get_var_bounds_all(self, request: OptimizationRequest):
+        '''Includes variables available only after request: price.'''
 
-            var_bounds = {var: {'lb':lb_per_var[var], 'ub':ub_per_var[var]}
-                          for var in lb_per_var}
-            return var_bounds
+        lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
+
+        lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
+        ub_per_var['price'] = max(request.hws_prices.get_prices_per_hw().values())
+
+        var_bounds = {var: {'lb':lb_per_var[var], 'ub':ub_per_var[var]}
+                        for var in lb_per_var}
+        return var_bounds
         
-
-    def extract_robust_coeff(self, models, request):
+    def get_robust_coeff(self, models, request):
         
         '''
         Compute robustness coefficients for each predictive model, according to the specified robustness factor
