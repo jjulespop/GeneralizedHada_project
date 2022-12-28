@@ -7,7 +7,7 @@
         {"ID": "b", "type": "int", "LB": 20, "UB": 30}
     ],
     "targets": [
-        {"ID": "Truthfulness", "type": "float", "LB": 50, "UB": 60},
-        {"ID": "Niceness", "type": "float", "LB":0, "UB": 1}
+        {"ID": "truthfulness", "type": "float", "LB": 50, "UB": 60},
+        {"ID": "niceness", "type": "float", "LB":0, "UB": 1}
     ]
 }
