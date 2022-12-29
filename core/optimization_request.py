@@ -1,9 +1,3 @@
-# Probably not needed, just give the request parameters to the "hada" function instead of passing a request? The only thing this does is check for validity
-# Class for a generic optimization request
-# Checks if the request is valid by consulting the config database.
-
-# New life for the class:
-# Represents the request and has a submit() functio that calls HADA internally. Some kind of response is returned.
 class OptimizationRequest():
     """Class that represents and handles an optimization request for HADA. Arguments are checked."""
     def __init__(self,

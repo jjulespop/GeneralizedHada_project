@@ -72,12 +72,13 @@ Request (example):
 curl -X POST -H 'Content-Type: application/json' -d 
 '{"algorithm":"correlation",
   "objective": {"target":"memory", "type": "min"},
-   constraints: [
-    {'target': 'time', 'type': 'leq', value: 120},
+  "robustness_fact": null,
+  "constraints": [
+    {'target': "time", "type": "leq", "value": 120},
     ...
    ],
-   prices: [
-    {'hw':'pc', price: 30},
+   "prices": [
+    {"hw":"pc", "price": 30},
     ...
    ]
    }'
