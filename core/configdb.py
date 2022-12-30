@@ -8,7 +8,7 @@ class ConfigDB():
     def __init__(self, path):
         
         # scan path
-        self.fnames = [os.path.join(path, fname) for fname in os.listdir(path)]
+        self.fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
 
         # dictionary with the name of algorithms as keys and values structured like this:
         #{
@@ -81,11 +81,8 @@ class ConfigDB():
         return list(self.db[algorithm]['hws'].values())
 
     def get_prices_per_hw(self, algorithm):
-        #'''Get list of (HW_name, price) for all hws found for a given algorithm.'''
-        #return list(self.db[algorithm]['hws'].items())
         '''Get dict HW_name:price for all hws found for a given algorithm.'''
-        return {hw:price for hw,price in self.db[algorithm]['hws'].items()}
-
+        return self.db[algorithm]['hws']
 
     def get_lb_per_var(self, algorithm):
         '''Get LBs for all variables (hyperparameters and targets).'''

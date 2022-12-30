@@ -2,11 +2,28 @@
 
 Repository for development of the new (generalized) HADA version.
 
-For execution requirements.txt + CPLEX/docplex installation should suffice.
+## Web Service
+### Requirements
+#### Docker
+Docker needs to be installed on the system.
+#### CPLEX
+CPLEX is required, it can be obtained [here](https://www.ibm.com/products/ilog-cplex-optimization-studio) (free for academic use).
+Docker can build the image once the file `cplex_studio2210.linux_x86_64.bin` is placed in the main directory and the execution permissions are granted with:
+```
+chmod +x cplex_studio2210.linux_x86_64.bin
+```
 
-## API usage
+### Launching the demo
+Once the requirements are satisfied, the demo can be launched with:
+```
+sudo docker compose up
+```
 
-### Get list of algorithms
+Once everything is completed, the service can be found at `localhost:5000`.
+
+### API usage
+
+#### Get list of algorithms
 Route: `http://localhost:5000/algorithms`
 
 `GET` request.
@@ -25,7 +42,7 @@ Response (example):
 ```
 
 
-### Get informations about an algorithm
+#### Get informations about an algorithm
 Route: `http://localhost:5000/algorithms/<algorithm>`
 
 `GET` request.

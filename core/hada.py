@@ -5,7 +5,6 @@ from eml.tree import embed
 from docplex.mp.model_reader import ModelReader
 from core.configdb import ConfigDB
 from core.solution import OptimizationSolution
-#response =
 
 def HADA(db: ConfigDB,
         request,
@@ -40,13 +39,8 @@ def HADA(db: ConfigDB,
     targets = db.get_targets(request.algorithm)
     hyperparams = db.get_hyperparams(request.algorithm)
     n_hyperparams = len(hyperparams)
-    #n_hyperparams = len(db.get_hyperparams(request.algorithm))
 
     ####### MODEL #######
-    #ALL_VARS = [f"b_{hw}" for hw in db.get_hws(request.algorithm)] + \
-    #           [f"y_{hw}_{target}" for hw in hws for target in targets + ['price']] + \
-    #           [f"var_{hyperparam}" for hyperparam in hyperparams]
-    #           #[f"var_{i}" for i in range(n_hyperparams)]
     DECLARED_VARS = []
 
     ####### VARIABLES #######
@@ -59,7 +53,7 @@ def HADA(db: ConfigDB,
     # TODO: should we represent here all continous vars (either hyperparams or targets)?
     # TODO: should we represent here all continous vars (either hyperparams or targets)?
     # TODO: should we represent here all continous vars (either hyperparams or targets)?
-    for target in set(list(request.user_constraints.get_constraints()) + [request.target, 'price']):
+    for target in targets:
         for hw in hws:
             mdl.continuous_var(name = f"y_{hw}_{target}", 
                                lb = var_bounds[target]['lb'],
@@ -94,7 +88,7 @@ def HADA(db: ConfigDB,
                 ctname = f"var_{hyperparam}_integrality_constraint")
     
     # Empirical Constraints: embed the predictive models into the system (through emllib)
-    for target in set(list(request.user_constraints.get_constraints()) + [request.target]):
+    for target in targets:
         # target price is not predicted, but indicated by the hw provider: it does not require any
         # dedicated predictive model
         if target == "price": 
@@ -118,7 +112,9 @@ def HADA(db: ConfigDB,
     # Handling non-estimated target (price) and robustness coefficients: 
     # 1.Equality constraints, fixing each price variable y_hw_price to the usage price of the corresponding hw,
     # as required by the hw provider
-    for target in set(list(request.user_constraints.get_constraints()) + [request.target]):
+    for target in targets:
+        if target == 'price':
+            continue
         for hw in hws: 
             mdl.add_constraint(mdl.get_var_by_name(f"y_{hw}_price") == request.hws_prices.get_prices_per_hw()[hw],
                                ctname = f"{hw}_price")
