@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     db = ConfigDB(configs_path)
     datasets = Datasets(db, data_path)
-    models = MLModels(db, models_path)
+    models = MLModels(db, data_path, models_path)
 
 
     ##### Preparing a request #####
@@ -35,10 +35,10 @@ if __name__ == '__main__':
 
     ##### Handling datasets and models #####
     # extracting info from datasets
-    var_bounds = datasets.extract_var_bounds(request)
+    var_bounds = datasets.get_var_bounds_all(request)
     print(var_bounds)
 
-    robust_coeff = datasets.extract_robust_coeff(models, request)
+    robust_coeff = datasets.get_robust_coeff(models, request)
     print(robust_coeff)
 
 

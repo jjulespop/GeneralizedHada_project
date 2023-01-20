@@ -19,8 +19,10 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # Init HADA
 # ==============================================================================
 db = ConfigDB('algorithms/configs')
-datasets = Datasets(db, 'algorithms/data')
-models = MLModels(db, 'algorithms/models')
+data_path = 'algorithms/data'
+models_path = 'algorithms/models'
+datasets = Datasets(db, data_path)
+models = MLModels(db, data_path, models_path)
 
 # ==============================================================================
 # Utility functions
@@ -71,7 +73,7 @@ def parse_request_json(data):
             {'target': 'time', 'type': 'leq', value: 120},
             ...
         ],
-        prices: [
+        price_per_hw: [
             {'hw':'pc', price: 30},
             ...
         ]

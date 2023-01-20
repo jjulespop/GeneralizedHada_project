@@ -5,11 +5,15 @@ import os
 import pickle
 import time
 from multiprocessing import Process, Manager
+from sklearn.tree import DecisionTreeRegressor
+from core.datasets import Datasets
 
 class MLModels():
-    def __init__(self, db, models_path):
+    def __init__(self, db, data_path, models_path):
         self.db = db
         self.models_path = models_path
+        self.data_path = data_path
+        self.datasets = Datasets(self.db, self.data_path)
 
         # tracking state about (algorithm, hw, target) that are currently being trained
         self.ongoing_training = Manager().dict()
@@ -24,27 +28,45 @@ class MLModels():
             if (algorithm, hw, target) in self.ongoing_training:
                 raise Exception(f'Model for ({algorithm}, {hw}, {target}) training is ongoing. Come back later.')
             else:
-                self.ongoing_training[(algorithm, hw, target)] = True
                 # launching training in background
+                dataset = self.datasets.get_dataset(algorithm, hw)
+                self.ongoing_training[(algorithm, hw, target)] = True
                 p = Process(target=self.__run_training, args=(algorithm, 
                                                               hw,
-                                                              target))
+                                                              target,
+                                                              dataset))
                 p.start()
-                raise FileNotFoundError(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started. Come back later.')
+                #raise FileNotFoundError(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started. Come back later.')
+                # without the Exception, nothing is shown in the GUI, but multiple models can be trained in a single
+                # request, while still keeping all the training part incapsulated in "get_model"
+                print(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started.')
+                p.join()
+                del self.ongoing_training[(algorithm, hw, target)]
+                print(f'Finished training model for ({algorithm}, {hw}, {target}).')
+
 
         # model exists, load it
         model = pickle.load(open(model_path, 'rb'))
         return model
 
-    def __run_training(self, algorithm, hw, target):
-        '''Mock function. Training to be implemented. It also updates shared state about models that are being trained.'''
+    def __run_training(self, algorithm, hw, target, dataset):
+        '''Trains a Decision Tree and stores it with pickle.'''
+        #s = time.time()
         model_path = self.__get_model_path(algorithm, hw, target)
 
-        # mock training
-        time.sleep(15)
-        pickle.dump({'test':1}, open(model_path, 'wb'))
+        # filtering dataset for the specific hyperparams and target
+        hyperparams = self.db.get_hyperparams(algorithm)
+        X = dataset[hyperparams].values
+        y = dataset[[target]].values
 
-        print(f'Finished training model for ({algorithm}, {hw}, {target}).')
-        #print(ongoing_training)
-        del self.ongoing_training[(algorithm, hw, target)]
-        #print(ongoing_training)
+        # training the DT
+        dt = DecisionTreeRegressor(max_depth=10, random_state=42)
+        dt.fit(X, y)
+
+        # storing the DT
+        pickle.dump(dt, open(model_path, 'wb'))
+
+        #print(self.ongoing_training)
+        #print(f'Done in {time.time()-s}')
+        #del self.ongoing_training[(algorithm, hw, target)]
+        #print(self.ongoing_training)

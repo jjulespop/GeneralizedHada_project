@@ -13,8 +13,8 @@ Docker can build the image once the file `cplex_studio2210.linux_x86_64.bin` is 
 chmod +x cplex_studio2210.linux_x86_64.bin
 ```
 
-### Launching the demo
-Once the requirements are satisfied, the demo can be launched with:
+### Launching the service
+Once the requirements are satisfied, the service can be launched with:
 ```
 sudo docker compose up
 ```
@@ -94,7 +94,7 @@ curl -X POST -H 'Content-Type: application/json' -d
     {'target': "time", "type": "leq", "value": 120},
     ...
    ],
-   "prices": [
+   "price_per_hw": [
     {"hw":"pc", "price": 30},
     ...
    ]

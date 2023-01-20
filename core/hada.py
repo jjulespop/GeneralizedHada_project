@@ -4,7 +4,7 @@ from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
 from docplex.mp.model_reader import ModelReader
 from core.configdb import ConfigDB
-from core.solution import OptimizationSolution
+from core.optimization_request import OptimizationSolution
 
 def HADA(db: ConfigDB,
         request,

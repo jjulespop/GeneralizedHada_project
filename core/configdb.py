@@ -109,8 +109,8 @@ class ConfigDB():
         return ub_per_var
 
     def __check_json(self, fname, config):
-        # checking algorithm
         try:
+            # checking algorithm
             if type(config['name']) is not str:
                 AttributeError('Algorithm name must be a string')
 
