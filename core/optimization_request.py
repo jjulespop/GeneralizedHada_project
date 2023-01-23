@@ -78,7 +78,10 @@ class HardwarePrices():
         self.algorithm = algorithm
 
         # hw : price
-        self.__price_per_hw =  {}
+        # loading default values when specified
+        self.__price_per_hw =  {hw: price 
+                                for hw, price in self.db.get_prices_per_hw(self.algorithm).items()
+                                if price}
 
     def add_hw_price(self, hw, price):
         if hw not in self.db.get_hws(self.algorithm):
