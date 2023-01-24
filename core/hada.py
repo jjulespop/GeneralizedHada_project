@@ -7,10 +7,10 @@ from core.configdb import ConfigDB
 from core.optimization_request import OptimizationSolution
 
 def HADA(db: ConfigDB,
-        request,
-        models,
-        var_bounds,
-        robust_coeff):
+         request,
+         models,
+         var_bounds,
+         robust_coeff):
     '''
     TODO: handle integer and continous vars both for targets and hyperparams (based on the declared "type")
     TODO: hyperparams are not necessarily called "var_{i}" anymore -> Done
@@ -36,7 +36,7 @@ def HADA(db: ConfigDB,
     mdl = docplex.mp.model.Model("HADA")
 
     hws = db.get_hws(request.algorithm)
-    targets = db.get_targets(request.algorithm)
+    targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
     hyperparams = db.get_hyperparams(request.algorithm)
     n_hyperparams = len(hyperparams)
 
@@ -113,11 +113,10 @@ def HADA(db: ConfigDB,
     # 1.Equality constraints, fixing each price variable y_hw_price to the usage price of the corresponding hw,
     # as required by the hw provider
     for target in targets:
-        if target == 'price':
-            continue
-        for hw in hws: 
-            mdl.add_constraint(mdl.get_var_by_name(f"y_{hw}_price") == request.hws_prices.get_prices_per_hw()[hw],
-                               ctname = f"{hw}_price")
+        if 'price' in targets:
+            for hw in hws: 
+                mdl.add_constraint(mdl.get_var_by_name(f"y_{hw}_price") == request.hws_prices.get_prices_per_hw()[hw],
+                                ctname = f"{hw}_price")
 
     # 2. If no robustness is required, fix all coefficients to 0 
     if robust_coeff is None:

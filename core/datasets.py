@@ -94,8 +94,9 @@ class Datasets():
 
         lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
 
-        lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
-        ub_per_var['price'] = max(request.hws_prices.get_prices_per_hw().values())
+        if request.target == 'price' or 'price' in request.user_constraints.get_constraints():
+            lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
+            ub_per_var['price'] = max(request.hws_prices.get_prices_per_hw().values())
 
         var_bounds = {var: {'lb':lb_per_var[var], 'ub':ub_per_var[var]}
                         for var in lb_per_var}

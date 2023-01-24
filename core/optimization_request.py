@@ -87,6 +87,10 @@ class HardwarePrices():
         if hw not in self.db.get_hws(self.algorithm):
             raise AttributeError(f'Hardware platform {hw} not available for algorithm {self.algorithm}.')
 
+        # ignore if price is None
+        if price is None:
+            return
+
         if type(price) not in [float, int]:
             raise AttributeError("Price must be numerical.")
 
@@ -97,7 +101,7 @@ class HardwarePrices():
         hws = self.db.get_hws(self.algorithm)
 
         if not set(hws) == set(self.__price_per_hw.keys()):
-            raise AttributeError('Prices for all hardware platforms related to the algorithm must be specified.')
+            raise AttributeError("Prices for all hardware platforms related to the algorithm must be specified when the target is 'price' or 'price' is constrainted.")
         return self.__price_per_hw
 
 

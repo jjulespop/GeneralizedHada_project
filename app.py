@@ -28,7 +28,7 @@ models = MLModels(db, data_path, models_path)
 # Utility functions
 # ==============================================================================
 def run_hada(optimization_request):
-
+    
     var_bounds = datasets.get_var_bounds_all(optimization_request)
     robust_coeff = datasets.get_robust_coeff(models, optimization_request)
 
@@ -37,25 +37,35 @@ def run_hada(optimization_request):
 
 def parse_request_form(algorithm, form_dict):
 
-    def sanitize_float(x):
-        return None if x == '' else float(x)
+    #def sanitize_float(x):
+    #    return None if x == '' else float(x)
+    def sanitize_field(x):
+        if x == '':
+            return None
+        try:
+            x = float(x)
+        except ValueError as e:
+            pass
 
-    hws_prices = HardwarePrices(db, algorithm)
-    for hw in db.get_hws(algorithm):
-        hws_prices.add_hw_price(hw, sanitize_float(form_dict[f'price_{hw}']))
+        return x
 
     user_constraints = UserConstraints(db, algorithm)
     for target in db.get_targets(algorithm):
         if form_dict[f'constraint_{target}'] != '':
             user_constraints.add_constraint(target,
                                             form_dict[f'constraint_{target}_type'],
-                                            sanitize_float(form_dict[f'constraint_{target}']))
+                                            sanitize_field(form_dict[f'constraint_{target}']))
+
+    hws_prices = HardwarePrices(db, algorithm)
+    for hw in db.get_hws(algorithm):
+        price = sanitize_field(form_dict[f'price_{hw}'])
+        hws_prices.add_hw_price(hw, price)
 
     optimization_request = OptimizationRequest(db=db,
                                                algorithm=algorithm,
                                                target=form_dict['target'],
                                                opt_type=form_dict['objective_type'],
-                                               robustness_fact=sanitize_float(form_dict['robust_factor']),
+                                               robustness_fact=sanitize_field(form_dict['robust_factor']),
                                                user_constraints=user_constraints,
                                                hws_prices=hws_prices)
 
@@ -86,8 +96,9 @@ def parse_request_json(data):
                                         constraint['value'])
 
     hws_prices = HardwarePrices(db, data['algorithm'])
-    for hw_price in data['price_per_hw']:
-        hws_prices.add_hw_price(hw_price['hw'], hw_price['price'])
+    if 'price_per_hw' in data:
+        for hw_price in data['price_per_hw']:
+            hws_prices.add_hw_price(hw_price['hw'], hw_price['price'])
 
 
     optimization_request = OptimizationRequest(db=db,
