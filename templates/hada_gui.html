@@ -11,6 +11,10 @@
     <title>HADA (demo)</title>
 
     <style>
+        div.hidden {
+            display: none;
+        }
+
         div.center {
             margin-left: auto;
             margin-right: auto;
@@ -22,14 +26,36 @@
     </style>
 
     <script>
+        //Show prices form
+        show_prices = () => {document.querySelector('#prices_form').style.display='block'}
+        //Hide prices form
+        hide_prices = () => {document.querySelector('#prices_form').style.display='none'}
+        
+        //Handles when to show the prices form
+        prices_form_handler = () => {
+            price_value = document.getElementById('constraint_price');
+            target = document.querySelector('#target');
+
+            if (price_value.value.length > 0 || target.value == 'price')
+                show_prices();
+            else
+                hide_prices();
+        }
+
         window.onload = function() {
             dropdown = document.querySelector('#algorithm');
+            price_constraint = document.querySelector('#constraint_price');
+            target = document.querySelector('#target');
 
+            //Algorithm menu handler
             dropdown.addEventListener('change', function() {
                 const form = document.querySelector('#select_algorithm_form');
                 form.submit();
-
-            })
+            });
+        
+            // Handling prices form
+            target.addEventListener('change', prices_form_handler);
+            price_constraint.addEventListener('input', prices_form_handler);
         };
     </script>
 
@@ -107,20 +133,24 @@
             </div>
             {% endfor %}
 
-            <div class="row">
-                <h4>Prices</h4>
-            </div>
+            <div id="prices_form" class="hidden">
+                <div class="row">
+                    <h4>Prices</h4>
+                    <br/>
+                </div>
 
-            {% for hw, price in price_per_hw.items() %}
-            <div class="row">
-                <div class="column column-10">
-                    <label class="label-inline">{{hw}}</label><br />
+                <p><b>Disclaimer</b>: prices for the hardware platforms are relevant only if the price is constrainted and/or the target of the optimization.</p>
+                {% for hw, price in price_per_hw.items() %}
+                <div class="row">
+                    <div class="column column-10">
+                        <label class="label-inline">{{hw}}</label><br />
+                    </div>
+                    <div class="column column-90">
+                        <input type="text" name="price_{{hw}}" id="price_{{hw}}" value="{{price if price else ''}}"><br />
+                    </div>
                 </div>
-                <div class="column column-90">
-                    <input type="text" name="price_{{hw}}" id="price_{{hw}}" value="{{price if price else ''}}"><br />
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
 
             <div class="row">
                 <div class="center">
