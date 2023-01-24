@@ -1,6 +1,3 @@
-"""
-Class to operate with the JSON configs related to (algorithm, HW) couples.
-"""
 import os
 import json
 
@@ -31,13 +28,15 @@ class ConfigDB():
 
             # internal db structure
             hyperparams = {hyperparam['ID']: {'type': hyperparam['type'],
-                                                'LB': hyperparam['LB'],
-                                                'UB': hyperparam['UB']}
+                                              'description': hyperparam['description'],
+                                              'LB': hyperparam['LB'],
+                                              'UB': hyperparam['UB']}
                             for hyperparam in config['hyperparams']}
 
             targets = {target['ID']: {'type': target['type'],
-                                                'LB': target['LB'],
-                                                'UB': target['UB']}
+                                      'description': target['description'],
+                                      'LB': target['LB'],
+                                      'UB': target['UB']}
                             for target in config['targets']}
 
 
@@ -55,6 +54,7 @@ class ConfigDB():
                     raise AttributeError(f'Targets not matching for algorithm {config["name"]} on different hws.')
 
                 # TODO (eventually): check consistency of HW prices (suggested in config) for a given HW across all algorithms.
+                # Not needed; prices could be different for same hw and different algorithms (e.g. different contracts) 
 
                 # just adding the new HW and its price, the rest must be the same across hws for the given algorithm.
                 self.db[config['name']]['hws'][config['HW_ID']] = config['HW_price']
@@ -107,6 +107,18 @@ class ConfigDB():
             ub_per_var[var] = self.db[algorithm]['targets'][var]["UB"]
 
         return ub_per_var
+    
+    def get_description_per_var(self, algorithm):
+        """Get description for all variables (hyperparameters and targets)."""
+        description_per_var = {}
+
+        for var in self.db[algorithm]['hyperparams']:
+            description_per_var[var] = self.db[algorithm]['hyperparams'][var]["description"]
+
+        for var in self.db[algorithm]['targets']:
+            description_per_var[var] = self.db[algorithm]['targets'][var]["description"]
+
+        return description_per_var
 
     def __check_json(self, fname, config):
         try:
@@ -126,6 +138,9 @@ class ConfigDB():
                 if type(hyperparam['ID']) is not str:
                     raise AttributeError(f'ID of hyperparameters must be strings')
 
+                if hyperparam['description'] is not None and type(hyperparam['description']) is not str:
+                    raise AttributeError("Hyperparameter description must be a string")
+
                 if hyperparam['type'] not in ['int', 'float']:
                     raise AttributeError("Hyperparameter type must be 'int' or 'float'")
 
@@ -139,6 +154,9 @@ class ConfigDB():
                 if type(target['ID']) is not str:
                     raise AttributeError(f'ID of targets must be strings; config: {fname}')
 
+                if target['description'] is not None and type(target['description']) is not str:
+                    raise AttributeError("Target description must be a string")
+
                 if target['type'] not in ['int', 'float']:
                     raise AttributeError("Targets type must be 'int' or 'float'")
 
@@ -146,6 +164,7 @@ class ConfigDB():
                     raise AttributeError("Targets upper bound must be a number or None")
                 if target['LB'] is not None and type(target['LB']) not in [int, float]:
                     raise AttributeError("Targets lower bound must be a number or None")
+
         except AttributeError as e:
             print(f'Error in {fname}')
             raise e

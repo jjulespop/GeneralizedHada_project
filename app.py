@@ -147,11 +147,13 @@ def hada_gui():
 
         # rendering
         lb_per_var, ub_per_var = datasets.extract_var_bounds(session['last_selected_algo'])
+        description_per_var = db.get_description_per_var(session['last_selected_algo'])
         rendering_kwargs = {'algorithms': db.get_algorithms(),
                             'targets': db.get_targets(session['last_selected_algo']),
                             'price_per_hw': db.get_prices_per_hw(session['last_selected_algo']),
                             'lb_per_var': lb_per_var,
-                            'ub_per_var': ub_per_var}
+                            'ub_per_var': ub_per_var,
+                            'description_per_var': description_per_var}
         session['last_rendering_kwargs'] = rendering_kwargs
 
     except Exception as e:
@@ -179,17 +181,21 @@ def get_algo_info(algorithm):
 
     hyperparams = db.get_hyperparams(algorithm)
     targets = db.get_targets(algorithm)
+    description_per_var = db.get_description_per_var(algorithm)
     lb_per_var, ub_per_var = datasets.extract_var_bounds(algorithm)
     lb_per_var['price'] = None
     ub_per_var['price'] = None
+    description_per_var['price'] = None
 
     
-    hyperparams_with_bounds = {hyperparam: {'lb': lb_per_var[hyperparam],
-                                            'ub': ub_per_var[hyperparam]}
+    hyperparams_with_bounds_and_desc = {hyperparam: {'description': description_per_var[hyperparam],
+                                                     'lb': lb_per_var[hyperparam],
+                                                     'ub': ub_per_var[hyperparam]}
                                for hyperparam in hyperparams}
 
-    targets_with_bounds = {target: {'lb': lb_per_var[target],
-                                    'ub': ub_per_var[target]} 
+    targets_with_bounds_and_desc = {target: {'description': description_per_var[target],
+                                             'lb': lb_per_var[target],
+                                             'ub': ub_per_var[target]} 
                            for target in targets}
 
     hws_with_prices = {hw: {'default_price': price} 
@@ -197,8 +203,8 @@ def get_algo_info(algorithm):
 
     ret = {'algorithm': algorithm,
            'hws': hws_with_prices,
-           'hyperparameters': hyperparams_with_bounds,
-           'targets': targets_with_bounds}
+           'hyperparameters': hyperparams_with_bounds_and_desc,
+           'targets': targets_with_bounds_and_desc}
 
     # alternative
     #ret = {'algorithm': algorithm,

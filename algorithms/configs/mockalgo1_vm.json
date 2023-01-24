@@ -3,11 +3,11 @@
     "HW_ID": "fantasy",
     "HW_price": 80,
     "hyperparams": [
-        {"ID": "a", "type": "int", "LB": 20, "UB": 40},
-        {"ID": "b", "type": "int", "LB": 20, "UB": 30}
+        {"ID": "a", "description": "Mock hyperparameter.", "type": "int", "LB": 20, "UB": 40},
+        {"ID": "b", "description": null, "type": "int", "LB": 20, "UB": 30}
     ],
     "targets": [
-        {"ID": "truthfulness", "type": "float", "LB": 50, "UB": 60},
-        {"ID": "niceness", "type": "float", "LB":0, "UB": 1}
+        {"ID": "truthfulness", "description": "Mock target.", "type": "float", "LB": 50, "UB": 60},
+        {"ID": "niceness", "description": null, "type": "float", "LB":0, "UB": 1}
     ]
 }

@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
     <!-- Milligram CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='milligram.css') }}">
+    <!-- Microtip -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='microtip.min.css') }}">
 
     <title>HADA (demo)</title>
 
@@ -112,8 +114,13 @@
 
             {% for target in targets %}
             <div class="row">
-                <div class="column column-10">
-                    <label class="label-inline">{{target.capitalize()}}</label>
+                <div class="column column-15">
+                    <label class="label-inline">
+                        {{target.capitalize()}}
+                        {% if target in description_per_var.keys() and description_per_var[target] %}
+                        <sup role="tooltip" data-microtip-position="left" aria-label="{{description_per_var[target]}}">?</sup>
+                        {% endif %}
+                    </label>
                 </div>
                 <div class="column column-10">
                     <select name="constraint_{{target}}_type" id="constraint_{{target}}_type">
@@ -122,7 +129,7 @@
                         <option value="geq">&#8805;</option>
                     </select>
                 </div>
-                <div class="column column-80">
+                <div class="column column-75">
                     {% if target|lower=='price' %}
                     <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
                     {% else %}
@@ -178,7 +185,12 @@
                     <thead>
                         <tr>
                             {% for k in out.keys() %}
-                            <th>{{k}}</th>
+                            <th>
+                            {{k}}
+                            {% if k in description_per_var.keys() and description_per_var[k] %}
+                            <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                            {% endif %}
+                            </th>
                             {% endfor %}
                         </tr>
                     </thead>
