@@ -1,11 +1,45 @@
 import os
 import json
+import requests
+from urllib.parse import urljoin
+
 
 class ConfigDB():
-    def __init__(self, path):
+    @classmethod
+    def from_local(cls, path):
+        fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
+        algo_hw_couples = []
+        configs = []
+
+        # expected fnames: <algorithm>_<hw>.csv
+        for fname in fnames:
+            algorithm, part = fname.split('_')
+            hw = part.split('.')[0]
+            algo_hw_couples.append((algorithm, hw))
+            configs.append(json.load(open(fname)))
+        
+        return cls(configs, algo_hw_couples)
+
+    @classmethod
+    def from_remote(cls, address):
+        # getting list of config files
+        configs_url = urljoin(address, '/configs')
+        algo_hw_couples = [(config['algorithm'], config['hw']) 
+                for config in requests.request('GET', configs_url).json()['configs']]
+
+        configs = []
+        # getting the actual configs
+        for (algorithm, hw) in algo_hw_couples:
+            algo_hw_url = urljoin(address, f'/configs/{algorithm}/{hw}')
+            config = json.loads(requests.request('GET', algo_hw_url).content)
+            configs.append(config)
+
+        return cls(configs, algo_hw_couples)
+
+    def __init__(self, configs, algo_hw_couples):
         
         # scan path
-        self.fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
+        #self.fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
 
         # dictionary with the name of algorithms as keys and values structured like this:
         #{
@@ -17,14 +51,16 @@ class ConfigDB():
         #            'pc': None, 
         #            'g100': None}
         #}
+        self.configs = configs
+        self.algo_hw_couples = algo_hw_couples
         self.db = {}
 
-        for fname in self.fnames:
+        for config, (algorithm, hw) in zip(self.configs, self.algo_hw_couples):
             # load JSON files
-            config = json.load(open(fname))
+            #config = json.load(open(fname))
             
             # checking types for all fields
-            self.__check_json(fname, config)
+            self.__check_json(algorithm, hw, config)
 
             # internal db structure
             hyperparams = {hyperparam['ID']: {'type': hyperparam['type'],
@@ -120,7 +156,7 @@ class ConfigDB():
 
         return description_per_var
 
-    def __check_json(self, fname, config):
+    def __check_json(self, algorithm, hw, config):
         try:
             # checking algorithm
             if type(config['name']) is not str:
@@ -152,7 +188,7 @@ class ConfigDB():
             # checking targets
             for target in config['targets']:
                 if type(target['ID']) is not str:
-                    raise AttributeError(f'ID of targets must be strings; config: {fname}')
+                    raise AttributeError(f'ID of targets must be strings; config: ({algorithm}, {hw}')
 
                 if target['description'] is not None and type(target['description']) is not str:
                     raise AttributeError("Target description must be a string")
@@ -166,5 +202,5 @@ class ConfigDB():
                     raise AttributeError("Targets lower bound must be a number or None")
 
         except AttributeError as e:
-            print(f'Error in {fname}')
+            print(f'Error in config ({algorithm}, {hw})')
             raise e

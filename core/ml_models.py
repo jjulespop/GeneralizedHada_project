@@ -9,11 +9,10 @@ from sklearn.tree import DecisionTreeRegressor
 from core.datasets import Datasets
 
 class MLModels():
-    def __init__(self, db, data_path, models_path):
+    def __init__(self, db, datasets, models_path):
         self.db = db
         self.models_path = models_path
-        self.data_path = data_path
-        self.datasets = Datasets(self.db, self.data_path)
+        self.datasets = datasets
 
         # tracking state about (algorithm, hw, target) that are currently being trained
         self.ongoing_training = Manager().dict()

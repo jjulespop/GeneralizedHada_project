@@ -3,7 +3,7 @@ import os
 import json
 from flask import Flask, request, session, render_template, jsonify
 from core.configdb import ConfigDB
-from core.datasets import Datasets
+from core.datasets import DatasetsRemote
 from core.ml_models import MLModels
 from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
 from core.hada import HADA
@@ -18,11 +18,13 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
-db = ConfigDB('algorithms/configs')
+#db = ConfigDB.from_local('algorithms/configs')
+db = ConfigDB.from_remote('http://localhost:5333')
 data_path = 'algorithms/data'
 models_path = 'algorithms/models'
-datasets = Datasets(db, data_path)
-models = MLModels(db, data_path, models_path)
+#datasets = DatasetsLocal(db, data_path)
+datasets = DatasetsRemote(db, 'http://localhost:5333')
+models = MLModels(db, datasets, models_path)
 
 # ==============================================================================
 # Utility functions

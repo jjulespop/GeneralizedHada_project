@@ -2,28 +2,23 @@
 Class that handles operations that have to be carried out on the datasets.
 '''
 import os
+import requests
+from abc import ABC,abstractmethod
 from collections import defaultdict
+from io import StringIO
+from urllib.parse import urljoin
 import pandas as pd
 from core.optimization_request import OptimizationRequest
 
 
-class Datasets():
-    def __init__(self, db, data_path):
-        self.db = db
-        self.data_path = data_path
+class Datasets(ABC):
+    @abstractmethod
+    def __init__(self):
+        pass
 
-
+    @abstractmethod
     def get_dataset(self, algorithm, hw):
-        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
-        if not os.path.exists(dataset_path):
-            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
-
-        dataset = pd.read_csv(dataset_path)
-
-        # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw)
-
-        return dataset
+        pass
 
     def _check_dataset_consistency(self, df, algorithm, hw):
         '''Checking the columns are the expected ones and that they are numericals.'''
@@ -179,3 +174,39 @@ class Datasets():
 #        {"min": [min(prices)], "max": [max(prices)]}, 
 #        index = ["price"]))
 #    return var_bounds
+
+class DatasetsLocal(Datasets):
+    def __init__(self, db, data_path):
+        self.db = db
+        self.data_path = data_path
+
+    def get_dataset(self, algorithm, hw):
+        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
+        if not os.path.exists(dataset_path):
+            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
+
+        dataset = pd.read_csv(dataset_path)
+
+        # checking if data complies to configs
+        self._check_dataset_consistency(dataset, algorithm, hw)
+
+        return dataset
+
+class DatasetsRemote(Datasets):
+    def __init__(self, db, address):
+        self.db = db
+        self.address = address
+
+    def get_dataset(self, algorithm, hw):
+        algo_hw_url = urljoin(self.address, f'/datasets/{algorithm}/{hw}')
+        req = requests.request('GET', algo_hw_url)
+        if req.status_code != 200:
+            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
+        csv_file = req.content
+
+        dataset = pd.read_csv(StringIO(csv_file.decode('utf-8')))
+
+        # checking if data complies to configs
+        self._check_dataset_consistency(dataset, algorithm, hw)
+
+        return dataset

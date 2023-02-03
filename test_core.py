@@ -2,19 +2,26 @@ import time
 from core.hada import HADA
 from core.configdb import ConfigDB
 from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
-from core.datasets import Datasets
+from core.datasets import DatasetsLocal, DatasetsRemote
 from core.ml_models import MLModels
 
 if __name__ == '__main__':
 
-    configs_path = './algorithms/configs'
+    #configs_path = './algorithms/configs'
     data_path = './algorithms/data'
     models_path = './algorithms/models'
+    storage_ws_url = 'http://localhost:5333'
 
-    db = ConfigDB(configs_path)
-    datasets = Datasets(db, data_path)
-    models = MLModels(db, data_path, models_path)
+    ##### Init #####
+    #db = ConfigDB(configs_path)
+    #db = ConfigDB.from_local(configs_path)
+    db = ConfigDB.from_remote(storage_ws_url)
 
+    #datasets = Datasets(db, data_path)
+    datasets = DatasetsLocal(db, data_path)
+    #datasets = DatasetsRemote(db, storage_ws_url)
+
+    models = MLModels(db, datasets, models_path)
 
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
@@ -32,7 +39,6 @@ if __name__ == '__main__':
 
     request = OptimizationRequest(db, 'fwt', 'time', 'min', robustness_factor, user_constraints, hws_prices)
 
-
     ##### Handling datasets and models #####
     # extracting info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
@@ -40,7 +46,6 @@ if __name__ == '__main__':
 
     robust_coeff = datasets.get_robust_coeff(models, request)
     print(robust_coeff)
-
 
     ##### Optimizing #####
     # submitting request to HADA
