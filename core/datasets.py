@@ -12,16 +12,18 @@ from core.optimization_request import OptimizationRequest
 
 
 class Datasets(ABC):
+    """Class that handles all the operations on the datasets."""
     @abstractmethod
     def __init__(self):
         pass
 
     @abstractmethod
-    def get_dataset(self, algorithm, hw):
+    def get_dataset(self, algorithm, hw) -> pd.DataFrame:
+        """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
     def _check_dataset_consistency(self, df, algorithm, hw):
-        '''Checking the columns are the expected ones and that they are numericals.'''
+        """Checking the columns are the expected ones and that they are numericals."""
         hyperparams = self.db.get_hyperparams(algorithm)
         data_targets = self.db.get_targets(algorithm)
         data_targets.remove('price')
@@ -36,18 +38,17 @@ class Datasets(ABC):
         
 
     def extract_var_bounds(self, algorithm):
-        '''
+        """
         Compute upper and lower bounds of each variable.
         If UB/LB specified in configs, use that instead of extracting from data.
-        
-        PARAMETERS
-        ---------
-        algorithm [str]: algorithm for which we want to extract variable bounds
 
-        RETURN
-        ------
-        var_bounds [pd.DataFrame]: a frame with lower/upper bound for each variable
-        '''
+        Args:
+            algorithm (str): algorithm for which we want to extract variable bounds.
+
+        Returns:
+            lb_per_var (dict): lower bound for each variable (hyperparameters and targets).
+            ub_per_var (dict): upper bound for each variable (hyperparameters and targets).
+        """
         # check if both UB and LB are specified in the configs
         # otherwise add to "missing_bounds"; if any extract from data and calculate those
 
@@ -85,7 +86,16 @@ class Datasets(ABC):
         return lb_per_var, ub_per_var
 
     def get_var_bounds_all(self, request: OptimizationRequest):
-        '''Includes variables available only after request: price.'''
+        """
+        Compute upper and lower bounds of each variable, including price.
+        If UB/LB specified in configs, use that instead of extracting from data.
+
+        Args:
+            request (OptimizationRequest): instance of OptimizationRequest.
+
+        Returns:
+            var_bounds (dict): lower bound and upper bound for each variable, including price.
+        """
 
         lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
 
@@ -98,19 +108,16 @@ class Datasets(ABC):
         return var_bounds
         
     def get_robust_coeff(self, models, request):
-        
-        '''
-        Compute robustness coefficients for each predictive model, according to the specified robustness factor
-        
-        PARAMETERS
-        ---------
-        models [MLModels]: object that handles ML models
-        request [OptimizationRequest]: represents the user's request
+        """
+        Compute robustness coefficients for each predictive model, according to the specified robustness factor.
 
-        RETURN
-        ------
-        robust_coeff [dict]: robustness coefficient for each predictive model
-        '''
+        Args:
+            models (MLModels): object that handles ML models.
+            request (OptimizationRequest): represents the user's request.
+
+        Returns:
+            robust_coeff (dict): robustness coefficient for each predictive model.
+        """
 
         if request.robustness_fact or request.robustness_fact == 0:
             robust_coeff = {}
@@ -176,6 +183,7 @@ class Datasets(ABC):
 #    return var_bounds
 
 class DatasetsLocal(Datasets):
+    """Handles datasets stored locally."""
     def __init__(self, db, data_path):
         self.db = db
         self.data_path = data_path
@@ -193,6 +201,7 @@ class DatasetsLocal(Datasets):
         return dataset
 
 class DatasetsRemote(Datasets):
+    """Handles retrieval of datasets from the storage web service."""
     def __init__(self, db, address):
         self.db = db
         self.address = address

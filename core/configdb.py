@@ -5,8 +5,18 @@ from urllib.parse import urljoin
 
 
 class ConfigDB():
+    """Exposes information stored in the JSON configs (one config per algorithm/hardware pair)."""
     @classmethod
     def from_local(cls, path):
+        """Initialize ConfigDB using local configs.
+
+        Args:
+            path (str): local path containing the configs.
+
+        Returns:
+            ConfigDB: instance of ConfigDB.
+        """
+
         fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
         algo_hw_couples = []
         configs = []
@@ -22,6 +32,17 @@ class ConfigDB():
 
     @classmethod
     def from_remote(cls, address):
+        """Initialize ConfigDB using remote configs (VM storage ervice).
+
+        Args:
+            address (str): complete URL relative to the service that handles the configs.
+
+        Returns:
+            ConfigDB: instance of ConfigDB.
+        """
+        # test availability
+        #requests.head(address)
+
         # getting list of config files
         configs_url = urljoin(address, '/configs')
         algo_hw_couples = [(config['algorithm'], config['hw']) 
@@ -37,6 +58,15 @@ class ConfigDB():
         return cls(configs, algo_hw_couples)
 
     def __init__(self, configs, algo_hw_couples):
+        """Initializes ConfigDB.
+
+        Args:
+            configs (list[dict]): list of configs, with each configs being represented as a dict.
+            algo_hw_couples (list[tuple[str,str]]): list of (algorith_id, hardware_id) couples, corresponding, in order, to the configs.
+        
+        Raises:
+            AttributeError: Hyperparameters and/or Targets not matching across different hardware given the same algorithm.
+        """
         
         # scan path
         #self.fnames = [os.path.join(path, fname) for fname in sorted(os.listdir(path))]
@@ -157,6 +187,7 @@ class ConfigDB():
         return description_per_var
 
     def __check_json(self, algorithm, hw, config):
+        """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:
             # checking algorithm
             if type(config['name']) is not str:

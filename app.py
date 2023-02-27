@@ -18,12 +18,14 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
-#db = ConfigDB.from_local('algorithms/configs')
-db = ConfigDB.from_remote('http://localhost:5333')
 data_path = 'algorithms/data'
 models_path = 'algorithms/models'
+#db = ConfigDB.from_local('algorithms/configs')
 #datasets = DatasetsLocal(db, data_path)
+db = ConfigDB.from_remote('http://localhost:5333')
 datasets = DatasetsRemote(db, 'http://localhost:5333')
+#db = ConfigDB.from_remote('http://172.28.0.2:5333')
+#datasets = DatasetsRemote(db, 'http://172.28.0.2:5333')
 models = MLModels(db, datasets, models_path)
 
 # ==============================================================================

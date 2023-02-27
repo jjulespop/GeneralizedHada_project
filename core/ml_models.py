@@ -6,10 +6,16 @@ import pickle
 import time
 from multiprocessing import Process, Manager
 from sklearn.tree import DecisionTreeRegressor
-from core.datasets import Datasets
 
 class MLModels():
     def __init__(self, db, datasets, models_path):
+        """Handles all operations on ML models.
+
+        Args:
+            db (ConfigDB): ConfigDB instance.
+            datasets (Datasets): Datasets instance.
+            models_path (str): local path where the models are stored.
+        """
         self.db = db
         self.models_path = models_path
         self.datasets = datasets
@@ -21,6 +27,19 @@ class MLModels():
         return os.path.join(self.models_path, f'{algorithm}_{hw}_{target}_DecisionTree_10')
 
     def get_model(self, algorithm, hw, target):
+        """Returns the model (Decision).
+
+        Args:
+            algorithm (str): algorithm id.
+            hw (str): hardware platform id
+            target (str): target id.
+
+        Raises:
+            Exception: if model is not found and is already being trained.
+
+        Returns:
+            sklearn.tree.DecisionTreeRegressor: DT model.
+        """
         model_path = self.__get_model_path(algorithm, hw, target) 
 
         if not os.path.exists(model_path):
@@ -49,7 +68,16 @@ class MLModels():
         return model
 
     def __run_training(self, algorithm, hw, target, dataset):
-        '''Trains a Decision Tree and stores it with pickle.'''
+        """
+        Trains a Decision Tree and stores it with pickle.
+
+        Args:
+            algorithm (str): algorithm id.
+            hw (str): hardware platform id.
+            target (str): target id.
+            dataset (pd.DataFrame): training dataset.
+        
+        """
         #s = time.time()
         model_path = self.__get_model_path(algorithm, hw, target)
 
