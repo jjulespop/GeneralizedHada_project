@@ -15,22 +15,22 @@ if __name__ == '__main__':
     datasets = Datasets(db, data_path)
     models = MLModels(db, data_path, models_path)
 
-
+    print(db.get_type_per_var('toyalg'))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'fwt')
-    user_constraints.add_constraint('memory', 'leq', 30)
-    user_constraints.add_constraint('price', 'leq', 120)
+    user_constraints = UserConstraints(db, 'toyalg')
+    user_constraints.add_constraint('memory', 'leq', 50)
+    user_constraints.add_constraint('price', 'leq', 250)
 
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'fwt')
+    hws_prices = HardwarePrices(db, 'toyalg')
     hws_prices.add_hw_price('pc', 100)
-    hws_prices.add_hw_price('g100', 100)
-    hws_prices.add_hw_price('vm', 200)
+    hws_prices.add_hw_price('g100', 200)
+    hws_prices.add_hw_price('vm', 300)
     
     robustness_factor = None
 
-    request = OptimizationRequest(db, 'fwt', 'time', 'min', robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, 'toyalg', 'time', 'min', robustness_factor, user_constraints, hws_prices)
 
 
     ##### Handling datasets and models #####

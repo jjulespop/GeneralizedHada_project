@@ -18,4 +18,4 @@ COPY app.py .
 COPY templates ./templates
 COPY static ./static
 
-ENTRYPOINT ["flask", "run", "--host=0.0.0.0"]
+CMD ["flask", "--debug", "run", "--host=0.0.0.0"]
