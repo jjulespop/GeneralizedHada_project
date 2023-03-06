@@ -186,6 +186,18 @@ class ConfigDB():
 
         return description_per_var
 
+    def get_type_per_var(self, algorithm):
+        """Get type for all variables (hyperparameters and targets)."""
+        type_per_var = {}
+
+        for var in self.db[algorithm]['hyperparams']:
+            type_per_var[var] = self.db[algorithm]['hyperparams'][var]["type"]
+
+        for var in self.db[algorithm]['targets']:
+            type_per_var[var] = self.db[algorithm]['targets'][var]["type"]
+
+        return type_per_var
+
     def __check_json(self, algorithm, hw, config):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:
@@ -208,8 +220,8 @@ class ConfigDB():
                 if hyperparam['description'] is not None and type(hyperparam['description']) is not str:
                     raise AttributeError("Hyperparameter description must be a string")
 
-                if hyperparam['type'] not in ['int', 'float']:
-                    raise AttributeError("Hyperparameter type must be 'int' or 'float'")
+                if hyperparam['type'] not in ['bin', 'int', 'float']:
+                    raise AttributeError("Hyperparameter type must be 'bin', 'int' or 'float'")
 
                 if hyperparam['UB'] is not None and type(hyperparam['UB']) not in [int, float]:
                     raise AttributeError("Hyperparameter upper bound must be a number or None")
@@ -224,8 +236,8 @@ class ConfigDB():
                 if target['description'] is not None and type(target['description']) is not str:
                     raise AttributeError("Target description must be a string")
 
-                if target['type'] not in ['int', 'float']:
-                    raise AttributeError("Targets type must be 'int' or 'float'")
+                if target['type'] not in ['bin', 'int', 'float']:
+                    raise AttributeError("Targets type must be 'bin', 'int' or 'float'")
 
                 if target['UB'] is not None and type(target['UB']) not in [int, float]:
                     raise AttributeError("Targets upper bound must be a number or None")

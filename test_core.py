@@ -22,7 +22,6 @@ if __name__ == '__main__':
     models = MLModels(db, datasets, models_path)
 
     print(db.get_type_per_var('toyalg'))
-    print(db.get_type_per_var('toyalg'))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, 'toyalg')
