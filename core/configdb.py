@@ -75,8 +75,8 @@ class ConfigDB():
         #{
         #    'hyperparams': {'var_0': {'type': 'int', 'LB': None, 'UB': None},
         #                    'var_1': {'type': 'int', 'LB': None, 'UB': None}},
-        #    'targets': {'time': {'type': 'float', 'LB': None, 'UB': None},
-        #                'memory': {'type': 'float', 'LB': None, 'UB': None}},
+        #    'targets': {'time': {'LB': None, 'UB': None},
+        #                'memory': {'LB': None, 'UB': None}},
         #    'hws': {'vm': None,
         #            'pc': None, 
         #            'g100': None}
@@ -99,12 +99,16 @@ class ConfigDB():
                                               'UB': hyperparam['UB']}
                             for hyperparam in config['hyperparams']}
 
-            targets = {target['ID']: {'type': target['type'],
-                                      'description': target['description'],
+            #'type': target['type'],
+            targets = {target['ID']: {'description': target['description'],
                                       'LB': target['LB'],
                                       'UB': target['UB']}
                             for target in config['targets']}
 
+
+            # checking for overlap of names among hyperparams and targets
+            if set.intersection(set(hyperparams), set(targets)):
+                    raise AttributeError(f'Names of hyperparams and targets must not overlap.')
 
             # checking consistency across hws for a given algorithm
             if config['name'] not in self.db:
@@ -126,32 +130,32 @@ class ConfigDB():
                 self.db[config['name']]['hws'][config['HW_ID']] = config['HW_price']
 
     def get_algorithms(self):
-        '''Get list of all available algorithms.'''
+        """Get list of all available algorithms."""
         return list(self.db.keys())
 
     def get_hyperparams(self, algorithm):
-        '''Get list of hyperparameters for a given algorithm.'''
+        """Get list of hyperparameters for a given algorithm."""
         return list(self.db[algorithm]['hyperparams'].keys())
 
     def get_targets(self, algorithm):
-        '''Get list of targets for a given algorithm.'''
+        """Get list of targets for a given algorithm."""
         # price is the only "special" target, with possibly different handling
         return list(self.db[algorithm]['targets'].keys()) + ['price']
 
     def get_hws(self, algorithm):
-        '''Get list of hardware platforms for a given algorithm.'''
+        """Get list of hardware platforms for a given algorithm."""
         return list(self.db[algorithm]['hws'].keys())
 
     def get_prices(self, algorithm):
-        '''Get list of hardware prices for a given algorithm.'''
+        """Get list of hardware prices for a given algorithm."""
         return list(self.db[algorithm]['hws'].values())
 
     def get_prices_per_hw(self, algorithm):
-        '''Get dict HW_name:price for all hws found for a given algorithm.'''
+        """Get dict HW_name:price for all hws found for a given algorithm."""
         return self.db[algorithm]['hws']
 
     def get_lb_per_var(self, algorithm):
-        '''Get LBs for all variables (hyperparameters and targets).'''
+        """Get LBs for all variables (hyperparameters and targets)."""
         lb_per_var = {}
 
         for var in self.db[algorithm]['hyperparams']:
@@ -163,7 +167,7 @@ class ConfigDB():
         return lb_per_var
 
     def get_ub_per_var(self, algorithm):
-        '''Get UBs for all variables (hyperparameters and targets).'''
+        """Get UBs for all variables (hyperparameters and targets)."""
         ub_per_var = {}
 
         for var in self.db[algorithm]['hyperparams']:
@@ -193,8 +197,9 @@ class ConfigDB():
         for var in self.db[algorithm]['hyperparams']:
             type_per_var[var] = self.db[algorithm]['hyperparams'][var]["type"]
 
+        # assumption: targets are always continuous
         for var in self.db[algorithm]['targets']:
-            type_per_var[var] = self.db[algorithm]['targets'][var]["type"]
+            type_per_var[var] = 'float'
 
         return type_per_var
 
@@ -236,8 +241,8 @@ class ConfigDB():
                 if target['description'] is not None and type(target['description']) is not str:
                     raise AttributeError("Target description must be a string")
 
-                if target['type'] not in ['bin', 'int', 'float']:
-                    raise AttributeError("Targets type must be 'bin', 'int' or 'float'")
+                #if target['type'] not in ['bin', 'int', 'float']:
+                #    raise AttributeError("Targets type must be 'bin', 'int' or 'float'")
 
                 if target['UB'] is not None and type(target['UB']) not in [int, float]:
                     raise AttributeError("Targets upper bound must be a number or None")

@@ -7,7 +7,7 @@
         {"ID": "var_1", "description": null, "type": "int", "LB": null, "UB": null}
     ],
     "targets": [
-        {"ID": "time", "description": "Test 2", "type": "float", "LB": null, "UB": null},
-        {"ID": "memory", "description": null, "type": "float", "LB":null, "UB": null}
+        {"ID": "time", "description": "Test 2", "LB": null, "UB": null},
+        {"ID": "memory", "description": null, "LB": null, "UB": null}
     ]
 }

@@ -1,6 +1,3 @@
-'''
-Class that handles operations that have to be carried out on the datasets.
-'''
 import os
 import requests
 from abc import ABC,abstractmethod
@@ -58,10 +55,18 @@ class Datasets(ABC):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
+        type_per_var = self.db.get_type_per_var(algorithm)
         for column in df.columns:
             if not pd.api.types.is_numeric_dtype(df[column]):
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
-        
+
+            # checking consistency with vartype declared in configs: int, float or bin
+            # float already checked: if it's numerical it can be interpreted as float
+            expected_dtype = type_per_var[column]
+            if expected_dtype == 'int' and not pd.api.types.is_integer_dtype(df[column]):
+                raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be integer, but has non-integer values.')
+            elif expected_dtype == 'bin' and set(df[column].unique()) != {0, 1}:
+                raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be binary, but has non-binary values.')
 
     def extract_var_bounds(self, algorithm):
         """
@@ -108,6 +113,18 @@ class Datasets(ABC):
                 lb_per_var[var] = min(all_mins_per_var[var]).item()
             for var in ub_missing_vars:
                 ub_per_var[var] = max(all_maxes_per_var[var]).item()
+
+            # checking that dtypes of variables are compatible with the bounds
+            type_per_var = self.db.get_type_per_var(algorithm)
+            for var, dtype in type_per_var.items():
+                var_lb = lb_per_var[var]
+                var_ub = ub_per_var[var]
+                if dtype == 'int':
+                    if type(var_lb) is not int or type(var_ub) is not int:
+                        raise ValueError(f'Bound for variable {var} is not of the expected type (int).')
+                elif dtype == 'bin':
+                    if (var_lb not in [0,1]) or (var_ub not in [0,1]):
+                        raise ValueError(f'Bound for variable {var} is not of the expected type (bin): it must be 0 or 1.')
 
         return lb_per_var, ub_per_var
 
