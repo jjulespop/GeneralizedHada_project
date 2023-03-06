@@ -17,6 +17,32 @@ class Datasets(ABC):
     def __init__(self):
         pass
 
+    @classmethod
+    def from_local(cls, db, data_path):
+        """Initialize Datasets using local datasets.
+
+        Args:
+            db (ConfigDB): instance of ConfigDB.
+            data_path (str): local path containing the datasets.
+
+        Returns:
+            Datasets: instance of Datasets.
+        """
+        return DatasetsLocal(db, data_path)
+
+    @classmethod
+    def from_remote(cls, db, address):
+        """Initialize Datasets using remote datasets (VM storage ervice).
+
+        Args:
+            db (ConfigDB): instance of ConfigDB.
+            address (str): complete URL relative to the service that handles the datasets.
+
+        Returns:
+            Datasets: instance of Datasets.
+        """
+        return DatasetsRemote(db, address)
+
     @abstractmethod
     def get_dataset(self, algorithm, hw) -> pd.DataFrame:
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
@@ -138,50 +164,6 @@ class Datasets(ABC):
             return None 
 
 
-#def extract_var_bounds_old(self, request: OptimizationRequest):
-#    '''
-#    Compute upper and lower bounds of each variable.
-#    TODO: if UB/LB specified in configs, use that instead of extracting from data.
-#    
-#    PARAMETERS
-#    ---------
-#    request [OptimizationRequest]: request for which we want to extract variable bounds
-#
-#    RETURN
-#    ------
-#    var_bounds [pd.DataFrame]: a frame with lower/upper bound for each variable
-#    '''
-#
-#
-#    bounds_min = {}
-#    bounds_max = {}
-#
-#    for hw in self.db.get_hws(request.algorithm):
-#        
-#        dataset = self.get_dataset(request.algorithm, hw)
-#        bounds_min[hw] = dataset.min()
-#        bounds_max[hw] = dataset.max()
-#
-#    var_bounds = pd.DataFrame({
-#            "min" : pd.DataFrame(bounds_min).transpose().min(), 
-#            "max" : pd.DataFrame(bounds_max).transpose().max()
-#            })
-#
-#    # Why? Algo-specific I guess...
-#    #for i in range(len(self.db.get_hyperparams(request.algorithm))):
-#    #    var_bounds.loc["var_" + str(i), "max"] = 53
-#
-#    
-#    # This is in the case prices are mandatory in configs
-#    # in case they can be null, users can define them, logic has to be different
-#    #prices = self.db.get_prices(request.algorithm)
-#
-#    prices = request.hws_prices.get_prices_per_hw().values()
-#    var_bounds = var_bounds.append(pd.DataFrame(
-#        {"min": [min(prices)], "max": [max(prices)]}, 
-#        index = ["price"]))
-#    return var_bounds
-
 class DatasetsLocal(Datasets):
     """Handles datasets stored locally."""
     def __init__(self, db, data_path):
@@ -199,6 +181,7 @@ class DatasetsLocal(Datasets):
         self._check_dataset_consistency(dataset, algorithm, hw)
 
         return dataset
+
 
 class DatasetsRemote(Datasets):
     """Handles retrieval of datasets from the storage web service."""
