@@ -20,19 +20,11 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
-data_path_no_inp = 'algorithms/data/input-independent'
-data_path_inp = 'algorithms/data/input-dependent'
 models_path_no_inp = 'algorithms/models/input-independent'
 models_path_inp = 'algorithms/models/input-dependent'
-configs_path_no_inp = 'algorithms/configs/input-independent'
-configs_path_inp = 'algorithms/configs/input-dependent'
 
-db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
-datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
-#db = ConfigDB.from_remote('http://localhost:5333')
-#datasets = Datasets.from_remote(db, 'http://localhost:5333')
-#db = ConfigDB.from_remote('http://172.28.0.2:5333')
-#datasets = Datasets.from_remote(db, 'http://172.28.0.2:5333')
+db = ConfigDB.from_remote('http://localhost:5333')
+datasets = Datasets.from_remote(db, 'http://localhost:5333')
 models = MLModels(db, datasets, models_path_no_inp, models_path_no_inp)
 
 # ==============================================================================

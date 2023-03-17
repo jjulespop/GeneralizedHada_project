@@ -9,13 +9,13 @@ Docker needs to be installed on the system.
 #### CPLEX
 CPLEX is required, it can be obtained [here](https://www.ibm.com/products/ilog-cplex-optimization-studio) (free for academic use).
 Docker can build the image once the file `cplex_studio2210.linux_x86_64.bin` is placed in the main directory and the execution permissions are granted with:
-```
+```bash
 chmod +x cplex_studio2210.linux_x86_64.bin
 ```
 
 ### Launching the service
 Once the requirements are satisfied, the service can be launched with:
-```
+```bash
 sudo docker compose up
 ```
 
@@ -40,7 +40,7 @@ Route: `http://localhost:5000/algorithms`
 `GET` request.
 
 Response (example):
-```
+```json
 {
   "algorithms": {
     "input-independent": [
@@ -167,7 +167,7 @@ curl -X POST -H 'Content-Type: application/json' -d '
 ```
 
 Response (example):
-```
+``` json
 {
   "solution": {
     "hw": "pc",
