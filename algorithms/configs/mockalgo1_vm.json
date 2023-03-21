@@ -9,5 +9,6 @@
     "targets": [
         {"ID": "truthfulness", "description": "Mock target.", "LB": 50, "UB": 60},
         {"ID": "niceness", "description": null, "LB":0, "UB": 1}
-    ]
+    ],
+    "input_vars": []
 }

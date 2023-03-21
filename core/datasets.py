@@ -48,10 +48,11 @@ class Datasets(ABC):
     def _check_dataset_consistency(self, df, algorithm, hw):
         """Checking the columns are the expected ones and that they are numericals."""
         hyperparams = self.db.get_hyperparams(algorithm)
+        input_vars = self.db.get_input_vars(algorithm)
         data_targets = self.db.get_targets(algorithm)
         data_targets.remove('price')
 
-        if set(df.columns) != set(hyperparams + data_targets):
+        if set(df.columns) != set(hyperparams + data_targets+ input_vars):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
@@ -161,7 +162,8 @@ class Datasets(ABC):
         Returns:
             robust_coeff (dict): robustness coefficient for each predictive model.
         """
-
+        hyperparams = self.db.get_hyperparams(request.algorithm)
+        input_vars = self.db.get_input_vars(request.algorithm)
         if request.robustness_fact or request.robustness_fact == 0:
             robust_coeff = {}
             for target in self.db.get_targets(request.algorithm): 
@@ -173,7 +175,7 @@ class Datasets(ABC):
                         dataset = self.get_dataset(request.algorithm, hw)
                         model = models.get_model(request.algorithm, hw, target)
 
-                        dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
+                        dataset[f'{target}_pred'] = model.predict(dataset[hyperparams+input_vars].values)#col for col in dataset.columns if 'var' in col
                         dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff

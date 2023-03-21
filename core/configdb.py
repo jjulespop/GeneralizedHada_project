@@ -80,6 +80,11 @@ class ConfigDB():
         #    'hws': {'vm': None,
         #            'pc': None, 
         #            'g100': None}
+
+        #   "input_vars": [
+        #       {"ID": "var_0", "description": null, "type": "float", "LB": null, "UB": null},
+        #       {"ID": "var_1", "description": null, "type": "float", "LB": null, "UB": null},
+        #   ]
         #}
         self.configs = configs
         self.algo_hw_couples = algo_hw_couples
@@ -99,6 +104,12 @@ class ConfigDB():
                                               'UB': hyperparam['UB']}
                             for hyperparam in config['hyperparams']}
 
+            input_vars = {input_var['ID']: {'type': input_var['type'],
+                                              'description': input_var['description'],
+                                              'LB': input_var['LB'],
+                                              'UB': input_var['UB']}
+                           for input_var in config['input_vars']}
+
             #'type': target['type'],
             targets = {target['ID']: {'description': target['description'],
                                       'LB': target['LB'],
@@ -109,11 +120,16 @@ class ConfigDB():
             # checking for overlap of names among hyperparams and targets
             if set.intersection(set(hyperparams), set(targets)):
                     raise AttributeError(f'Names of hyperparams and targets must not overlap.')
+            if set.intersection(set(hyperparams), set(input_vars)):
+                    raise AttributeError(f'Names of hyperparams and input variables must not overlap.')
+            if set.intersection(set(input_vars), set(targets)):
+                    raise AttributeError(f'Names of input variables and targets must not overlap.')
 
             # checking consistency across hws for a given algorithm
             if config['name'] not in self.db:
                 self.db[config['name']] = {'hyperparams': hyperparams,
                                            'targets': targets,
+                                           'input_vars': input_vars,
                                            'hws': {config['HW_ID']: config['HW_price']}}
             else:
                 # checking consistency of hyperparameters across hws for a given algorithm
@@ -122,6 +138,9 @@ class ConfigDB():
                 # checking consistency of targets across hws for a given algorithm
                 if self.db[config['name']]['targets'] != targets:
                     raise AttributeError(f'Targets not matching for algorithm {config["name"]} on different hws.')
+                # checking consistency of input variables across hws for a given algorithm
+                if self.db[config['name']]['input_vars'] != input_vars:
+                    raise AttributeError(f'Input variables not matching for algorithm {config["name"]} on different hws.')
 
                 # TODO (eventually): check consistency of HW prices (suggested in config) for a given HW across all algorithms.
                 # Not needed; prices could be different for same hw and different algorithms (e.g. different contracts) 
@@ -136,6 +155,10 @@ class ConfigDB():
     def get_hyperparams(self, algorithm):
         """Get list of hyperparameters for a given algorithm."""
         return list(self.db[algorithm]['hyperparams'].keys())
+
+    def get_input_vars(self, algorithm):
+        """Get list of input variables for a given algorithm."""
+        return list(self.db[algorithm]['input_vars'].keys())
 
     def get_targets(self, algorithm):
         """Get list of targets for a given algorithm."""
@@ -164,10 +187,13 @@ class ConfigDB():
         for var in self.db[algorithm]['targets']:
             lb_per_var[var] = self.db[algorithm]['targets'][var]["LB"]
 
+        for var in self.db[algorithm]['input_vars']:
+            lb_per_var[var] = self.db[algorithm]['input_vars'][var]["LB"]
+
         return lb_per_var
 
     def get_ub_per_var(self, algorithm):
-        """Get UBs for all variables (hyperparameters and targets)."""
+        """Get UBs for all variables (hyperparameters, targets and input)."""
         ub_per_var = {}
 
         for var in self.db[algorithm]['hyperparams']:
@@ -176,10 +202,13 @@ class ConfigDB():
         for var in self.db[algorithm]['targets']:
             ub_per_var[var] = self.db[algorithm]['targets'][var]["UB"]
 
+        for var in self.db[algorithm]['input_vars']:
+            ub_per_var[var] = self.db[algorithm]['input_vars'][var]["UB"]
+
         return ub_per_var
     
     def get_description_per_var(self, algorithm):
-        """Get description for all variables (hyperparameters and targets)."""
+        """Get description for all variables (hyperparameters, targets and input )."""
         description_per_var = {}
 
         for var in self.db[algorithm]['hyperparams']:
@@ -188,10 +217,13 @@ class ConfigDB():
         for var in self.db[algorithm]['targets']:
             description_per_var[var] = self.db[algorithm]['targets'][var]["description"]
 
+        for var in self.db[algorithm]['input_vars']:
+            description_per_var[var] = self.db[algorithm]['input_vars'][var]["description"]
+
         return description_per_var
 
     def get_type_per_var(self, algorithm):
-        """Get type for all variables (hyperparameters and targets)."""
+        """Get type for all variables (hyperparameters, targets and input )."""
         type_per_var = {}
 
         for var in self.db[algorithm]['hyperparams']:
@@ -201,10 +233,12 @@ class ConfigDB():
         for var in self.db[algorithm]['targets']:
             type_per_var[var] = 'float'
 
+        for var in self.db[algorithm]['input_vars']:
+            type_per_var[var] = self.db[algorithm]['input_vars'][var]["type"]
         return type_per_var
 
     def __check_json(self, algorithm, hw, config):
-        """Checks that the fields in the JSON configs are present and of of the expected types."""
+        """Checks that the fields in the JSON configs are present and  of the expected types."""
         try:
             # checking algorithm
             if type(config['name']) is not str:
@@ -232,6 +266,23 @@ class ConfigDB():
                     raise AttributeError("Hyperparameter upper bound must be a number or None")
                 if hyperparam['LB'] is not None and type(hyperparam['LB']) not in [int, float]:
                     raise AttributeError("Hyperparameter lower bound must be a number or None")
+
+
+            #checking input variables
+            for input_var in config['input_vars']:
+                if type(input_var['ID']) is not str:
+                    raise AttributeError(f'ID of input variable must be strings')
+
+                if input_var['description'] is not None and type(input_var['description']) is not str:
+                    raise AttributeError("Input variable description must be a string")
+
+                if input_var['type'] not in ['bin', 'int', 'float']:
+                    raise AttributeError("Input variable type must be 'bin', 'int' or 'float'")
+
+                if input_var['UB'] is not None and type(input_var['UB']) not in [int, float]:
+                    raise AttributeError("Input variable upper bound must be a number or None")
+                if input_var['LB'] is not None and type(input_var['LB']) not in [int, float]:
+                    raise AttributeError("Input variable lower bound must be a number or None")
 
             # checking targets
             for target in config['targets']:

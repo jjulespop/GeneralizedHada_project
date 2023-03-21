@@ -4,6 +4,7 @@ class OptimizationRequest():
                  db,
                  algorithm,
                  target,
+                 inputs,
                  opt_type,
                  robustness_fact,
                  user_constraints,
@@ -17,6 +18,7 @@ class OptimizationRequest():
             raise AttributeError(f'Target {target} not available for algorithm {algorithm}.')
         self.target = target
 
+
         if opt_type not in ['min', 'max']:
             raise AttributeError("Optimization type can only be one of 'min', 'max'.")
         self.opt_type = opt_type
@@ -28,6 +30,10 @@ class OptimizationRequest():
         if not isinstance(user_constraints, UserConstraints):
             raise AttributeError("User constraints must be specified via UserConstraints class.")
         self.user_constraints = user_constraints
+
+        if not isinstance(inputs, Inputs):
+            raise AttributeError("Input must be specified via UserConstraints class.")
+        self.inputs = inputs
 
         # no user input version; just read from config
         # otherwise we expect prices from user and what's in the configs is only for guidance.
@@ -65,6 +71,31 @@ class UserConstraints():
 
     def get_constraints(self):
         return self.constraints
+
+class Inputs():
+    """Class that represents an user's input to be included in a Request. Arguments are checked."""
+    def __init__(self, configdb, algorithm) -> None:
+
+        self.db = configdb
+
+        if algorithm not in self.db.get_algorithms():
+            raise AttributeError(f'Algorithm {algorithm} not available.')
+        self.algorithm = algorithm
+
+        # target : (type, value)
+        self.inputs = {}
+
+    def add_input(self, input_var, value):
+        if input_var not in self.db.get_input_vars(self.algorithm):
+            raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
+
+        if type(value) not in [float, int]:
+            raise AttributeError("Input value must be numerical.")
+
+        self.inputs[input_var] = value
+
+    def get_inputs(self):
+        return self.inputs
 
 
 class HardwarePrices():

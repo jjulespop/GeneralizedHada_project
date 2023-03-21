@@ -11,5 +11,6 @@
     "targets": [
         {"ID": "time",  "description": null, "LB": null, "UB": null},
         {"ID": "memory",  "description": null, "LB":null, "UB": null}
-    ]
+    ],
+    "input_vars": []
 }

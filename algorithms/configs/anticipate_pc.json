@@ -1,0 +1,19 @@
+{
+    "name": "anticipate",
+    "HW_ID": "pc",
+    "HW_price": null,
+    "hyperparams": [
+        {"ID": "nScenarios",  "description": null, "type": "int", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "sol",  "description": null, "LB": null, "UB": null},
+        {"ID": "time",  "description": null, "LB": null, "UB": null},
+        {"ID": "memory",  "description": null, "LB": null, "UB": null}
+    ],
+    "input_vars": [
+        {"ID": "pv_mean",  "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "pv_var",  "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "load_mean",  "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "load_var",  "description": null, "type": "float", "LB": null, "UB": null}
+    ]
+}

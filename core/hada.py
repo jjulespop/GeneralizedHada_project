@@ -37,7 +37,8 @@ def HADA(db: ConfigDB,
     hws = db.get_hws(request.algorithm)
     targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
     hyperparams = db.get_hyperparams(request.algorithm)
-    
+    input_vars = db.get_input_vars(request.algorithm)
+
     # Retrieve variable types, assuming that price is always a float
     cplex_type = {'bin' : mdl.binary_vartype, 'int' : mdl.integer_vartype, 'float' : mdl.continuous_vartype}
     var_type = db.get_type_per_var(request.algorithm)
@@ -69,6 +70,25 @@ def HADA(db: ConfigDB,
                     ub = var_bounds[hyperparam]['ub'])
             mdl.add_constraint(mdl.get_var_by_name(hyperparam) == mdl.get_var_by_name(f"auxiliary_{hyperparam}"), ctname = f"{hyperparam}_integrality_constraint")
             ml_var[hyperparam] = f'auxiliary_{hyperparam}'
+
+    for input_var in input_vars:
+        mdl.var(name = input_var,
+                vartype = var_type[input_var],
+                lb = var_bounds[input_var]['lb'],
+                ub = var_bounds[input_var]['ub'])
+        ml_var[input_var] = input_var
+        if var_type[input_var] != mdl.continuous_vartype:
+            mdl.var(name = f"auxiliary_{input_var}",
+                    vartype = mdl.continuous_vartype,
+                    lb = var_bounds[input_var]['lb'],
+                    ub = var_bounds[input_var]['ub'])
+            mdl.add_constraint(mdl.get_var_by_name(input_var) == mdl.get_var_by_name(f"auxiliary_{input_var}"), ctname = f"{input_var}_integrality_constraint")
+            ml_var[input_var] = f'auxiliary_{input_var}'
+
+
+
+    for input_var in request.inputs.get_inputs().keys():
+        mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
     # A variable for each target and hw, whose type matches the target's type. 
     # Also in this case, if the target is non-continuous, it requires auxiliary variables and constraints
@@ -102,13 +122,13 @@ def HADA(db: ConfigDB,
         for hw in hws:
             model = models.get_model(request.algorithm, hw, target)
             model = read_sklearn_tree(model)
-            for i, hyperparam in enumerate(hyperparams):
-                model.update_lb(i, var_bounds[hyperparam]['lb'])
-                model.update_ub(i, var_bounds[hyperparam]['ub'])
+            for i, var in enumerate(hyperparams+input_vars):
+                model.update_lb(i, var_bounds[var]['lb'])
+                model.update_ub(i, var_bounds[var]['ub'])
             embed.encode_backward_implications(
                     bkd = bkd, mdl = mdl,
                     tree = model, 
-                    tree_in = [mdl.get_var_by_name(ml_var[hyperparam]) for hyperparam in hyperparams],
+                    tree_in = [mdl.get_var_by_name(ml_var[var]) for var in (hyperparams+input_vars) ],
                     tree_out = mdl.get_var_by_name(ml_var[f"{hw}_{target}"]),
                     name = f"DT_{hw}_{target}")
     
@@ -124,7 +144,9 @@ def HADA(db: ConfigDB,
         robust_coeff = {(hw, target) : 0
                         for hw in hws
                         for target in request.user_constraints.get_constraints()}
-    
+
+
+
     # User-defined constraints, bounding the performance of the algorithm, as required by the user
     for target in request.user_constraints.get_constraints():
         for hw in hws:
@@ -158,7 +180,6 @@ def HADA(db: ConfigDB,
                 break
         targets_values = {target: round(sol[f"{chosen_hw}_{target}"]) if var_type[target] != mdl.continuous_vartype else sol[f"{chosen_hw}_{target}"] for target in targets}
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
-
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
         solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values)
 

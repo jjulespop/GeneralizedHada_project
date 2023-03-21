@@ -9,5 +9,6 @@
     "targets": [
         {"ID": "time", "description": "Test 2", "LB": null, "UB": null},
         {"ID": "memory", "description": null, "LB": null, "UB": null}
-    ]
+    ],
+    "input_vars": []
 }

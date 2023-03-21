@@ -10,10 +10,12 @@ if __name__ == '__main__':
     #print(db.fnames)
     #print(db.db)
     print(db.get_algorithms())
-    print(db.get_hyperparams('toyalg'))
-    print(db.get_targets('toyalg'))
-    print(db.get_hws('toyalg'))
-    print(db.get_prices('toyalg'))
-    print(db.get_prices_per_hw('toyalg'))
-    print(db.get_type_per_var('toyalg'))
+    print(db.get_hyperparams('anticipate'))
+    print(db.get_targets('anticipate'))
+    print(db.get_hws('anticipate'))
+    print(db.get_input_vars('anticipate'))
+    print(db.get_prices('anticipate'))
+    print(db.get_prices_per_hw('anticipate'))
+    print(db.get_type_per_var('anticipate'))
+    
     # ...

@@ -21,32 +21,40 @@ if __name__ == '__main__':
 
     models = MLModels(db, datasets, models_path)
 
-    print(db.get_type_per_var('toyalg'))
+    print(db.get_type_per_var('anticipate'))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'toyalg')
-    user_constraints.add_constraint('memory', 'leq', 50)
-    user_constraints.add_constraint('price', 'leq', 250)
-
+    user_constraints = UserConstraints(db, 'anticipate')
+    #user_constraints.add_constraint('pv_mean', 'eq', 260)
+    #user_constraints.add_constraint('pv_var', 'eq', 81000)
+    #user_constraints.add_constraint('load_mean', 'eq', 260)
+    #user_constraints.add_constraint('load_var', 'eq', 29000)
+    user_constraints.add_constraint('memory', 'leq', 70)
+    user_constraints.add_constraint('sol', 'leq', 400)
+    inputs = Inputs(db, 'anticipate')
+    inputs.add_input('load_var', 28000)
+    inputs.add_input('load_mean',  314)
+    inputs.add_input('pv_var',  76000)
+    inputs.add_input('pv_mean',  268)
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'toyalg')
-    hws_prices.add_hw_price('pc', 100)
-    hws_prices.add_hw_price('g100', 200)
-    hws_prices.add_hw_price('vm', 300)
+    hws_prices = HardwarePrices(db, 'anticipate')
+    hws_prices.add_hw_price('pc', 0)
     
-    robustness_factor = None
+    robustness_factor = 0
 
-    request = OptimizationRequest(db, 'toyalg', 'time', Inputs(db, 'toyalg'), 'min',  robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, 'anticipate', 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
+    print(request.inputs.get_inputs()["pv_var"])
+    print(request.user_constraints.get_constraints()["memory"])
     ##### Handling datasets and models #####
     # extracting info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
     print(var_bounds)
-
     robust_coeff = datasets.get_robust_coeff(models, request)
     print(robust_coeff)
 
     ##### Optimizing #####
     # submitting request to HADA
     solution = HADA(db, request, models, var_bounds, robust_coeff)
+    print("solution")
     print(solution)

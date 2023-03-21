@@ -49,7 +49,8 @@ class MLModels():
                 # launching training in background
                 dataset = self.datasets.get_dataset(algorithm, hw)
                 self.ongoing_training[(algorithm, hw, target)] = True
-                p = Process(target=self.__run_training, args=(algorithm, 
+                self.__run_training(algorithm, hw, target, dataset)
+                """p = Process(target=self.__run_training, args=(algorithm,
                                                               hw,
                                                               target,
                                                               dataset))
@@ -58,7 +59,7 @@ class MLModels():
                 # without the Exception, nothing is shown in the GUI, but multiple models can be trained in a single
                 # request, while still keeping all the training part incapsulated in "get_model"
                 print(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started.')
-                p.join()
+                p.join()"""
                 del self.ongoing_training[(algorithm, hw, target)]
                 print(f'Finished training model for ({algorithm}, {hw}, {target}).')
 
@@ -81,9 +82,10 @@ class MLModels():
         #s = time.time()
         model_path = self.__get_model_path(algorithm, hw, target)
 
-        # filtering dataset for the specific hyperparams and target
+        # filtering dataset for the specific hyperparams, inputs and target
         hyperparams = self.db.get_hyperparams(algorithm)
-        X = dataset[hyperparams].values
+        input_vars = self.db.get_input_vars(algorithm)
+        X = dataset[hyperparams+input_vars].values
         y = dataset[[target]].values
 
         # training the DT
