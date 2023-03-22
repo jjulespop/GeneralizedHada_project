@@ -1,6 +1,7 @@
 import os
 import requests
-from abc import ABC,abstractmethod
+import pickle
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from io import StringIO
 from urllib.parse import urljoin
@@ -11,8 +12,10 @@ from core.optimization_request import OptimizationRequest
 class Datasets(ABC):
     """Class that handles all the operations on the datasets."""
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, db):
+        self.db = db 
+        # handles expansion of str hyperparameters (one-hot encoding)
+        self.expander = StrExpander(self)
 
     @classmethod
     def from_local(cls, db, data_path):
@@ -56,8 +59,9 @@ class Datasets(ABC):
          
         #from pandas.api.types import is_numeric_dtype
         type_per_var = self.db.get_type_per_var(algorithm)
+        numerical_vars = [var for var in type_per_var if var not in self.db.get_str_vars(algorithm)]
         for column in df.columns:
-            if not pd.api.types.is_numeric_dtype(df[column]):
+            if column in numerical_vars and not pd.api.types.is_numeric_dtype(df[column]):
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
 
             # checking consistency with vartype declared in configs: int, float or bin
@@ -87,9 +91,10 @@ class Datasets(ABC):
         lb_per_var = self.db.get_lb_per_var(algorithm)
         ub_per_var = self.db.get_ub_per_var(algorithm)
 
-        # handling non-specified bounds by extracting them from data
-        lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None]
-        ub_missing_vars = [var for var,ub in ub_per_var.items() if ub is None]
+        str_vars = self.db.get_str_vars(algorithm)
+        # handling non-specified bounds by extracting them from data; skipping str variables
+        lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None and var not in str_vars]
+        ub_missing_vars = [var for var,ub in ub_per_var.items() if ub is None and var not in str_vars]
         missing_vars = set(lb_missing_vars + ub_missing_vars)
 
         # at least one bound to be extracted
@@ -184,7 +189,7 @@ class Datasets(ABC):
 class DatasetsLocal(Datasets):
     """Handles datasets stored locally."""
     def __init__(self, db, data_path):
-        self.db = db
+        super().__init__(db)
         self.data_path = data_path
 
     def get_dataset(self, algorithm, hw):
@@ -196,14 +201,15 @@ class DatasetsLocal(Datasets):
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw)
+        # expanding str variables into bin (one-hot encoding) internally
+        dataset = self.expander._expand_categoricals(dataset, algorithm)
 
         return dataset
-
 
 class DatasetsRemote(Datasets):
     """Handles retrieval of datasets from the storage web service."""
     def __init__(self, db, address):
-        self.db = db
+        super().__init__(db)
         self.address = address
 
     def get_dataset(self, algorithm, hw):
@@ -217,5 +223,115 @@ class DatasetsRemote(Datasets):
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw)
+        # expanding str variables into bin (one-hot encoding) internally
+        dataset = self.expander._expand_categoricals(dataset, algorithm)
 
         return dataset
+
+
+class StrExpander():
+    """Class that handles expansion of str variables via one-hot encoding."""
+    def __init__(self, datasets):
+        self.datasets = datasets
+        # path where the categories for "str" variables (categoricals) are stored
+        self.categories_path = "./algorithms/categorical_mappings"
+
+    def _get_categories_path(self, algorithm):
+        """Returns path for the categories relative to an algorithm (pickle)."""
+        return os.path.join(self.categories_path, f'{algorithm}.pkl')
+
+    def _get_onehot_var_name(self, og_var_name, category):
+        """Get name of a new (expanded) one-hot column."""
+        return og_var_name + '_' + category
+
+    def get_category_from_onehot(category, onehot_var_name):
+        """Extracts category values from a one-hot encoded column."""
+        return onehot_var_name.split(f'{category}_')[-1]
+
+    def get_expanded_hyperparams(self, algorithm):
+        """Return list of new hyperparams, where str variables are one-hot encoded."""
+        og_hyperparams = self.datasets.db.get_hyperparams(algorithm)
+        str_vars = self.datasets.db.get_str_vars(algorithm)
+
+        expanded_hyperparams = [hyperparam for hyperparam in og_hyperparams if hyperparam not in str_vars]
+        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm)
+        for str_var in str_vars:
+            expanded_hyperparams.extend(expanded_vars_per_str_var[str_var])
+
+        return expanded_hyperparams
+
+    def get_categories_per_str_var(self, algorithm):
+        """
+        Return dictionary with str variables as keys and the correspong set of unique values as values.
+        Makes use of get_dataset to create create the file containing the categories, if it does not exist.
+
+        Args:
+            algorithm (str): algorithm for which we want to know the categorical variables and the corresponding categories.
+
+        Returns:
+            dict: dictionary with str variables as keys and the corresponding set of unique values as values.
+
+        """
+        algo_categories_path = self._get_categories_path(algorithm)
+        if not os.path.exists(algo_categories_path):
+            # get_datasets() creates the categories pickle if it does not exist
+            first_hw = self.db.get_hws(algorithm)[0]
+            _ = self.datasets.get_dataset(algorithm, first_hw)
+
+        categories = pickle.load(open(algo_categories_path, 'rb'))
+        return categories
+
+    def get_expanded_vars_per_str_var(self, algorithm):
+        """
+        Return dictionary with str variables as keys and the correspong set of new variables as values.
+
+        Args:
+            algorithm (str): algorithm for which we want to know the categorical variables and the corresponding categories.
+
+        Returns:
+            dict: dictionary with str variables as keys and the corresponding set of new variables as values.
+
+        """
+        categories = self.get_categories_per_str_var(algorithm)
+        return {var:[self._get_onehot_var_name(var, category) for category in var_categories]
+                for var, var_categories in categories.items()}
+
+    def _expand_categoricals(self, df, algorithm):
+        """
+        Expands categorical variables (type "str") to one-hot encoding (type "bin") internally.
+        The mapping is stored on disk if not already existing, and is common for all hardwares for a given algorithm; 
+        Assumption: the dataset of any hardware for a given algorithm has the same categories.
+
+        Args:
+            df (pd.DataFrame): dataset about a specific algorithm and hardware.
+            algorithm (str): the algorithm which categoricals have to be handled.
+            checked (bool): whether the datasets have been already checked since init (the operation is needed just once).
+
+        Returns:
+            pd.DataFrame: DataFrame with str variables being one-hot encoded.
+        """
+
+        # load mapping (if existing) otherwise make it (based on current dataset) and store it
+        algo_categories_path = os.path.join(self.categories_path, f'{algorithm}.pkl')
+        if os.path.exists(algo_categories_path):
+            categories = pickle.load(open(algo_categories_path, 'rb'))
+        else:
+            # get all str variables for all hw
+            str_vars = self.datasets.db.get_str_vars(algorithm)
+
+            # get all unique values from various hw datasets, to create global mapping for the algorithm
+            categories = defaultdict(set)
+            for var in str_vars:
+                    categories[var] = set(df[var].unique().tolist())
+            pickle.dump(categories, open(algo_categories_path, 'wb'))
+
+        # expanding variables
+        for var, var_categories in categories.items():
+            if set(df[var].unique().tolist()) != var_categories:
+                raise AttributeError(f"Found unexpected categories for algorithm {algorithm}")
+            
+            new_cols = pd.get_dummies(df[var], prefix=var, prefix_sep='_')
+            df.drop(var, axis=1, inplace=True)
+            df = pd.concat([df,new_cols], axis=1)
+
+        return df

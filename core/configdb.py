@@ -95,8 +95,8 @@ class ConfigDB():
             # internal db structure
             hyperparams = {hyperparam['ID']: {'type': hyperparam['type'],
                                               'description': hyperparam['description'],
-                                              'LB': hyperparam['LB'],
-                                              'UB': hyperparam['UB']}
+                                              'LB': hyperparam['LB'] if hyperparam['type'] != 'str' else None,
+                                              'UB': hyperparam['UB'] if hyperparam['type'] != 'str' else None}
                             for hyperparam in config['hyperparams']}
 
             #'type': target['type'],
@@ -203,6 +203,10 @@ class ConfigDB():
 
         return type_per_var
 
+    def get_str_vars(self, algorithm):
+        """Get names of all string variables (hyperparameters)."""
+        return [var for var,type in self.get_type_per_var(algorithm).items() if type == 'str']
+
     def __check_json(self, algorithm, hw, config):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:
@@ -225,13 +229,17 @@ class ConfigDB():
                 if hyperparam['description'] is not None and type(hyperparam['description']) is not str:
                     raise AttributeError("Hyperparameter description must be a string")
 
-                if hyperparam['type'] not in ['bin', 'int', 'float']:
-                    raise AttributeError("Hyperparameter type must be 'bin', 'int' or 'float'")
+                if hyperparam['type'] not in ['bin', 'int', 'float', 'str']:
+                    raise AttributeError("Hyperparameter type must be 'bin', 'int', 'float' or 'str'")
 
-                if hyperparam['UB'] is not None and type(hyperparam['UB']) not in [int, float]:
-                    raise AttributeError("Hyperparameter upper bound must be a number or None")
-                if hyperparam['LB'] is not None and type(hyperparam['LB']) not in [int, float]:
-                    raise AttributeError("Hyperparameter lower bound must be a number or None")
+                if hyperparam['type'] == 'str':
+                    if ('UB' in hyperparam or 'LB' in hyperparam):
+                        raise AttributeError("Hyperparameters of type str cannot have an upper bound nor a lower bound")
+                else:
+                    if hyperparam['UB'] is not None and type(hyperparam['UB']) not in [int, float]:
+                        raise AttributeError("Hyperparameter upper bound must be a number or None")
+                    if hyperparam['LB'] is not None and type(hyperparam['LB']) not in [int, float]:
+                        raise AttributeError("Hyperparameter lower bound must be a number or None")
 
             # checking targets
             for target in config['targets']:

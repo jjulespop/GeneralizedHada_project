@@ -82,7 +82,10 @@ class MLModels():
         model_path = self.__get_model_path(algorithm, hw, target)
 
         # filtering dataset for the specific hyperparams and target
-        hyperparams = self.db.get_hyperparams(algorithm)
+        #hyperparams = self.db.get_hyperparams(algorithm)
+        # handling str variables, substituting them with one-hot encoded ones
+        hyperparams = self.datasets.expander.get_expanded_hyperparams(algorithm)
+
         X = dataset[hyperparams].values
         y = dataset[[target]].values
 
