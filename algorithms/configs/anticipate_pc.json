@@ -6,14 +6,14 @@
         {"ID": "nScenarios",  "description": null, "type": "int", "LB": null, "UB": null}
     ],
     "targets": [
-        {"ID": "sol",  "description": null, "LB": null, "UB": null},
-        {"ID": "time",  "description": null, "LB": null, "UB": null},
-        {"ID": "memory",  "description": null, "LB": null, "UB": null}
+        {"ID": "sol",  "description": null, "LB": 0.0, "UB": 600.0},
+        {"ID": "time",  "description": null, "LB": 0.0, "UB": 10.0},
+        {"ID": "memory",  "description": null, "LB": 0.0, "UB": 600.0}
     ],
     "input_vars": [
-        {"ID": "pv_mean",  "description": null, "type": "float", "LB": null, "UB": null},
-        {"ID": "pv_var",  "description": null, "type": "float", "LB": null, "UB": null},
-        {"ID": "load_mean",  "description": null, "type": "float", "LB": null, "UB": null},
-        {"ID": "load_var",  "description": null, "type": "float", "LB": null, "UB": null}
+        {"ID": "pv_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
+        {"ID": "pv_var",  "description": null, "type": "float", "LB": 0.0, "UB": 100000.0},
+        {"ID": "load_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
+        {"ID": "load_var",  "description": null, "type": "float", "LB": 0.0, "UB": 50000.0}
     ]
 }

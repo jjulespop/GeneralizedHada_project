@@ -18,33 +18,34 @@ if __name__ == '__main__':
 
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
-
+    algorithm = 'contingency' #'anticipate'
     models = MLModels(db, datasets, models_path)
 
-    print(db.get_type_per_var('anticipate'))
+    print(db.get_type_per_var(algorithm))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'anticipate')
-    #user_constraints.add_constraint('pv_mean', 'eq', 260)
-    #user_constraints.add_constraint('pv_var', 'eq', 81000)
-    #user_constraints.add_constraint('load_mean', 'eq', 260)
-    #user_constraints.add_constraint('load_var', 'eq', 29000)
-    user_constraints.add_constraint('memory', 'leq', 70)
+    user_constraints = UserConstraints(db, algorithm)
+    user_constraints.add_constraint('memory', 'leq', 90)
     user_constraints.add_constraint('sol', 'leq', 400)
-    inputs = Inputs(db, 'anticipate')
+    inputs = Inputs(db, algorithm)
+    #1, 268.02187499999997, 76627.62379231771, 314.1177083333333, 28317.61958224826, 386.73, 5.68, 82.89
+    #inputs.add_input('load_var', 28000)
+    #inputs.add_input('load_mean',  314)
+    #inputs.add_input('pv_var',  76000)
+    #inputs.add_input('pv_mean',  268)
     inputs.add_input('load_var', 28000)
     inputs.add_input('load_mean',  314)
-    inputs.add_input('pv_var',  76000)
+    inputs.add_input('pv_var',  76600)
     inputs.add_input('pv_mean',  268)
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'anticipate')
+    hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
     
     robustness_factor = 0
 
-    request = OptimizationRequest(db, 'anticipate', 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, algorithm, 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
-    print(request.inputs.get_inputs()["pv_var"])
+    #print(request.inputs.get_inputs()["pv_var"])
     print(request.user_constraints.get_constraints()["memory"])
     ##### Handling datasets and models #####
     # extracting info from datasets

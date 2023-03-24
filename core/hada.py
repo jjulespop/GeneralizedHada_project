@@ -86,7 +86,7 @@ def HADA(db: ConfigDB,
             ml_var[input_var] = f'auxiliary_{input_var}'
 
 
-
+    #constraints for input variables
     for input_var in request.inputs.get_inputs().keys():
         mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
@@ -128,7 +128,7 @@ def HADA(db: ConfigDB,
             embed.encode_backward_implications(
                     bkd = bkd, mdl = mdl,
                     tree = model, 
-                    tree_in = [mdl.get_var_by_name(ml_var[var]) for var in (hyperparams+input_vars) ],
+                    tree_in = [mdl.get_var_by_name(ml_var[var]) for var in (hyperparams+input_vars)],
                     tree_out = mdl.get_var_by_name(ml_var[f"{hw}_{target}"]),
                     name = f"DT_{hw}_{target}")
     
@@ -181,6 +181,6 @@ def HADA(db: ConfigDB,
         targets_values = {target: round(sol[f"{chosen_hw}_{target}"]) if var_type[target] != mdl.continuous_vartype else sol[f"{chosen_hw}_{target}"] for target in targets}
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
-        solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values)
+        solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values, mdl.number_of_variables, mdl.number_of_constraints)
 
     return solution

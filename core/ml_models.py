@@ -7,6 +7,9 @@ import time
 from multiprocessing import Process, Manager
 from sklearn.tree import DecisionTreeRegressor
 
+
+
+
 class MLModels():
     def __init__(self, db, datasets, models_path):
         """Handles all operations on ML models.
@@ -50,7 +53,7 @@ class MLModels():
                 dataset = self.datasets.get_dataset(algorithm, hw)
                 self.ongoing_training[(algorithm, hw, target)] = True
                 self.__run_training(algorithm, hw, target, dataset)
-                """p = Process(target=self.__run_training, args=(algorithm,
+                """p = Process(target=self.__run_training, args=(self, algorithm,
                                                               hw,
                                                               target,
                                                               dataset))

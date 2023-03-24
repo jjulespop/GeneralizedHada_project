@@ -32,7 +32,9 @@ class OptimizationRequest():
         self.user_constraints = user_constraints
 
         if not isinstance(inputs, Inputs):
-            raise AttributeError("Input must be specified via UserConstraints class.")
+            raise AttributeError("Input must be specified via Inputs class.")
+        if set(inputs.get_inputs().keys()) != set(db.get_input_vars(algorithm)):
+            raise AttributeError("Must set a value for each input variable.")
         self.inputs = inputs
 
         # no user input version; just read from config
@@ -88,7 +90,6 @@ class Inputs():
     def add_input(self, input_var, value):
         if input_var not in self.db.get_input_vars(self.algorithm):
             raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
-
         if type(value) not in [float, int]:
             raise AttributeError("Input value must be numerical.")
 
@@ -138,10 +139,12 @@ class HardwarePrices():
 
 class OptimizationSolution():
     '''Class containing a solution produced by HADA.'''
-    def __init__(self, chosen_hw, hyperparams_values, targets_values):
+    def __init__(self, chosen_hw, hyperparams_values, targets_values, num_variables=None, num_constraints=None):
         self.chosen_hw = chosen_hw
         self.hyperparams_values = hyperparams_values
         self.targets_values = targets_values
+        self.num_variables = num_variables
+        self.num_constraints = num_constraints
 
     def __str__(self):
-        return f'chosen hw: {self.chosen_hw}; hyperparams values: {self.hyperparams_values}; targets values: {self.targets_values}'
+        return f'chosen hw: {self.chosen_hw}; hyperparams values: {self.hyperparams_values}; targets values: {self.targets_values}; num_variables: {self.num_variables}; num_constraints: {self.num_constraints}'
