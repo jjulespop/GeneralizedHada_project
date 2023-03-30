@@ -5,10 +5,12 @@ from eml.tree import embed
 from docplex.mp.model_reader import ModelReader
 from core.configdb import ConfigDB
 from core.optimization_request import OptimizationSolution
+from core.logic_rules import get_linear_expression
+import docplex.mp.conflict_refiner as cr
 
 def HADA(db: ConfigDB,
          request,
-         models,
+         logic_models,
          var_bounds,
          robust_coeff):
     '''
@@ -120,18 +122,24 @@ def HADA(db: ConfigDB,
         # time and memory depend on both the hw and the algorithm configuration: each of them requires three 
         # dedicated predictive models
         for hw in hws:
-            model = models.get_model(request.algorithm, hw, target)
-            model = read_sklearn_tree(model)
-            for i, var in enumerate(hyperparams+input_vars):
-                model.update_lb(i, var_bounds[var]['lb'])
-                model.update_ub(i, var_bounds[var]['ub'])
-            embed.encode_backward_implications(
-                    bkd = bkd, mdl = mdl,
-                    tree = model, 
-                    tree_in = [mdl.get_var_by_name(ml_var[var]) for var in (hyperparams+input_vars)],
-                    tree_out = mdl.get_var_by_name(ml_var[f"{hw}_{target}"]),
-                    name = f"DT_{hw}_{target}")
-    
+            rules = logic_models.get_rules(request.algorithm, hw, target)
+            then_vars = []
+            for i, interval in enumerate(rules.intervals):
+                expression = rules.expressions[i]
+                then_var_name = f'var_then_{target}_{i}'
+                then_var = mdl.binary_var(then_var_name)
+                then_vars.append(then_var)
+                interval_vars = []
+                for var in interval.keys():
+                    interval_var_name = f'var_if_{target}_{var}_{i}'
+                    interval_var = mdl.binary_var(interval_var_name)
+                    interval_vars.append(interval_var)
+                    mdl.add_indicator(interval_var, mdl.get_var_by_name(var) <= interval[var][1], name=f'ub_{var}_{i}_{target}_{hw}')
+                    mdl.add_indicator(interval_var, mdl.get_var_by_name(var) >= interval[var][0], name=f'lb_{var}_{i}_{target}_{hw}')
+                mdl.add_indicator(then_var, mdl.sum(interval_vars) == len(interval.keys()), name=f'sum_int_{i}_{target}_{hw}') #all the bounds are respected
+                mdl.add_indicator(then_var, mdl.get_var_by_name(f'{hw}_{target}') == eval(get_linear_expression(expression)), name=f'expression_{i}_{target}_{hw}')
+
+            mdl.add_constraint(mdl.sum(then_vars) == 1, ctname=f"one_rule_{target}_{hw}")#only one rule is true
     # Handling non-estimated target (price) and robustness coefficients: 
     # 1.Equality constraints, fixing each price variable hw_price to the usage price of the corresponding hw,
     # as required by the hw provider
@@ -170,8 +178,10 @@ def HADA(db: ConfigDB,
 
         
     ##### SOLVE #####
-    sol = mdl.solve()
-    
+    sol = mdl.solve(log_output=False)
+    #print(mdl.solve_details)
+    #cref = cr.ConflictRefiner()
+    #cref.refine_conflict(mdl, display=True)
     solution = None
     if sol:
         for hw in hws:
