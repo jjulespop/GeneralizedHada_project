@@ -28,15 +28,10 @@ if __name__ == '__main__':
     user_constraints.add_constraint('memory', 'leq', 90)
     user_constraints.add_constraint('sol', 'leq', 400)
     inputs = Inputs(db, algorithm)
-    #1, 268.02187499999997, 76627.62379231771, 314.1177083333333, 28317.61958224826, 386.73, 5.68, 82.89
-    #inputs.add_input('load_var', 28000)
-    #inputs.add_input('load_mean',  314)
-    #inputs.add_input('pv_var',  76000)
-    #inputs.add_input('pv_mean',  268)
-    inputs.add_input('load_var', 28000)
+    inputs.add_input('load_std',  167)
     inputs.add_input('load_mean',  314)
-    inputs.add_input('pv_var',  76600)
-    inputs.add_input('pv_mean',  268)
+    inputs.add_input('pv_std',  276)
+    inputs.add_input('pv_mean',  268)#268
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
@@ -45,7 +40,6 @@ if __name__ == '__main__':
 
     request = OptimizationRequest(db, algorithm, 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
-    #print(request.inputs.get_inputs()["pv_var"])
     print(request.user_constraints.get_constraints()["memory"])
     ##### Handling datasets and models #####
     # extracting info from datasets

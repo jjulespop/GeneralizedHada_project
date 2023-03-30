@@ -12,8 +12,8 @@
     ],
     "input_vars": [
        {"ID": "pv_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
-        {"ID": "pv_var",  "description": null, "type": "float", "LB": 0.0, "UB": 100000.0},
+        {"ID": "pv_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0},
         {"ID": "load_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
-        {"ID": "load_var",  "description": null, "type": "float", "LB": 0.0, "UB": 50000.0}
+        {"ID": "load_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0}
     ]
 }

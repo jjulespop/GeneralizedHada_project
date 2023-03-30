@@ -171,7 +171,7 @@ def HADA(db: ConfigDB,
         
     ##### SOLVE #####
     sol = mdl.solve()
-    
+    print(mdl.solve_details)
     solution = None
     if sol:
         for hw in hws:
