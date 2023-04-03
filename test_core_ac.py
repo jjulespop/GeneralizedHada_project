@@ -18,17 +18,17 @@ if __name__ == '__main__':
 
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
-    algorithm = 'contingency' #'anticipate'
+    algorithm = 'contingency' #'anticipate'#
     models = LogicModels(db,  models_path)
 
     print(db.get_type_per_var(algorithm))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, algorithm)
-    user_constraints.add_constraint('memory', 'leq', 400)
-    user_constraints.add_constraint('sol', 'leq', 400)
+    #user_constraints.add_constraint('memory', 'leq', 400)
+    #user_constraints.add_constraint('sol', 'leq', 400)
     #user_constraints.add_constraint('sol', 'geq', 50)
-    user_constraints.add_constraint('time', 'leq', 200)
+    #user_constraints.add_constraint('time', 'leq', 200)
     inputs = Inputs(db, algorithm)
     #1, 268.02187499999997, 76627.62379231771, 314.1177083333333, 28317.61958224826, 386.73, 5.68, 82.89
     #inputs.add_input('load_var', 28000)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     
     robustness_factor = 0
 
-    request = OptimizationRequest(db, algorithm, 'time', inputs, 'max',  robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, algorithm, 'sol', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
     #print(request.inputs.get_inputs()["pv_std"])
     #print(request.user_constraints.get_constraints()["memory"])
