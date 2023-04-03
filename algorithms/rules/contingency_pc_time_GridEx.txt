@@ -1,0 +1,10 @@
+time(NTraces, 11.30) :-
+    NTraces in [0.99, 20.79].
+time(NTraces, 24.30) :-
+    NTraces in [20.79, 40.6].
+time(NTraces, 36.06) :-
+    NTraces in [40.6, 60.4].
+time(NTraces, 47.97) :-
+    NTraces in [60.4, 80.20].
+time(NTraces, 59.13) :-
+    NTraces in [80.20, 100.00].

@@ -1,0 +1,7 @@
+memo(NTraces, 87.20) :-
+    NTraces =< 29.5.
+memo(NTraces, 96.97) :-
+    NTraces > 99.5.
+memo(NTraces, 94.73) :-
+    NTraces =< 30.5.
+memo(NTraces, 90.100316).

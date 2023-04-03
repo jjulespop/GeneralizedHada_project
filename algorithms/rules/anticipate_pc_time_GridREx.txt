@@ -1,0 +1,8 @@
+time(nScenarios, time) :-
+    nScenarios in [40.6, 60.4], time is -113.08 + 4.75 * nScenarios.
+time(nScenarios, time) :-
+    nScenarios in [60.4, 80.20], time is 178.93 + -0.18 * nScenarios.
+time(nScenarios, time) :-
+    nScenarios in [80.20, 100.00], time is -41.11 + 2.52 * nScenarios.
+time(nScenarios, time) :-
+    nScenarios in [0.99, 40.6], time is -5.26 + 2.06 * nScenarios.

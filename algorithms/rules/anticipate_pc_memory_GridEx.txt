@@ -1,0 +1,10 @@
+memo(NScenarios, 108.36) :-
+    NScenarios in [0.99, 20.79].
+memo(NScenarios, 168.63) :-
+    NScenarios in [20.79, 40.6].
+memo(NScenarios, 219.42) :-
+    NScenarios in [40.6, 60.4].
+memo(NScenarios, 270.62) :-
+    NScenarios in [60.4, 80.20].
+memo(NScenarios, 317.22) :-
+    NScenarios in [80.20, 100.00].

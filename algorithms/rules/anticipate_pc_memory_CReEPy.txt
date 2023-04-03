@@ -1,0 +1,4 @@
+memo(NScenarios, Memo) :-
+    NScenarios in [9.99, 100.00], Memo is 91.14 + 2.51 * NScenarios.
+memo(NScenarios, Memo) :-
+    NScenarios in [0.99, 100.00], Memo is 62.89 + 4.54 * NScenarios.

@@ -1,0 +1,8 @@
+memory(nTraces, memory) :-
+    nTraces in [33.99, 100.00], memory is 88.22 + 0.03 * nTraces.
+memory(nTraces, memory) :-
+    nTraces in [0.99, 11.99], memory is 87.12 + -0.04 * nTraces.
+memory(nTraces, memory) :-
+    nTraces in [11.99, 22.99], memory is 80.77 + 0.40 * nTraces.
+memory(nTraces, memory) :-
+    nTraces in [22.99, 33.99], memory is 82.42 + 0.20 * nTraces.

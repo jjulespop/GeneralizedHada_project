@@ -1,0 +1,10 @@
+memory(nScenarios, memory) :-
+    nScenarios in [0.99, 20.79], memory is 66.20 + 4.02 * nScenarios.
+memory(nScenarios, memory) :-
+    nScenarios in [20.79, 40.6], memory is 88.71 + 2.59 * nScenarios.
+memory(nScenarios, memory) :-
+    nScenarios in [40.6, 60.4], memory is 83.04 + 2.68 * nScenarios.
+memory(nScenarios, memory) :-
+    nScenarios in [60.4, 80.20], memory is 77.25 + 2.73 * nScenarios.
+memory(nScenarios, memory) :-
+    nScenarios in [80.20, 100.00], memory is 107.64 + 2.30 * nScenarios.

@@ -1,0 +1,10 @@
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 337.41) :-
+    Load_std in [157.50, 162.24].
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 340.14) :-
+    Load_std in [162.24, 166.98].
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 372.75) :-
+    Load_std in [166.98, 171.72].
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 410.52) :-
+    Load_std in [171.72, 176.46].
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 514.16) :-
+    Load_std in [176.46, 181.20].

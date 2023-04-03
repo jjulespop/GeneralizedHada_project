@@ -1,0 +1,10 @@
+cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, 373.06) :-
+    NScenarios in [0.99, 20.79].
+cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, 354.49) :-
+    NScenarios in [20.79, 40.6].
+cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, 329.08) :-
+    NScenarios in [40.6, 60.4].
+cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, 309.83) :-
+    NScenarios in [60.4, 80.20].
+cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, 290.67) :-
+    NScenarios in [80.20, 100.00].

@@ -1,0 +1,4 @@
+time(NTraces, Time) :-
+    NTraces in [31.99, 100.00], Time is 7.80 + 0.56 * NTraces.
+time(NTraces, Time) :-
+    NTraces in [0.99, 100.00], Time is 5.05 + 0.59 * NTraces.

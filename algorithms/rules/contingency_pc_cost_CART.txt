@@ -1,0 +1,7 @@
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 340.99) :-
+    Load_std =< 168.30.
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 548.58) :-
+    Load_mean > 343.17.
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 400.78) :-
+    NTraces =< 89.5.
+cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, 347.659686)

@@ -1,0 +1,7 @@
+memo(NScenarios, 104.86) :-
+    NScenarios =< 49.5, NScenarios =< 19.5.
+memo(NScenarios, 177.01) :-
+    NScenarios =< 49.5, NScenarios > 19.5.
+memo(NScenarios, 246.28) :-
+    NScenarios =< 73.5.
+memo(NScenarios, 309.25037).

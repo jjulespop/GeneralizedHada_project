@@ -1,0 +1,7 @@
+time(NTraces, 13.08) :-
+    NTraces =< 50.5, NTraces =< 26.5.
+time(NTraces, 29.45) :-
+    NTraces =< 50.5, NTraces > 26.5.
+time(NTraces, 42.02) :-
+    NTraces =< 71.5.
+time(NTraces, 56.667674).
