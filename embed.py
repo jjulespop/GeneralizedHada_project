@@ -9,7 +9,7 @@ from eml.tree.describe import DTNode
 # ===========================================================================
 
 def _extract_rules(root):
-    """ Transforms the decistion tree into a set of rules
+    """ Transforms the decistion tree into a set of logic_rules
 
     Every rule represents a path from the root to a leaf. 
     The rule are composed by the attribute name, attribute type and threshold 
@@ -117,7 +117,7 @@ def encode_backward_implications(bkd, tree, mdl, tree_in, tree_out, name):
                 res[aname] = (max(oth1, th1), min(oth2, th2))
         crules.append(res)
     # ------------------------------------------------------------------------
-    # Process all conditions in all rules
+    # Process all conditions in all logic_rules
     for irule, crule in enumerate(crules):
         for aname, (th1, th2) in crule.items():
             x_var, z_var = tree_in[aname], Z[irule]
@@ -127,13 +127,13 @@ def encode_backward_implications(bkd, tree, mdl, tree_in, tree_out, name):
                 bkd.cst_leq(mdl, x_var, th2 * z_var + tree.ub(aname) * (1 - z_var))
 
     # built = set()
-    # for k, r in enumerate(rules):
+    # for k, r in enumerate(logic_rules):
     #     for aname, atype, (th1, th2) in r[:-1]:
     #         # If the constraint has already been built, then do nothing
     #         if (aname, th1, th2) in built:
     #             continue
-    #         # Identify all rules that are based on this condition
-    #         # Should work with implied rules, too
+    #         # Identify all logic_rules that are based on this condition
+    #         # Should work with implied logic_rules, too
     #         # impl = [k for k, cr in enumerate(crules) if
     #         #         aname in cr and
     #         #         cr[aname][0] <= th1 and th2 < cr[aname][1]]

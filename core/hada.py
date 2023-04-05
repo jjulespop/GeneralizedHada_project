@@ -5,7 +5,7 @@ from eml.tree import embed
 from docplex.mp.model_reader import ModelReader
 from core.configdb import ConfigDB
 from core.optimization_request import OptimizationSolution
-from core.logic_rules import get_linear_expression
+from core.logic_models import get_linear_expression
 import docplex.mp.conflict_refiner as cr
 
 def HADA(db: ConfigDB,
@@ -124,19 +124,21 @@ def HADA(db: ConfigDB,
         for hw in hws:
             rules = logic_models.get_rules(request.algorithm, hw, target)
             then_vars = []
-            for i, rule in enumerate(rules):
+            for i, rule in enumerate(rules):#add the logic logic_rules to the model
                 if_con = rule["if"]
-                then_var_name = f'var_then_{target}_{i}'
+                then_var_name = f'var_then_{hw}_{target}_{i}'
                 then_var = mdl.binary_var(then_var_name)
                 then_vars.append(then_var)
+                # if part of the rule
                 if_con_vars = []
-                for j, var in enumerate(if_con["var"]):#if part of the rule
-                    if_con_var_name = f'var_if_{target}_{var}_{i}'
+                for j, var in enumerate(if_con["var"]):
+                    if_con_var_name = f'var_if_{hw}_{target}_{var}_{i}'
                     if_con_var = mdl.binary_var(if_con_var_name)
                     if_con_vars.append(if_con_var)
                     if if_con["type"][j] == "range":#only one in gridrex
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j][1], name=f'ub_{var}_{i}_{target}_{hw}')
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j][0], name=f'lb_{var}_{i}_{target}_{hw}')
+                #linking if to then
                 mdl.add_indicator(then_var, mdl.sum(if_con_vars) == len(if_con["var"]), name=f'sum_int_{i}_{target}_{hw}') #all the bounds are respected
                 #then part of the rule
                 then_con = rule["then"]

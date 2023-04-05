@@ -11,7 +11,7 @@
         {"ID": "memory",  "description": null, "LB": 59.0, "UB": 345.0}
     ],
     "input_vars": [
-        {"ID": "pv_mean",  "description": null, "type": "float", "LB": 260, "UB": 300},
+        {"ID": "pv_mean",  "description": null, "type": "float", "LB": 240, "UB": 300},
         {"ID": "pv_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0},
         {"ID": "load_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
         {"ID": "load_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0}

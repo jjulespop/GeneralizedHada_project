@@ -3,22 +3,18 @@ Class that handles operations that have to be carried out on the ML models.
 '''
 import ast
 import os
-import pickle
-import time
-from multiprocessing import Process, Manager
-from sklearn.tree import DecisionTreeRegressor
 
 
 
 
 class LogicModels():
     def __init__(self, db, rules_path):
-        """Handles all operations on ML rules.
+        """Handles all operations on ML logic_rules.
 
         Args:
             db (ConfigDB): ConfigDB instance.
             datasets (Datasets): Datasets instance.
-            rules_path (str): local path where the rules are stored.
+            rules_path (str): local path where the logic_rules are stored.
         """
         self.db = db
         self.rules_path = rules_path
@@ -39,11 +35,12 @@ class LogicModels():
             Exception: if rule is not found
 
         Returns:
+            logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
         """
         rules_path = self.__get_rules_path(algorithm, hw, target)
 
         if not os.path.exists(rules_path):
-            raise Exception(f'rules for ({algorithm}, {hw}, {target}) not available')
+            raise Exception(f'logic_rules for ({algorithm}, {hw}, {target}) not available')
         with open(rules_path, "r") as file:
             lines = file.readlines()
         rules=[]
@@ -64,6 +61,7 @@ class LogicModels():
                 rule = {"if": if_constraint, "then": then_constraint}
                 rules.append(rule)
         return rules
+
 
 def get_linear_expression(s: str):
     """
@@ -88,3 +86,4 @@ def get_linear_expression(s: str):
     linear_expr = ' '.join(l)
 
     return linear_expr
+
