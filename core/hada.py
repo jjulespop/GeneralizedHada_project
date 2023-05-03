@@ -182,5 +182,6 @@ def HADA(db: ConfigDB,
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
         solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values, mdl.number_of_variables, mdl.number_of_constraints)
-
+    else:
+        solution = OptimizationSolution(num_variables=mdl.number_of_variables, num_constraints=mdl.number_of_constraints)
     return solution
