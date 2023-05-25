@@ -132,6 +132,7 @@ class Datasets(ABC):
         """
         Compute upper and lower bounds of each variable, including price.
         If UB/LB specified in configs, use that instead of extracting from data.
+        Handles "price" on top of the regular targets.
 
         Args:
             request (OptimizationRequest): instance of OptimizationRequest.

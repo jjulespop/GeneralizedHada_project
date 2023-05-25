@@ -50,31 +50,47 @@ Route: `http://localhost:5000/algorithms/<algorithm>`
 Response (example for "fwt" algorithm):
 ```
 {
-  "algorithm": "fwt",
-  "hyperparameters": {
-    "var_0": {
-      "lb": 3,
-      "ub": 52
-    },
-    "var_1": {
-      "lb": 3,
-      "ub": 52
-    }
-  },
-  "targets": {
-    "memory": {
-      "lb": 24.450379,
-      "ub": 52.31878
-    },
-    "price": {
-      "lb": null,
-      "ub": null
-    },
-    "time": {
-      "lb": 60.57580995559693,
-      "ub": 864.9205942153931
-    }
-  }
+	"algorithm":"fwt",
+	"hws":{
+		"g100":{
+			"default_price":null
+		},
+		"pc":{
+			"default_price":null
+		},
+		"vm":{
+			"default_price":null
+		}
+	},
+	"hyperparameters":{
+		"var_0":{
+			"description":"Test",
+			"lb":3,
+			"ub":52
+		},
+		"var_1":{
+			"description":null,
+			"lb":3,
+			"ub":52
+		}
+	},
+	"targets":{
+		"memory":{
+			"description":null,
+			"lb":24.450379,
+			"ub":52.31878
+		},
+		"price":{
+			"description":null,
+			"lb":null,
+			"ub":null
+		},
+		"time":{
+			"description":"Test 2",
+			"lb":60.57580995559693,
+			"ub":864.9205942153931
+		}
+	}
 }
 ```
 
@@ -91,7 +107,7 @@ curl -X POST -H 'Content-Type: application/json' -d
   "objective": {"target":"memory", "type": "min"},
   "robustness_fact": null,
   "constraints": [
-    {'target': "time", "type": "leq", "value": 120},
+    {"target": "time", "type": "leq", "value": 120},
     ...
    ],
    "price_per_hw": [
