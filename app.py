@@ -13,6 +13,7 @@ from core.hada import HADA
 # Service setup
 # ==============================================================================
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K!@'
 
 # ==============================================================================
@@ -184,6 +185,8 @@ def get_algorithms():
 def get_algo_info(algorithm):
 
     hyperparams = db.get_hyperparams(algorithm)
+    # types are relevant only for hyperparameters, targets are assumed to be 'float'
+    types = db.get_type_per_var(algorithm)
     targets = db.get_targets(algorithm)
     description_per_var = db.get_description_per_var(algorithm)
     lb_per_var, ub_per_var = datasets.extract_var_bounds(algorithm)
@@ -192,12 +195,13 @@ def get_algo_info(algorithm):
     description_per_var['price'] = None
 
     
-    hyperparams_with_bounds_and_desc = {hyperparam: {'description': description_per_var[hyperparam],
+    hyperparams_profiles = {hyperparam: {'description': description_per_var[hyperparam],
+                                                     'type': types[hyperparam],
                                                      'lb': lb_per_var[hyperparam],
                                                      'ub': ub_per_var[hyperparam]}
                                for hyperparam in hyperparams}
 
-    targets_with_bounds_and_desc = {target: {'description': description_per_var[target],
+    targets_profiles = {target: {'description': description_per_var[target],
                                              'lb': lb_per_var[target],
                                              'ub': ub_per_var[target]} 
                            for target in targets}
@@ -207,8 +211,8 @@ def get_algo_info(algorithm):
 
     ret = {'algorithm': algorithm,
            'hws': hws_with_prices,
-           'hyperparameters': hyperparams_with_bounds_and_desc,
-           'targets': targets_with_bounds_and_desc}
+           'hyperparameters': hyperparams_profiles,
+           'targets': targets_profiles}
 
     # alternative
     #ret = {'algorithm': algorithm,
