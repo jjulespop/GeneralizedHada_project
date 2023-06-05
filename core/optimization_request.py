@@ -7,7 +7,8 @@ class OptimizationRequest():
                  opt_type,
                  robustness_fact,
                  user_constraints,
-                 hws_prices):
+                 hws_prices,
+                 inputs=None):
 
         if algorithm not in db.get_algorithms():
             raise AttributeError(f'Algorithm {algorithm} not available.')
@@ -36,6 +37,42 @@ class OptimizationRequest():
         if not isinstance(hws_prices, HardwarePrices):
             raise AttributeError("Hardware prices must be specified via HardwarePrices class.")
         self.hws_prices = hws_prices
+
+        self.is_case_dependent = False
+        if inputs:
+            self.is_case_dependent = True
+            if not isinstance(inputs, Inputs):
+                raise AttributeError("Hardware prices must be specified via HardwarePrices class.")
+            self.inputs = inputs
+            
+    
+    def is_case_dependent(self):
+        return self.is_case_dependent
+
+
+class Inputs():
+    """Class that represents an user's input to be included in a Request. Arguments are checked."""
+    def __init__(self, configdb, algorithm) -> None:
+
+        self.db = configdb
+
+        if algorithm not in self.db.get_algorithms():
+            raise AttributeError(f'Algorithm {algorithm} not available.')
+        self.algorithm = algorithm
+
+        # target : (type, value)
+        self.inputs = {}
+
+    def add_input(self, input_var, value):
+        if input_var not in self.db.get_input_vars(self.algorithm):
+            raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
+        if type(value) not in [float, int]:
+            raise AttributeError("Input value must be numerical.")
+
+        self.inputs[input_var] = value
+
+    def get_inputs(self):
+        return self.inputs
 
 
 class UserConstraints():

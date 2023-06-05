@@ -1,0 +1,22 @@
+{
+    "name": "toyalg",
+    "HW_ID": "pc",
+    "HW_price": null,
+    "inputs": [
+        {"ID": "input_0", "type": "float", "description": null, "LB": null, "UB": null},
+        {"ID": "input_1", "type": "float", "description": null, "LB": null, "UB": null}
+    ],
+    "hyperparams": [
+        {"ID": "var_0", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_1", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_2", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_3", "description": null, "type": "bin", "LB": null, "UB": null},
+        {"ID": "var_4", "description": null, "type": "int", "LB": null, "UB": null},
+        {"ID": "var_5", "description": null, "type": "int", "LB": null, "UB": null},
+        {"ID": "var_6", "description": null, "type": "bin", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "time", "description": null, "LB": null, "UB": null},
+        {"ID": "memory", "description": null, "LB": null, "UB": null}
+    ]
+}
