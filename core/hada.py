@@ -34,14 +34,14 @@ def HADA(db: ConfigDB,
     mdl = docplex.mp.model.Model("HADA")
     #mdl.parameters.mip.tolerances.integrality = 0.0
 
-    hws = db.get_hws(request.algorithm)
+    hws = db.get_hws(request.algorithm, request.input_dependent)
     targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
-    #hyperparams = db.get_hyperparams(request.algorithm)
+    hyperparams = db.get_hyperparams(request.algorithm, request.input_dependent)
     inputs_and_hyperparams = db.get_ml_input_vars(request.algorithm, request.input_dependent)
     
     # Retrieve variable types, assuming that price is always a float
     cplex_type = {'bin' : mdl.binary_vartype, 'int' : mdl.integer_vartype, 'float' : mdl.continuous_vartype}
-    var_type = db.get_type_per_var(request.algorithm)
+    var_type = db.get_type_per_var(request.algorithm, request.input_dependent)
     var_type['price'] = 'float'
     var_type = {var : cplex_type[var_type[var]] for var in var_type.keys()}
 
@@ -103,7 +103,7 @@ def HADA(db: ConfigDB,
         # time and memory depend on both the hw and the algorithm configuration: each of them requires three 
         # dedicated predictive models
         for hw in hws:
-            model = models.get_model(request.algorithm, hw, target)
+            model = models.get_model(request.algorithm, hw, target, request.input_dependent)
             model = read_sklearn_tree(model)
             #for i, hyperparam in enumerate(hyperparams):
             for i, var in enumerate(inputs_and_hyperparams):

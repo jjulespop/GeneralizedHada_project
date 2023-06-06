@@ -15,7 +15,7 @@ class Datasets(ABC):
         pass
 
     @classmethod
-    def from_local(cls, db, data_path):
+    def from_local(cls, db, data_path_no_inp, data_path_inp):
         """Initialize Datasets using local datasets.
 
         Args:
@@ -25,7 +25,7 @@ class Datasets(ABC):
         Returns:
             Datasets: instance of Datasets.
         """
-        return DatasetsLocal(db, data_path)
+        return DatasetsLocal(db, data_path_no_inp, data_path_inp)
 
     @classmethod
     def from_remote(cls, db, address):
@@ -47,8 +47,8 @@ class Datasets(ABC):
 
     def _check_dataset_consistency(self, df, algorithm, hw, input_dependent=False):
         """Checking the columns are the expected ones and that they are numericals."""
-        hyperparams = self.db.get_hyperparams(algorithm)
-        data_targets = self.db.get_targets(algorithm)
+        hyperparams = self.db.get_hyperparams(algorithm, input_dependent)
+        data_targets = self.db.get_targets(algorithm, input_dependent)
         data_targets.remove('price')
         if input_dependent:
             inputs = self.db.get_inputs(algorithm)
@@ -105,7 +105,7 @@ class Datasets(ABC):
             all_mins_per_var = defaultdict(list)
             all_maxes_per_var = defaultdict(list)
 
-            for hw in self.db.get_hws(algorithm):
+            for hw in self.db.get_hws(algorithm, input_dependent):
             
                 dataset = self.get_dataset(algorithm, hw, input_dependent)
 
@@ -120,7 +120,7 @@ class Datasets(ABC):
                 ub_per_var[var] = max(all_maxes_per_var[var]).item()
 
             # checking that dtypes of variables are compatible with the bounds
-            type_per_var = self.db.get_type_per_var(algorithm)
+            type_per_var = self.db.get_type_per_var(algorithm, input_dependent)
             for var, dtype in type_per_var.items():
                 var_lb = lb_per_var[var]
                 var_ub = ub_per_var[var]
@@ -146,7 +146,7 @@ class Datasets(ABC):
             var_bounds (dict): lower bound and upper bound for each variable, including price.
         """
 
-        lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
+        lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm, request.input_dependent)
 
         if request.target == 'price' or 'price' in request.user_constraints.get_constraints():
             lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
@@ -196,8 +196,8 @@ class DatasetsLocal(Datasets):
         self.data_path_inp = data_path_inp
 
     def get_dataset(self, algorithm, hw, input_dependent=False):
-        dataset_path = self.data_path_inp if input_dependent else self.data_path_no_inp
-        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
+        path = self.data_path_inp if input_dependent else self.data_path_no_inp
+        dataset_path = os.path.join(path, f'{algorithm}_{hw}.csv')
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
 

@@ -17,11 +17,11 @@ class OptimizationRequest():
                 raise AttributeError("Inputs must be specified via Inputs class.")
             self.inputs = inputs
 
-        if algorithm not in db.get_algorithms():
+        if algorithm not in db.get_algorithms(self.input_dependent):
             raise AttributeError(f'Algorithm {algorithm} not available.')
         self.algorithm = algorithm
 
-        if target not in db.get_targets(algorithm):
+        if target not in db.get_targets(algorithm, self.input_dependent):
             raise AttributeError(f'Target {target} not available for algorithm {algorithm}.')
         self.target = target
 
@@ -69,7 +69,7 @@ class Inputs():
         self.inputs = {}
 
     def add_input(self, input_var, value):
-        if input_var not in self.db.get_input_vars(self.algorithm):
+        if input_var not in self.db.get_inputs(self.algorithm):
             raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
         if type(value) not in [float, int]:
             raise AttributeError("Input value must be numerical.")
@@ -112,7 +112,7 @@ class UserConstraints():
 
 class HardwarePrices():
     """Class that represents the chosen price for each hw platform (algorithm-specific). Arguments are checked."""
-    def __init__(self, configdb, algorithm, input_dependent) -> None:
+    def __init__(self, configdb, algorithm, input_dependent=False) -> None:
 
         self.db = configdb
         self.input_dependent = input_dependent

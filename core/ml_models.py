@@ -82,7 +82,7 @@ class MLModels():
         
         """
         #s = time.time()
-        model_path = self.__get_model_path(algorithm, hw, target)
+        model_path = self.__get_model_path(algorithm, hw, target, input_dependent)
 
         # filtering dataset for the specific hyperparams and target
         #hyperparams = self.db.get_hyperparams(algorithm)

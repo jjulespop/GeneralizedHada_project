@@ -1,13 +1,14 @@
 import time
 from core.hada import HADA
 from core.configdb import ConfigDB
-from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
+from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices, Inputs
 from core.datasets import Datasets
 from core.ml_models import MLModels
 
 if __name__ == '__main__':
 
-    input_dependent=False
+    input_dependent=True
+    algorithm='anticipate'
     configs_path_no_inp = './algorithms/configs/input-independent'
     configs_path_inp = './algorithms/configs/input-dependent'
     data_path_no_inp = './algorithms/data/input-independent'
@@ -25,22 +26,30 @@ if __name__ == '__main__':
 
     models = MLModels(db, datasets, models_path_no_inp, models_path_inp)
 
-    print(db.get_type_per_var('toyalg'))
+    print(db.get_type_per_var('anticipate', input_dependent))
     ##### Preparing a request #####
+    
+    # inputs
+    inputs = Inputs(db, algorithm)
+    inputs.add_input('load_std', 167)
+    inputs.add_input('load_mean',  314)
+    inputs.add_input('pv_std',  276)
+    inputs.add_input('pv_mean',  268)
+
     # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'toyalg', input_dependent)
-    user_constraints.add_constraint('memory', 'leq', 50)
-    user_constraints.add_constraint('price', 'leq', 250)
+    user_constraints = UserConstraints(db, 'anticipate', input_dependent)
+    #user_constraints.add_constraint('memory', 'leq', 50)
+    #user_constraints.add_constraint('price', 'leq', 250)
 
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'toyalg', input_dependent)
+    hws_prices = HardwarePrices(db, 'anticipate', input_dependent)
     hws_prices.add_hw_price('pc', 100)
-    hws_prices.add_hw_price('g100', 200)
-    hws_prices.add_hw_price('vm', 300)
+    #hws_prices.add_hw_price('g100', 200)
+    #hws_prices.add_hw_price('vm', 300)
     
     robustness_factor = None
 
-    request = OptimizationRequest(db, 'toyalg', 'time', 'min', robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, 'anticipate', 'time', 'min', robustness_factor, user_constraints, hws_prices, inputs)
 
     ##### Handling datasets and models #####
     # extracting info from datasets

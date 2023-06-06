@@ -125,7 +125,8 @@ class ConfigDB():
                         for target in config['targets']}
         
         if input_dependent:
-            inputs = {input['ID']: {'description': input['description'],
+            inputs = {input['ID']: {'type': input['type'],
+                                        'description': input['description'],
                                         'LB': input['LB'],
                                         'UB': input['UB']}
                             for input in config['inputs']}
@@ -140,7 +141,7 @@ class ConfigDB():
             if set.intersection(set(inputs), set(targets)):
                     raise AttributeError(f'Names of inputs and targets must not overlap.')
 
-        case_key = self.db_case_key(input_dependent)
+        case_key = 'input-dependent' if input_dependent else 'input-independent'
         # checking consistency across hws for a given algorithm
         if config['name'] not in self.db[case_key]:
             self.db[case_key][config['name']] = {'hyperparams': hyperparams,
@@ -204,13 +205,13 @@ class ConfigDB():
         lb_per_var = {}
 
         if input_dependent:
-            for var in self.db[algorithm]['inputs']:
+            for var in self.db['input-dependent'][algorithm]['inputs']:
                 lb_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["LB"]
 
-        for var in self.db[algorithm]['hyperparams']:
+        for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
             lb_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["LB"]
 
-        for var in self.db[algorithm]['targets']:
+        for var in self.get_db_by_case(input_dependent)[algorithm]['targets']:
             lb_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['targets'][var]["LB"]
 
         return lb_per_var
@@ -220,7 +221,7 @@ class ConfigDB():
         ub_per_var = {}
 
         if input_dependent:
-            for var in self.db[algorithm]['inputs']:
+            for var in self.db['input-dependent'][algorithm]['inputs']:
                 ub_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["UB"]
 
         for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
@@ -236,7 +237,7 @@ class ConfigDB():
         description_per_var = {}
 
         if input_dependent:
-            for var in self.db[algorithm]['inputs']:
+            for var in self.db['input-dependent'][algorithm]['inputs']:
                 description_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["description"]
 
         for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
@@ -252,7 +253,7 @@ class ConfigDB():
         type_per_var = {}
 
         if input_dependent:
-            for var in self.db[algorithm]['inputs']:
+            for var in self.db['input-dependent'][algorithm]['inputs']:
                 type_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["type"]
 
         for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
