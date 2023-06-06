@@ -103,13 +103,13 @@ class ConfigDB():
             #config = json.load(open(fname))
             
             if (algorithm, hw) in self.configs_no_inp:
-                self.add_to_db(algorithm, hw, self.configs_no_inp[(algorithm, hw)], case_dependent=False)
+                self.add_to_db(algorithm, hw, self.configs_no_inp[(algorithm, hw)], input_dependent=False)
             if (algorithm, hw) in self.configs_inp:
-                self.add_to_db(algorithm, hw, self.configs_inp[(algorithm, hw)], case_dependent=True)
+                self.add_to_db(algorithm, hw, self.configs_inp[(algorithm, hw)], input_dependent=True)
 
-    def add_to_db(self, algorithm, hw, config, case_dependent=False):
+    def add_to_db(self, algorithm, hw, config, input_dependent=False):
         # checking types for all fields
-        self.__check_json(algorithm, hw, config, case_dependent=case_dependent)
+        self.__check_json(algorithm, hw, config, input_dependent=input_dependent)
 
         # internal db structure
         hyperparams = {hyperparam['ID']: {'type': hyperparam['type'],
@@ -124,7 +124,7 @@ class ConfigDB():
                                     'UB': target['UB']}
                         for target in config['targets']}
         
-        if case_dependent:
+        if input_dependent:
             inputs = {input['ID']: {'description': input['description'],
                                         'LB': input['LB'],
                                         'UB': input['UB']}
@@ -134,19 +134,19 @@ class ConfigDB():
         # checking for overlap of names among inputs, hyperparams and targets
         if set.intersection(set(hyperparams), set(targets)):
                 raise AttributeError(f'Names of hyperparams and targets must not overlap.')
-        if case_dependent:
+        if input_dependent:
             if set.intersection(set(hyperparams), set(inputs)):
                     raise AttributeError(f'Names of hyperparams and inputs must not overlap.')
             if set.intersection(set(inputs), set(targets)):
                     raise AttributeError(f'Names of inputs and targets must not overlap.')
 
-        case_key = self.db_case_key(case_dependent)
+        case_key = self.db_case_key(input_dependent)
         # checking consistency across hws for a given algorithm
         if config['name'] not in self.db[case_key]:
             self.db[case_key][config['name']] = {'hyperparams': hyperparams,
                                         'targets': targets,
                                         'hws': {config['HW_ID']: config['HW_price']}}
-            if case_dependent:
+            if input_dependent:
                 self.db[case_key][config['name']]['inputs'] = inputs
 
         else:
@@ -156,7 +156,7 @@ class ConfigDB():
             # checking consistency of targets across hws for a given algorithm
             if self.db[case_key][config['name']]['targets'] != targets:
                 raise AttributeError(f'Targets not matching for algorithm {config["name"]} on different hws.')
-            if case_dependent:
+            if input_dependent:
                 # checking consistency of inputs across hws for a given algorithm
                 if self.db[case_key][config['name']]['targets'] != inputs:
                     raise AttributeError(f'Inputs not matching for algorithm {config["name"]} on different hws.')
@@ -167,113 +167,113 @@ class ConfigDB():
             # just adding the new HW and its price, the rest must be the same across hws for the given algorithm.
             self.db[case_key][config['name']]['hws'][config['HW_ID']] = config['HW_price']
 
-    def get_db_by_case(self, case_dependent):
-        return self.db['input-dependent'] if case_dependent else self.db['input-independent']
+    def get_db_by_case(self, input_dependent):
+        return self.db['input-dependent'] if input_dependent else self.db['input-independent']
 
-    def get_algorithms(self, case_dependent=False):
+    def get_algorithms(self, input_dependent=False):
         """Get list of all available algorithms."""
-        return list(self.get_db_by_case(case_dependent).keys())
+        return list(self.get_db_by_case(input_dependent).keys())
 
     def get_inputs(self, algorithm):
         """Get list of inputs for a given algorithm."""
         return list(self.db['input-dependent'][algorithm]['inputs'].keys())
 
-    def get_hyperparams(self, algorithm, case_dependent=False):
+    def get_hyperparams(self, algorithm, input_dependent=False):
         """Get list of hyperparameters for a given algorithm."""
-        return list(self.get_db_by_case(case_dependent)[algorithm]['hyperparams'].keys())
+        return list(self.get_db_by_case(input_dependent)[algorithm]['hyperparams'].keys())
 
-    def get_targets(self, algorithm, case_dependent=False):
+    def get_targets(self, algorithm, input_dependent=False):
         """Get list of targets for a given algorithm."""
         # price is the only "special" target, with possibly different handling
-        return list(self.get_db_by_case(case_dependent)[algorithm]['targets'].keys()) + ['price']
+        return list(self.get_db_by_case(input_dependent)[algorithm]['targets'].keys()) + ['price']
 
-    def get_hws(self, algorithm, case_dependent=False):
+    def get_hws(self, algorithm, input_dependent=False):
         """Get list of hardware platforms for a given algorithm."""
-        return list(self.get_db_by_case(case_dependent)[algorithm]['hws'].keys())
+        return list(self.get_db_by_case(input_dependent)[algorithm]['hws'].keys())
 
-    def get_prices(self, algorithm, case_dependent=False):
+    def get_prices(self, algorithm, input_dependent=False):
         """Get list of hardware prices for a given algorithm."""
-        return list(self.get_db_by_case(case_dependent)[algorithm]['hws'].values())
+        return list(self.get_db_by_case(input_dependent)[algorithm]['hws'].values())
 
-    def get_prices_per_hw(self, algorithm, case_dependent=False):
+    def get_prices_per_hw(self, algorithm, input_dependent=False):
         """Get dict HW_name:price for all hws found for a given algorithm."""
-        return self.get_db_by_case(case_dependent)[algorithm]['hws']
+        return self.get_db_by_case(input_dependent)[algorithm]['hws']
 
-    def get_lb_per_var(self, algorithm, case_dependent=False):
+    def get_lb_per_var(self, algorithm, input_dependent=False):
         """Get LBs for all variables (hyperparameters and targets)."""
         lb_per_var = {}
 
-        if case_dependent:
+        if input_dependent:
             for var in self.db[algorithm]['inputs']:
                 lb_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["LB"]
 
         for var in self.db[algorithm]['hyperparams']:
-            lb_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["LB"]
+            lb_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["LB"]
 
         for var in self.db[algorithm]['targets']:
-            lb_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['targets'][var]["LB"]
+            lb_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['targets'][var]["LB"]
 
         return lb_per_var
 
-    def get_ub_per_var(self, algorithm, case_dependent=False):
+    def get_ub_per_var(self, algorithm, input_dependent=False):
         """Get UBs for all variables (hyperparameters and targets)."""
         ub_per_var = {}
 
-        if case_dependent:
+        if input_dependent:
             for var in self.db[algorithm]['inputs']:
                 ub_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["UB"]
 
-        for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
-            ub_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["UB"]
+        for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
+            ub_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["UB"]
 
-        for var in self.get_db_by_case(case_dependent)[algorithm]['targets']:
-            ub_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['targets'][var]["UB"]
+        for var in self.get_db_by_case(input_dependent)[algorithm]['targets']:
+            ub_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['targets'][var]["UB"]
 
         return ub_per_var
     
-    def get_description_per_var(self, algorithm, case_dependent=False):
+    def get_description_per_var(self, algorithm, input_dependent=False):
         """Get description for all variables (hyperparameters and targets)."""
         description_per_var = {}
 
-        if case_dependent:
+        if input_dependent:
             for var in self.db[algorithm]['inputs']:
                 description_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["description"]
 
-        for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
-            description_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["description"]
+        for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
+            description_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["description"]
 
-        for var in self.get_db_by_case(case_dependent)[algorithm]['targets']:
-            description_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['targets'][var]["description"]
+        for var in self.get_db_by_case(input_dependent)[algorithm]['targets']:
+            description_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['targets'][var]["description"]
 
         return description_per_var
 
-    def get_type_per_var(self, algorithm, case_dependent=False):
+    def get_type_per_var(self, algorithm, input_dependent=False):
         """Get type for all variables (hyperparameters and targets)."""
         type_per_var = {}
 
-        if case_dependent:
+        if input_dependent:
             for var in self.db[algorithm]['inputs']:
                 type_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["type"]
 
-        for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
-            type_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["type"]
+        for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
+            type_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["type"]
 
         # assumption: targets are always continuous
-        for var in self.get_db_by_case(case_dependent)[algorithm]['targets']:
+        for var in self.get_db_by_case(input_dependent)[algorithm]['targets']:
             type_per_var[var] = 'float'
 
         return type_per_var
 
-    def get_ml_input_vars(self, algorithm, case_dependent=False):
+    def get_ml_input_vars(self, algorithm, input_dependent=False):
         """Get variables that are fed as input to the ML models."""
-        input_vars = self.get_hyperparams(algorithm, case_dependent)
+        input_vars = self.get_hyperparams(algorithm, input_dependent)
 
-        if case_dependent:
+        if input_dependent:
             input_vars.extend(self.get_inputs(algorithm))
 
         return input_vars
 
-    def __check_json(self, algorithm, hw, config, case_dependent=False):
+    def __check_json(self, algorithm, hw, config, input_dependent=False):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:
             # checking algorithm
@@ -288,7 +288,7 @@ class ConfigDB():
                     raise AttributeError("Hardware platform price must be a number or None")
 
             # checking inputs (if input-dependent case), hyperparameters and targets
-            if case_dependent:
+            if input_dependent:
                 for input in config['hyperparams']:
                     if type(input['ID']) is not str:
                         raise AttributeError(f'ID of inputs must be strings')

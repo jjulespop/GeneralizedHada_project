@@ -45,22 +45,22 @@ class Datasets(ABC):
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
-    def _check_dataset_consistency(self, df, algorithm, hw, case_dependent=False):
+    def _check_dataset_consistency(self, df, algorithm, hw, input_dependent=False):
         """Checking the columns are the expected ones and that they are numericals."""
         hyperparams = self.db.get_hyperparams(algorithm)
         data_targets = self.db.get_targets(algorithm)
         data_targets.remove('price')
-        if case_dependent:
+        if input_dependent:
             inputs = self.db.get_inputs(algorithm)
 
         expected_columns = hyperparams + data_targets
-        if case_dependent:
+        if input_dependent:
             expected_columns.extend(inputs)
         if set(df.columns) != set(expected_columns):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
-        type_per_var = self.db.get_type_per_var(algorithm, case_dependent)
+        type_per_var = self.db.get_type_per_var(algorithm, input_dependent)
         for column in df.columns:
             if not pd.api.types.is_numeric_dtype(df[column]):
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
@@ -73,7 +73,7 @@ class Datasets(ABC):
             elif expected_dtype == 'bin' and set(df[column].unique()) != {0, 1}:
                 raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be binary, but has non-binary values.')
 
-    def extract_var_bounds(self, algorithm):
+    def extract_var_bounds(self, algorithm, input_dependent=False):
         """
         Compute upper and lower bounds of each variable.
         If UB/LB specified in configs, use that instead of extracting from data.
@@ -89,8 +89,8 @@ class Datasets(ABC):
         # otherwise add to "missing_bounds"; if any extract from data and calculate those
 
         # retrieving LBs/UBs from configs
-        lb_per_var = self.db.get_lb_per_var(algorithm)
-        ub_per_var = self.db.get_ub_per_var(algorithm)
+        lb_per_var = self.db.get_lb_per_var(algorithm, input_dependent)
+        ub_per_var = self.db.get_ub_per_var(algorithm, input_dependent)
 
         # handling non-specified bounds by extracting them from data
         lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None]
@@ -107,7 +107,7 @@ class Datasets(ABC):
 
             for hw in self.db.get_hws(algorithm):
             
-                dataset = self.get_dataset(algorithm, hw)
+                dataset = self.get_dataset(algorithm, hw, input_dependent)
 
                 for var in lb_missing_vars:
                     all_mins_per_var[var].append(dataset[var].min())
@@ -195,8 +195,8 @@ class DatasetsLocal(Datasets):
         self.data_path_no_inp = data_path_no_inp
         self.data_path_inp = data_path_inp
 
-    def get_dataset(self, algorithm, hw, case_dependent=False):
-        dataset_path = self.data_path_inp if case_dependent else self.data_path_no_inp
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+        dataset_path = self.data_path_inp if input_dependent else self.data_path_no_inp
         dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
@@ -204,7 +204,7 @@ class DatasetsLocal(Datasets):
         dataset = pd.read_csv(dataset_path)
 
         # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw, case_dependent)
+        self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
 
         return dataset
 
