@@ -174,6 +174,10 @@ class ConfigDB():
         """Get list of all available algorithms."""
         return list(self.get_db_by_case(case_dependent).keys())
 
+    def get_inputs(self, algorithm):
+        """Get list of inputs for a given algorithm."""
+        return list(self.db['input-dependent'][algorithm]['inputs'].keys())
+
     def get_hyperparams(self, algorithm, case_dependent=False):
         """Get list of hyperparameters for a given algorithm."""
         return list(self.get_db_by_case(case_dependent)[algorithm]['hyperparams'].keys())
@@ -199,6 +203,10 @@ class ConfigDB():
         """Get LBs for all variables (hyperparameters and targets)."""
         lb_per_var = {}
 
+        if case_dependent:
+            for var in self.db[algorithm]['inputs']:
+                lb_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["LB"]
+
         for var in self.db[algorithm]['hyperparams']:
             lb_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["LB"]
 
@@ -210,6 +218,10 @@ class ConfigDB():
     def get_ub_per_var(self, algorithm, case_dependent=False):
         """Get UBs for all variables (hyperparameters and targets)."""
         ub_per_var = {}
+
+        if case_dependent:
+            for var in self.db[algorithm]['inputs']:
+                ub_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["UB"]
 
         for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
             ub_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["UB"]
@@ -223,6 +235,10 @@ class ConfigDB():
         """Get description for all variables (hyperparameters and targets)."""
         description_per_var = {}
 
+        if case_dependent:
+            for var in self.db[algorithm]['inputs']:
+                description_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["description"]
+
         for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
             description_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["description"]
 
@@ -234,6 +250,10 @@ class ConfigDB():
     def get_type_per_var(self, algorithm, case_dependent=False):
         """Get type for all variables (hyperparameters and targets)."""
         type_per_var = {}
+
+        if case_dependent:
+            for var in self.db[algorithm]['inputs']:
+                type_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["type"]
 
         for var in self.get_db_by_case(case_dependent)[algorithm]['hyperparams']:
             type_per_var[var] = self.get_db_by_case(case_dependent)[algorithm]['hyperparams'][var]["type"]

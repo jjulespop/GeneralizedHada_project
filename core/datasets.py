@@ -45,17 +45,22 @@ class Datasets(ABC):
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
-    def _check_dataset_consistency(self, df, algorithm, hw):
+    def _check_dataset_consistency(self, df, algorithm, hw, case_dependent=False):
         """Checking the columns are the expected ones and that they are numericals."""
         hyperparams = self.db.get_hyperparams(algorithm)
         data_targets = self.db.get_targets(algorithm)
         data_targets.remove('price')
+        if case_dependent:
+            inputs = self.db.get_inputs(algorithm)
 
-        if set(df.columns) != set(hyperparams + data_targets):
+        expected_columns = hyperparams + data_targets
+        if case_dependent:
+            expected_columns.extend(inputs)
+        if set(df.columns) != set(expected_columns):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
-        type_per_var = self.db.get_type_per_var(algorithm)
+        type_per_var = self.db.get_type_per_var(algorithm, case_dependent)
         for column in df.columns:
             if not pd.api.types.is_numeric_dtype(df[column]):
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
@@ -174,8 +179,9 @@ class Datasets(ABC):
                         dataset = self.get_dataset(request.algorithm, hw)
                         model = models.get_model(request.algorithm, hw, target)
 
+                        #dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
                         dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
-                        dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
+                        dataset[f'{target}_error'] = (dataset[target] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff
         else:
@@ -184,11 +190,13 @@ class Datasets(ABC):
 
 class DatasetsLocal(Datasets):
     """Handles datasets stored locally."""
-    def __init__(self, db, data_path):
+    def __init__(self, db, data_path_no_inp, data_path_inp):
         self.db = db
-        self.data_path = data_path
+        self.data_path_no_inp = data_path_no_inp
+        self.data_path_inp = data_path_inp
 
-    def get_dataset(self, algorithm, hw):
+    def get_dataset(self, algorithm, hw, case_dependent=False):
+        dataset_path = self.data_path_inp if case_dependent else self.data_path_no_inp
         dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
@@ -196,7 +204,7 @@ class DatasetsLocal(Datasets):
         dataset = pd.read_csv(dataset_path)
 
         # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw)
+        self._check_dataset_consistency(dataset, algorithm, hw, case_dependent)
 
         return dataset
 
