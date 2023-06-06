@@ -264,6 +264,15 @@ class ConfigDB():
 
         return type_per_var
 
+    def get_ml_input_vars(self, algorithm, case_dependent=False):
+        """Get variables that are fed as input to the ML models."""
+        input_vars = self.get_hyperparams(algorithm, case_dependent)
+
+        if case_dependent:
+            input_vars.extend(self.get_inputs(algorithm))
+
+        return input_vars
+
     def __check_json(self, algorithm, hw, config, case_dependent=False):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:

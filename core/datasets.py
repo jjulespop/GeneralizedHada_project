@@ -170,17 +170,17 @@ class Datasets(ABC):
 
         if request.robustness_fact or request.robustness_fact == 0:
             robust_coeff = {}
-            for target in self.db.get_targets(request.algorithm): 
-                for hw in self.db.get_hws(request.algorithm): 
+            for target in self.db.get_targets(request.algorithm, request.input_dependent): 
+                for hw in self.db.get_hws(request.algorithm, request.input_dependent): 
                     # The target price is not estimated: it does not require any robustness coefficient 
                     if target == 'price': 
                         robust_coeff[(hw, "price")] = 0
                     else: 
-                        dataset = self.get_dataset(request.algorithm, hw)
-                        model = models.get_model(request.algorithm, hw, target)
+                        dataset = self.get_dataset(request.algorithm, hw, request.input_dependent)
+                        model = models.get_model(request.algorithm, hw, target, request.input_dependent)
 
-                        #dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
-                        dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
+                        model_input_vars = self.db.get_ml_input_vars(request.algorithm, request.input_dependent)
+                        dataset[f'{target}_pred'] = model.predict(dataset[model_input_vars])
                         dataset[f'{target}_error'] = (dataset[target] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff
