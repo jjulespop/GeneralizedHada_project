@@ -6,6 +6,25 @@ from core.datasets import Datasets
 from core.ml_models import MLModels
 
 if __name__ == '__main__':
+    # Equivalent API request
+    #{"algorithm":"anticipate",
+    #"objective": {"target":"time", "type": "min"},
+    #"robustness_fact": null,
+    #"constraints": [
+    #    {"target": "time", "type": "leq", "value": 120}
+    #],
+    #"prices": [
+    #    {"hw":"pc", "price": 100}
+    #],
+    #"inputs": [
+    #    {"name":"load_std", "value": 167},
+    #    {"name":"load_mean", "value": 314},
+    #    {"name":"pv_std", "value": 276},
+    #    {"name":"pv_mean", "value": 268}
+    #]}
+
+    
+
 
     input_dependent=True
     algorithm='anticipate'

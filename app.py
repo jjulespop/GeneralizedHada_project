@@ -5,7 +5,7 @@ from flask import Flask, request, session, render_template, jsonify
 from core.configdb import ConfigDB
 from core.datasets import Datasets
 from core.ml_models import MLModels
-from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
+from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices, Inputs
 from core.hada import HADA
 
 
@@ -19,15 +19,20 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
-data_path = 'algorithms/data'
-models_path = 'algorithms/models'
-db = ConfigDB.from_local('algorithms/configs')
-datasets = Datasets.from_local(db, data_path)
+data_path_no_inp = 'algorithms/data/input-independent'
+data_path_inp = 'algorithms/data/input-dependent'
+models_path_no_inp = 'algorithms/models/input-independent'
+models_path_inp = 'algorithms/models/input-dependent'
+configs_path_no_inp = 'algorithms/configs/input-independent'
+configs_path_inp = 'algorithms/configs/input-dependent'
+
+db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
+datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
 #db = ConfigDB.from_remote('http://localhost:5333')
 #datasets = Datasets.from_remote(db, 'http://localhost:5333')
 #db = ConfigDB.from_remote('http://172.28.0.2:5333')
 #datasets = Datasets.from_remote(db, 'http://172.28.0.2:5333')
-models = MLModels(db, datasets, models_path)
+models = MLModels(db, datasets, models_path_no_inp, models_path_no_inp)
 
 # ==============================================================================
 # Utility functions
@@ -65,6 +70,8 @@ def parse_request_form(algorithm, form_dict):
     for hw in db.get_hws(algorithm):
         price = sanitize_field(form_dict[f'price_{hw}'])
         hws_prices.add_hw_price(hw, price)
+    
+    #if form_dict['input_case'] == 'input_dependent':
 
     optimization_request = OptimizationRequest(db=db,
                                                algorithm=algorithm,
@@ -92,15 +99,30 @@ def parse_request_json(data):
             {'hw':'pc', price: 30},
             ...
         ]
+        "inputs": [  # optional, only for input-dependent cases
+        { 
+        "name": "input_var_0", 
+        "value": 32 
+        }, 
+        ... 
+    ], 
     }
     '''
-    user_constraints = UserConstraints(db, data['algorithm'])
+    input_dependent = 'inputs' in data
+
+    inputs = None
+    if input_dependent:
+        inputs = Inputs(db, data['algorithm'])
+        for input in data['inputs']:
+            inputs.add_input(input['name'], input['value'])
+
+    user_constraints = UserConstraints(db, data['algorithm'], input_dependent)
     for constraint in data['constraints']:
         user_constraints.add_constraint(constraint['target'],
                                         constraint['type'],
                                         constraint['value'])
 
-    hws_prices = HardwarePrices(db, data['algorithm'])
+    hws_prices = HardwarePrices(db, data['algorithm'], input_dependent)
     if 'price_per_hw' in data:
         for hw_price in data['price_per_hw']:
             hws_prices.add_hw_price(hw_price['hw'], hw_price['price'])
@@ -112,7 +134,8 @@ def parse_request_json(data):
                                                opt_type=data['objective']['type'],
                                                robustness_fact=data['robustness_fact'],
                                                user_constraints=user_constraints,
-                                               hws_prices=hws_prices)
+                                               hws_prices=hws_prices,
+                                               inputs=inputs)
     return optimization_request
 
 
@@ -179,41 +202,66 @@ def hada_gui():
 # ==============================================================================
 @app.route('/algorithms', methods=['GET'])
 def get_algorithms():
-    return jsonify({'algorithms': db.get_algorithms()})
+    return jsonify({'algorithms':
+                    {'input-independent': db.get_algorithms(input_dependent=False),
+                    'input-dependent': db.get_algorithms(input_dependent=True)}})
+
 
 @app.route('/algorithms/<algorithm>', methods=['GET'])
 def get_algo_info(algorithm):
 
-    hyperparams = db.get_hyperparams(algorithm)
-    # types are relevant only for hyperparameters, targets are assumed to be 'float'
-    types = db.get_type_per_var(algorithm)
-    targets = db.get_targets(algorithm)
-    description_per_var = db.get_description_per_var(algorithm)
-    lb_per_var, ub_per_var = datasets.extract_var_bounds(algorithm)
-    lb_per_var['price'] = None
-    ub_per_var['price'] = None
-    description_per_var['price'] = None
+    cases = []
+    if algorithm in db.get_algorithms(input_dependent=True):
+        cases.append(('input-dependent', True))
+    if algorithm in db.get_algorithms(input_dependent=False):
+        cases.append(('input-independent', False))
 
-    
-    hyperparams_profiles = {hyperparam: {'description': description_per_var[hyperparam],
-                                                     'type': types[hyperparam],
-                                                     'lb': lb_per_var[hyperparam],
-                                                     'ub': ub_per_var[hyperparam]}
-                               for hyperparam in hyperparams}
 
-    targets_profiles = {target: {'description': description_per_var[target],
-                                             'lb': lb_per_var[target],
-                                             'ub': ub_per_var[target]} 
-                           for target in targets}
+    ret = {}
+    for name, input_dependent in cases:
+        hyperparams = db.get_hyperparams(algorithm, input_dependent)
+        # types are relevant only for hyperparameters, targets are assumed to be 'float'
+        types = db.get_type_per_var(algorithm, input_dependent)
+        targets = db.get_targets(algorithm, input_dependent)
+        description_per_var = db.get_description_per_var(algorithm, input_dependent)
+        lb_per_var, ub_per_var = datasets.extract_var_bounds(algorithm, input_dependent)
+        lb_per_var['price'] = None
+        ub_per_var['price'] = None
+        description_per_var['price'] = None
 
-    hws_with_prices = {hw: {'default_price': price} 
-                       for hw,price in db.get_prices_per_hw(algorithm).items()}
+        
+        hyperparams_profiles = {hyperparam: {'description': description_per_var[hyperparam],
+                                                        'type': types[hyperparam],
+                                                        'lb': lb_per_var[hyperparam],
+                                                        'ub': ub_per_var[hyperparam]}
+                                for hyperparam in hyperparams}
 
-    ret = {'algorithm': algorithm,
-           'hws': hws_with_prices,
-           'hyperparameters': hyperparams_profiles,
-           'targets': targets_profiles}
+        targets_profiles = {target: {'description': description_per_var[target],
+                                                'lb': lb_per_var[target],
+                                                'ub': ub_per_var[target]} 
+                            for target in targets}
 
+        hws_with_prices = {hw: {'default_price': price} 
+                        for hw,price in db.get_prices_per_hw(algorithm, input_dependent).items()}
+
+        case = {'algorithm': algorithm,
+                'hws': hws_with_prices,
+                'hyperparameters': hyperparams_profiles,
+                'targets': targets_profiles}
+        
+        # only for input-dependent cases
+        if input_dependent:
+            inputs = db.get_inputs(algorithm)
+            inputs_profiles = {input: {'description': description_per_var[input],
+                                   'type': types[input],
+                                   'lb': lb_per_var[input],
+                                   'ub': ub_per_var[input]}
+                                    for input in inputs}
+            case['inputs'] = inputs_profiles
+
+        ret[name] = case
+
+    return ret
     # alternative
     #ret = {'algorithm': algorithm,
     #       'hyperparameters': hyperparams,

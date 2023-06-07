@@ -91,6 +91,12 @@ def HADA(db: ConfigDB,
                 ml_var[f'{hw}_{target}'] = f'auxiliary_{hw}_{target}'
 
     ####### CONSTRAINTS ######
+    # Constraints on input values
+    if request.input_dependent:
+        inputs = request.inputs.get_inputs()
+        for input_var in inputs.keys():
+            mdl.add_constraint(mdl.get_var_by_name(input_var) == inputs[input_var], ctname = f"auxiliary_{input_var}")
+
     # HW Selection Constraint, enabling the selection of a single hw platform
     mdl.add_constraint(mdl.sum(mdl.get_var_by_name(f"b_{hw}") for hw in hws) == 1, ctname = "hw_selection")
 
