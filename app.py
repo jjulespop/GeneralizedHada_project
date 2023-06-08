@@ -1,6 +1,7 @@
 #!/bin/python3
 import os
 import json
+import traceback
 from flask import Flask, request, session, render_template, jsonify
 from core.configdb import ConfigDB
 from core.datasets import Datasets
@@ -59,6 +60,7 @@ def parse_request_form(algorithm, form_dict):
 
         return x
 
+    print(form_dict)
     user_constraints = UserConstraints(db, algorithm)
     for target in db.get_targets(algorithm):
         if form_dict[f'constraint_{target}'] != '':
@@ -155,45 +157,61 @@ def format_solution(solution):
 def hada_gui():
 
     out = None
+    # init algorithm selection
     if 'last_selected_algo' not in session:
-        session['last_selected_algo'] = db.get_algorithms()[0]
-    try:
-        # two separate forms, one for algorithm selection and one for optimization requests
-        if request.method == 'POST':
-            form_dict = request.form.to_dict()
+        session['last_selected_algo'] = db.get_algorithms(input_dependent=False)[0]
+        session['last_input_dependent'] = False
+    #try:
+    # two separate forms, one for algorithm selection and one for optimization requests
+    if request.method == 'POST':
+        form_dict = request.form.to_dict()
+        
+        if form_dict['form_id'] == 'select_algo':
+            # populating GUI
+            prev_input_dep = session['last_input_dependent']
+            session['last_input_dependent'] = 'upload_checkbox' in form_dict
             
-            if form_dict['form_id'] == 'select_algo':
+            # same case as before
+            if session['last_input_dependent'] == prev_input_dep:
                 session['last_selected_algo'] = form_dict['algorithm']
-            if form_dict['form_id'] == 'optimize':
-                optimization_request = parse_request_form(session['last_selected_algo'], form_dict)
-                solution = run_hada(optimization_request)
+            else: # select first algo from the new case (switch happened)
+                first_algo =  db.get_algorithms(input_dependent=session['last_input_dependent'])[0]
+                session['last_selected_algo'] = first_algo
 
-                if solution:
-                    out = format_solution(solution)
-                else:
-                    out = 'No solution.'
 
-        # rendering
-        lb_per_var, ub_per_var = datasets.extract_var_bounds(session['last_selected_algo'])
-        description_per_var = db.get_description_per_var(session['last_selected_algo'])
-        rendering_kwargs = {'algorithms': db.get_algorithms(),
-                            'targets': db.get_targets(session['last_selected_algo']),
-                            'price_per_hw': db.get_prices_per_hw(session['last_selected_algo']),
-                            'lb_per_var': lb_per_var,
-                            'ub_per_var': ub_per_var,
-                            'description_per_var': description_per_var}
-        session['last_rendering_kwargs'] = rendering_kwargs
+                
+        if form_dict['form_id'] == 'optimize':
+            optimization_request = parse_request_form(session['last_selected_algo'], form_dict)
+            solution = run_hada(optimization_request)
 
-    except Exception as e:
-        print(e)
-        out=str(e)
-        return render_template('hada_gui.html',
-                               **session['last_rendering_kwargs'],
-                               selected_algo=session['last_selected_algo'],
-                               out=out)
+            if solution:
+                out = format_solution(solution)
+            else:
+                out = 'No solution.'
+
+    # rendering
+    print(session)
+    lb_per_var, ub_per_var = datasets.extract_var_bounds(session['last_selected_algo'], session['last_input_dependent'])
+    description_per_var = db.get_description_per_var(session['last_selected_algo'], session['last_input_dependent'])
+    rendering_kwargs = {'algorithms': db.get_algorithms(input_dependent=session['last_input_dependent']),
+                        'input_dependent': session['last_input_dependent'],
+                        'targets': db.get_targets(session['last_selected_algo'], session['last_input_dependent']),
+                        'price_per_hw': db.get_prices_per_hw(session['last_selected_algo'], session['last_input_dependent']),
+                        'lb_per_var': lb_per_var,
+                        'ub_per_var': ub_per_var,
+                        'description_per_var': description_per_var}
+            
+    session['last_rendering_kwargs'] = rendering_kwargs
+    #except Exception as e:
+    #    traceback.print_exc()
+    #    out=str(e)
+        #return render_template('hada_gui.html',
+        #                       **session['last_rendering_kwargs'],
+        #                       selected_algo=session['last_selected_algo'],
+        #                       out=out)
 
     return render_template('hada_gui.html',
-                           **rendering_kwargs,
+                           **session['last_rendering_kwargs'],
                            selected_algo=session['last_selected_algo'],
                            out=out)
 

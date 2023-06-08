@@ -274,6 +274,24 @@ class ConfigDB():
 
         return input_vars
 
+    def get_algorithms_cases(self):
+        """
+        Get list of all available algorithms, and for each one which cases w.r.t. inputs are availablei
+        Returns dict with names of the algorithms being the key, and the value being 0 if input-independent only, 1 if input-dependent only, 2 if both.
+        """
+        input_independent_algos = self.get_algorithms(input_dependent=False)
+        input_dependent_algos = self.get_algorithms(input_dependent=True)
+
+        ret = {k:0 for k in input_independent_algos}
+        for input_dep_algo in input_dependent_algos:
+            if input_dep_algo in ret:
+                ret[input_dep_algo] = 2
+            else:
+                ret[input_dep_algo] = 1
+
+        return ret
+
+
     def __check_json(self, algorithm, hw, config, input_dependent=False):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
         try:

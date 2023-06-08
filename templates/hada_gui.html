@@ -44,28 +44,19 @@
                 hide_prices();
         }
 
-        //Show file upload elements
-        show_upload = () => {document.querySelector('#upload_elements').style.display='block'}
-        //Hide file upload elements
-        hide_upload = () => {document.querySelector('#upload_elements').style.display='none'}
+        ////Show file upload elements
+        //show_upload = () => {document.querySelector('#upload_elements').style.display='block'}
+        ////Hide file upload elements
+        //hide_upload = () => {document.querySelector('#upload_elements').style.display='none'}
 
         //Handles when to show the upload elements
-        upload_elements_handler = () => {
-            upload_checkbox = document.querySelector('#upload_checkbox');
-            input_case = document.querySelector('#input_case');
-
-            if (upload_checkbox.checked)
-            {
-                
-                input_case.value = 'input_dependent'
-                show_upload();
-            }
-            else 
-            {
-                input_case.value = 'input_independent'
-                hide_upload();
-            }
-        }
+        //upload_elements_handler = () => {
+        //    upload_checkbox = document.querySelector('#upload_checkbox');
+        //    if (upload_checkbox.checked)
+        //        show_upload();
+        //    else 
+        //        hide_upload();
+        //}
 
         window.onload = function() {
             dropdown = document.querySelector('#algorithm');
@@ -73,18 +64,20 @@
             target = document.querySelector('#target');
             upload_checkbox = document.querySelector('#upload_checkbox');
 
-            //Algorithm menu handler
-            dropdown.addEventListener('change', function() {
+            //Algorithm menu and checkbox handler
+            submit_algo_change = function() {
                 const form = document.querySelector('#select_algorithm_form');
-                form.submit();
-            });
+                form.submit();}
+
+            dropdown.addEventListener('change', submit_algo_change);
+            upload_checkbox.addEventListener('change', submit_algo_change);
         
             // Handling prices form
             target.addEventListener('change', prices_form_handler);
             price_constraint.addEventListener('input', prices_form_handler);
 
             // Handling upload elements
-            upload_checkbox.addEventListener('change', upload_elements_handler);
+            //upload_checkbox.addEventListener('change', upload_elements_handler);
         };
     </script>
 
@@ -108,19 +101,19 @@
                             <option value="{{algo}}" {% if algo==selected_algo %}selected{% endif %}>{{algo}}</option>
                             {% endfor %}
                         </select>
-                    <label class="label-inline">Input-dependent</label>
-                    <input type="checkbox" id="upload_checkbox"/> 
-                    <div class="hidden" id="upload_elements">
+                    <label class="label-inline">Input-dependent </label>
+                    <input type="checkbox" id="upload_checkbox" name="upload_checkbox" {% if input_dependent %}checked{% endif %}/> 
+                    <!-- the checkbox is in the algorithm seelction form; the file upload component in the optimization request form -->
+                    </form>
+        <form action="/" method="POST" id="optimization_request_form">
+                    <div {% if not input_dependent %}class="hidden"{% endif %} id="upload_elements">
                         <label class="label-inline">Input file</label>
                         <input type="file" id="fileUpload" name="fileUpload">
                     </div>
-                    </form>
                 </div>
             </div>
 
-        <form action="/" method="POST" id="optimization_request_form">
         <input value="optimize" type="hidden" name="form_id">
-        <input value="case_independent" type="hidden" name="input_case" id="input_case">
             <div class="row">
                 <div class="column column-50">
                     <label class="label-inline">Target</label>
