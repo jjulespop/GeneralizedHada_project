@@ -57,17 +57,27 @@ class ConfigDB():
 
         # getting list of config files
         configs_url = urljoin(address, '/configs')
-        algo_hw_couples = [(config['algorithm'], config['hw']) 
-                for config in requests.request('GET', configs_url).json()['configs']]
+        configs_by_algo_hw = {'input-independent': {}, 'input-dependent': {}}
+        algo_hw_couples = {}
 
-        configs = []
+        for case in ['input-independent', 'input-dependent']:
+            algo_hw_couples[case] = [(config['algorithm'], config['hw']) 
+                    for config in requests.request('GET', configs_url).json()['configs'][case]]
+
         # getting the actual configs
-        for (algorithm, hw) in algo_hw_couples:
-            algo_hw_url = urljoin(address, f'/configs/{algorithm}/{hw}')
-            config = json.loads(requests.request('GET', algo_hw_url).content)
-            configs.append(config)
+        for case, algo_hw_couples_case in algo_hw_couples.items():
+            for (algorithm, hw) in algo_hw_couples_case:
+                request_url = f'/configs/{algorithm}/{hw}'
+                if case == 'input-dependent':
+                    request_url += '/input'
+                algo_hw_url = urljoin(address, request_url)
+                config = json.loads(requests.request('GET', algo_hw_url).content)
+                configs_by_algo_hw[case][(algorithm, hw)] = config
 
-        return cls(configs, algo_hw_couples)
+
+        algo_hw_couples = set(algo_hw_couples['input-independent'] + algo_hw_couples['input-dependent'])
+
+        return cls(configs_by_algo_hw['input-independent'], configs_by_algo_hw['input-dependent'], algo_hw_couples)
 
     def __init__(self, configs_no_inp, configs_inp, algo_hw_couples):
         """Initializes ConfigDB.

@@ -41,7 +41,7 @@ class Datasets(ABC):
         return DatasetsRemote(db, address)
 
     @abstractmethod
-    def get_dataset(self, algorithm, hw) -> pd.DataFrame:
+    def get_dataset(self, algorithm, hw, input_dependent) -> pd.DataFrame:
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
@@ -145,7 +145,6 @@ class Datasets(ABC):
         Returns:
             var_bounds (dict): lower bound and upper bound for each variable, including price.
         """
-
         lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm, request.input_dependent)
 
         if request.target == 'price' or 'price' in request.user_constraints.get_constraints():
@@ -215,8 +214,11 @@ class DatasetsRemote(Datasets):
         self.db = db
         self.address = address
 
-    def get_dataset(self, algorithm, hw):
-        algo_hw_url = urljoin(self.address, f'/datasets/{algorithm}/{hw}')
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+        request_url = f'/datasets/{algorithm}/{hw}'
+        if input_dependent:
+            request_url += '/input'
+        algo_hw_url = urljoin(self.address, request_url)
         req = requests.request('GET', algo_hw_url)
         if req.status_code != 200:
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
@@ -225,6 +227,6 @@ class DatasetsRemote(Datasets):
         dataset = pd.read_csv(StringIO(csv_file.decode('utf-8')))
 
         # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw)
+        self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
 
         return dataset

@@ -34,14 +34,14 @@ if __name__ == '__main__':
     data_path_inp = './algorithms/data/input-dependent'
     models_path_no_inp = './algorithms/models/input-independent'
     models_path_inp = './algorithms/models/input-dependent'
-    #storage_ws_url = 'http://localhost:5333'
+    storage_ws_url = 'http://localhost:5333'
 
     ##### Init #####
-    db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
-    #db = ConfigDB.from_remote(storage_ws_url)
+    #db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
+    db = ConfigDB.from_remote(storage_ws_url)
 
-    datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
-    #datasets = Datasets.from_remote(db, storage_ws_url)
+    #datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
+    datasets = Datasets.from_remote(db, storage_ws_url)
 
     models = MLModels(db, datasets, models_path_no_inp, models_path_inp)
 
