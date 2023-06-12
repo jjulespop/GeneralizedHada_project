@@ -14,7 +14,8 @@ class MLModels():
         Args:
             db (ConfigDB): ConfigDB instance.
             datasets (Datasets): Datasets instance.
-            models_path (str): local path where the models are stored.
+            models_path_no_inp (str): local path containing the models (non input-dependent case).
+            models_path_inp (str): local path containing the models (input-dependent case).
         """
         self.db = db
         self.models_path_no_inp = models_path_no_inp
@@ -35,6 +36,7 @@ class MLModels():
             algorithm (str): algorithm id.
             hw (str): hardware platform id
             target (str): target id.
+            input_dependent (bool): input case (True for input-dependent, False for input_independent).
 
         Raises:
             Exception: if model is not found and is already being trained.
@@ -79,6 +81,7 @@ class MLModels():
             hw (str): hardware platform id.
             target (str): target id.
             dataset (pd.DataFrame): training dataset.
+            input_dependent (bool): input case (True for input-dependent, False for input_independent).
         
         """
         #s = time.time()

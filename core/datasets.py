@@ -20,7 +20,8 @@ class Datasets(ABC):
 
         Args:
             db (ConfigDB): instance of ConfigDB.
-            data_path (str): local path containing the datasets.
+            data_path_no_inp (str): local path containing the datasets (non input-dependent case).
+            data_path_inp (str): local path containing the datasets (input-dependent case).
 
         Returns:
             Datasets: instance of Datasets.
@@ -80,10 +81,11 @@ class Datasets(ABC):
 
         Args:
             algorithm (str): algorithm for which we want to extract variable bounds.
+            input_dependent (bool): input case (True for input-dependent, False for input_independent).
 
         Returns:
-            lb_per_var (dict): lower bound for each variable (hyperparameters and targets).
-            ub_per_var (dict): upper bound for each variable (hyperparameters and targets).
+            lb_per_var (dict): lower bound for each variable (hyperparameters and targets; inputs too for the input-dependent cases).
+            ub_per_var (dict): upper bound for each variable (hyperparameters and targets; inputs too for the input-dependent cases).
         """
         # check if both UB and LB are specified in the configs
         # otherwise add to "missing_bounds"; if any extract from data and calculate those

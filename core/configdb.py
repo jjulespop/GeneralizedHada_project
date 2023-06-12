@@ -178,7 +178,7 @@ class ConfigDB():
             # just adding the new HW and its price, the rest must be the same across hws for the given algorithm.
             self.db[case_key][config['name']]['hws'][config['HW_ID']] = config['HW_price']
 
-    def get_db_by_case(self, input_dependent):
+    def get_db_by_case(self, input_dependent=False):
         return self.db['input-dependent'] if input_dependent else self.db['input-independent']
 
     def get_algorithms(self, input_dependent=False):
@@ -211,7 +211,7 @@ class ConfigDB():
         return self.get_db_by_case(input_dependent)[algorithm]['hws']
 
     def get_lb_per_var(self, algorithm, input_dependent=False):
-        """Get LBs for all variables (hyperparameters and targets)."""
+        """Get LBs for all variables (hyperparameters and targets); inputs too for the input-dependent cases."""
         lb_per_var = {}
 
         if input_dependent:
@@ -227,7 +227,7 @@ class ConfigDB():
         return lb_per_var
 
     def get_ub_per_var(self, algorithm, input_dependent=False):
-        """Get UBs for all variables (hyperparameters and targets)."""
+        """Get UBs for all variables (hyperparameters and targets); inputs too for the input-dependent cases."""
         ub_per_var = {}
 
         if input_dependent:
@@ -243,7 +243,7 @@ class ConfigDB():
         return ub_per_var
     
     def get_description_per_var(self, algorithm, input_dependent=False):
-        """Get description for all variables (hyperparameters and targets)."""
+        """Get description for all variables (hyperparameters and targets); inputs too for the input-dependent cases."""
         description_per_var = {}
 
         if input_dependent:
@@ -259,7 +259,7 @@ class ConfigDB():
         return description_per_var
 
     def get_type_per_var(self, algorithm, input_dependent=False):
-        """Get type for all variables (hyperparameters and targets)."""
+        """Get type for all variables (hyperparameters and targets); inputs too for the input-dependent cases."""
         type_per_var = {}
 
         if input_dependent:
@@ -283,24 +283,6 @@ class ConfigDB():
             input_vars.extend(self.get_inputs(algorithm))
 
         return input_vars
-
-    def get_algorithms_cases(self):
-        """
-        Get list of all available algorithms, and for each one which cases w.r.t. inputs are availablei
-        Returns dict with names of the algorithms being the key, and the value being 0 if input-independent only, 1 if input-dependent only, 2 if both.
-        """
-        input_independent_algos = self.get_algorithms(input_dependent=False)
-        input_dependent_algos = self.get_algorithms(input_dependent=True)
-
-        ret = {k:0 for k in input_independent_algos}
-        for input_dep_algo in input_dependent_algos:
-            if input_dep_algo in ret:
-                ret[input_dep_algo] = 2
-            else:
-                ret[input_dep_algo] = 1
-
-        return ret
-
 
     def __check_json(self, algorithm, hw, config, input_dependent=False):
         """Checks that the fields in the JSON configs are present and of of the expected types."""
