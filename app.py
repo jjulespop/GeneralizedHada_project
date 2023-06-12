@@ -46,7 +46,7 @@ def run_hada(optimization_request):
     solution = HADA(db, optimization_request, models, var_bounds, robust_coeff)
     return solution
 
-def parse_request_form(algorithm, form_dict):
+def parse_request_form(algorithm, form_dict, input_dependent=False, inputs_file=None):
 
     #def sanitize_float(x):
     #    return None if x == '' else float(x)
@@ -60,30 +60,37 @@ def parse_request_form(algorithm, form_dict):
 
         return x
 
-    print(form_dict)
-    user_constraints = UserConstraints(db, algorithm)
-    for target in db.get_targets(algorithm):
+    #print(form_dict)
+    user_constraints = UserConstraints(db, algorithm, input_dependent)
+    for target in db.get_targets(algorithm, input_dependent):
         if form_dict[f'constraint_{target}'] != '':
             user_constraints.add_constraint(target,
                                             form_dict[f'constraint_{target}_type'],
                                             sanitize_field(form_dict[f'constraint_{target}']))
 
-    hws_prices = HardwarePrices(db, algorithm)
-    for hw in db.get_hws(algorithm):
+    hws_prices = HardwarePrices(db, algorithm, input_dependent)
+    for hw in db.get_hws(algorithm, input_dependent):
         price = sanitize_field(form_dict[f'price_{hw}'])
         hws_prices.add_hw_price(hw, price)
     
     #if form_dict['input_case'] == 'input_dependent':
+    opt_req_args = {'db': db,
+                    'algorithm': algorithm,
+                    'target': form_dict['target'],
+                    'opt_type': form_dict['objective_type'],
+                    'robustness_fact': sanitize_field(form_dict['robust_factor']),
+                    'user_constraints': user_constraints,
+                    'hws_prices': hws_prices}
+ 
+    if input_dependent:
+        inputs = Inputs(db, algorithm)
+        if inputs_file:
+            for input in inputs_file['inputs']:
+                inputs.add_input(input['name'], input['value'])
+        opt_req_args['inputs'] = inputs
 
-    optimization_request = OptimizationRequest(db=db,
-                                               algorithm=algorithm,
-                                               target=form_dict['target'],
-                                               opt_type=form_dict['objective_type'],
-                                               robustness_fact=sanitize_field(form_dict['robust_factor']),
-                                               user_constraints=user_constraints,
-                                               hws_prices=hws_prices)
+    optimization_request = OptimizationRequest(**opt_req_args)
 
-                                                
     return optimization_request
 
 def parse_request_json(data):
@@ -165,7 +172,7 @@ def hada_gui():
         # two separate forms, one for algorithm selection and one for optimization requests
         if request.method == 'POST':
             form_dict = request.form.to_dict()
-            print(form_dict)
+            #print(form_dict)
             
             if form_dict['form_id'] == 'select_algo':
                 # populating GUI
@@ -182,9 +189,18 @@ def hada_gui():
                     session['last_selected_algo'] = first_algo
 
 
-                    
             if form_dict['form_id'] == 'optimize':
-                optimization_request = parse_request_form(session['last_selected_algo'], form_dict)
+                # checking if input file is uploaded
+                opt_args = {}
+                if session['last_input_dependent']:
+                    if 'fileUpload' in request.files and request.files['fileUpload'].filename != '':
+                        inputs_file = json.loads(request.files['fileUpload'].read())
+                        opt_args['inputs_file'] = inputs_file
+
+                optimization_request = parse_request_form(session['last_selected_algo'],
+                                                          form_dict, 
+                                                          input_dependent=session['last_input_dependent'],
+                                                          **opt_args)
                 solution = run_hada(optimization_request)
 
                 if solution:
@@ -198,7 +214,7 @@ def hada_gui():
         input_independent_algos = db.get_algorithms(input_dependent=False)
         input_dependent_algos = db.get_algorithms(input_dependent=True)
         #rendering_kwargs = {'algorithms': db.get_algorithms(input_dependent=session['last_input_dependent']),
-        rendering_kwargs = {'algorithms': {True: input_dependent_algos, False: input_independent_algos},
+        rendering_kwargs = {'algorithms': {'input-dependent': input_dependent_algos, 'input-independent': input_independent_algos},
                             'input_dependent': session['last_input_dependent'],
                             'targets': db.get_targets(session['last_selected_algo'], session['last_input_dependent']),
                             'price_per_hw': db.get_prices_per_hw(session['last_selected_algo'], session['last_input_dependent']),
@@ -210,10 +226,6 @@ def hada_gui():
     except Exception as e:
         traceback.print_exc()
         out=str(e)
-        #return render_template('hada_gui.html',
-        #                       **session['last_rendering_kwargs'],
-        #                       selected_algo=session['last_selected_algo'],
-        #                       out=out)
 
     return render_template('hada_gui.html',
                            **session['last_rendering_kwargs'],
@@ -240,7 +252,10 @@ def get_algo_info(algorithm):
         cases.append(('input-independent', False))
 
 
-    ret = {}
+    ret = {'algorithm': algorithm,
+           'input-independent': None,
+           'input-dependent': None}
+
     for name, input_dependent in cases:
         hyperparams = db.get_hyperparams(algorithm, input_dependent)
         # types are relevant only for hyperparameters, targets are assumed to be 'float'
@@ -267,8 +282,7 @@ def get_algo_info(algorithm):
         hws_with_prices = {hw: {'default_price': price} 
                         for hw,price in db.get_prices_per_hw(algorithm, input_dependent).items()}
 
-        case = {'algorithm': algorithm,
-                'hws': hws_with_prices,
+        case = {'hws': hws_with_prices,
                 'hyperparameters': hyperparams_profiles,
                 'targets': targets_profiles}
         
@@ -285,14 +299,6 @@ def get_algo_info(algorithm):
         ret[name] = case
 
     return ret
-    # alternative
-    #ret = {'algorithm': algorithm,
-    #       'hyperparameters': hyperparams,
-    #       'targets': targets,
-    #       'bounds': {'lb_per_var': lb_per_var,
-    #                   'ub_per_var': ub_per_var}}
-
-    return jsonify(ret)
 
 @app.route('/optimize', methods=['POST'])
 def optimize():
