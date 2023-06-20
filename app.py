@@ -36,7 +36,7 @@ def run_hada(optimization_request):
     var_bounds = datasets.get_var_bounds_all(optimization_request)
     robust_coeff = datasets.get_robust_coeff(models, optimization_request)
 
-    solution = HADA(db, optimization_request, models, var_bounds, robust_coeff)
+    solution = HADA(db, datasets, optimization_request, models, var_bounds, robust_coeff)
     return solution
 
 def parse_request_form(algorithm, form_dict):
