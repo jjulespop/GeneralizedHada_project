@@ -178,7 +178,7 @@ class Datasets(ABC):
                         dataset = self.get_dataset(request.algorithm, hw)
                         model = models.get_model(request.algorithm, hw, target)
 
-                        dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if 'var' in col]])
+                        dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if col not in self.db.get_targets(request.algorithm)]])
                         dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff
@@ -259,6 +259,18 @@ class StrExpander():
             expanded_hyperparams.extend(expanded_vars_per_str_var[str_var])
 
         return expanded_hyperparams
+
+    def get_expanded_var_type(self, algorithm):
+        """Return list of new var_type, where str variables are one-hot encoded."""
+        og_var_type = self.datasets.db.get_type_per_var(algorithm)
+        str_vars = self.datasets.db.get_str_vars(algorithm)
+
+        expanded_var_type = {var : og_var_type[var] for var in og_var_type if var not in str_vars}
+        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm)
+        for str_var in str_vars:
+            expanded_var_type.update({category : 'bin' for category in expanded_vars_per_str_var[str_var]})
+
+        return expanded_var_type
 
     def get_categories_per_str_var(self, algorithm):
         """

@@ -4,9 +4,11 @@ from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
 from docplex.mp.model_reader import ModelReader
 from core.configdb import ConfigDB
+from core.datasets import Datasets
 from core.optimization_request import OptimizationSolution
 
-def HADA(db: ConfigDB,
+def HADA(db : ConfigDB,
+         datasets : Datasets,
          request,
          models,
          var_bounds,
@@ -17,16 +19,19 @@ def HADA(db: ConfigDB,
         2. Embed predictive models 
         3. Declare user-defined constraints and objective 
         4. Solve the model and output an optimal matching (hw-platform, alg-configuration)
-
+    
     PARAMETERS
     ---------
-    xxx [yyy] : a transprecision computing algorithm {saxpy, convolution, correlation, fwt}
-    xxx [yyy]: type {min, max} and target
+    db : an instance of class core.configdb.ConfigDB
+    datasets : an instance of class core.datasets.Datasets
+    request : an instance of class core.optimizationrequest.OptimizationRequest
+    models : an instance of class core.mlmodels.MLModels
+    var_bounds : a dict with upper and lower bound for each variable
+    robust_coeff : a dict with robustness coefficient to apply for each pair (hardware, target)
 
     RETURN
     ------
-    sol [dict]: optimal solution found
-    mdl [docplex.mp.model.Model]: final optimization model
+    sol : a dict with the solution found, or None if no solution is found 
     '''
 
     ####### MODEL #######
@@ -36,11 +41,16 @@ def HADA(db: ConfigDB,
 
     hws = db.get_hws(request.algorithm)
     targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
-    hyperparams = db.get_hyperparams(request.algorithm)
     
+    # Expand data objects with one-hot encoded categorical variables
+    str_vars = datasets.expander.get_expanded_vars_per_str_var(request.algorithm)
+    hyperparams = datasets.expander.get_expanded_hyperparams(request.algorithm)
+    var_type = datasets.expander.get_expanded_var_type(request.algorithm)
+    var_bounds = dict({var : var_bounds[var] for var in var_bounds if var not in str_vars},
+            **{category : {'lb' : 0, 'ub' : 1} for var, categories in str_vars.items() for category in categories})
+
     # Retrieve variable types, assuming that price is always a float
     cplex_type = {'bin' : mdl.binary_vartype, 'int' : mdl.integer_vartype, 'float' : mdl.continuous_vartype}
-    var_type = db.get_type_per_var(request.algorithm)
     var_type['price'] = 'float'
     var_type = {var : cplex_type[var_type[var]] for var in var_type.keys()}
 
@@ -91,6 +101,10 @@ def HADA(db: ConfigDB,
     # HW Selection Constraint, enabling the selection of a single hw platform
     mdl.add_constraint(mdl.sum(mdl.get_var_by_name(f"b_{hw}") for hw in hws) == 1, ctname = "hw_selection")
 
+    # Category Selection Constraints, enabling the selection of a single category for each categorical variable
+    for var in str_vars:
+        mdl.add_constraint(mdl.sum(mdl.get_var_by_name(category) for category in str_vars[var]) == 1, ctname = f"{var}_category_selection")
+
     # Empirical Constraints: embed the predictive models into the system (through emllib)
     for target in targets:
         # target price is not predicted, but indicated by the hw provider: it does not require any
@@ -103,8 +117,11 @@ def HADA(db: ConfigDB,
             model = models.get_model(request.algorithm, hw, target)
             model = read_sklearn_tree(model)
             for i, hyperparam in enumerate(hyperparams):
-                model.update_lb(i, var_bounds[hyperparam]['lb'])
-                model.update_ub(i, var_bounds[hyperparam]['ub'])
+                try:
+                    model.update_lb(i, var_bounds[hyperparam]['lb'])
+                    model.update_ub(i, var_bounds[hyperparam]['ub'])
+                except:
+                    continue
             embed.encode_backward_implications(
                     bkd = bkd, mdl = mdl,
                     tree = model, 
@@ -118,7 +135,7 @@ def HADA(db: ConfigDB,
     if 'price' in targets:
         for hw in hws: 
             mdl.add_constraint(mdl.get_var_by_name(f"{hw}_price") == request.hws_prices.get_prices_per_hw()[hw], ctname = f"{hw}_price")
-
+ 
     # 2. If no robustness is required, fix all coefficients to 0 
     if robust_coeff is None:
         robust_coeff = {(hw, target) : 0
@@ -146,7 +163,7 @@ def HADA(db: ConfigDB,
     else: 
         mdl.maximize(mdl.sum(mdl.get_var_by_name(f"{hw}_{request.target}") * mdl.get_var_by_name(f"b_{hw}") for hw in hws))
 
-        
+         
     ##### SOLVE #####
     sol = mdl.solve()
     
@@ -158,6 +175,12 @@ def HADA(db: ConfigDB,
                 break
         targets_values = {target: round(sol[f"{chosen_hw}_{target}"]) if var_type[target] != mdl.continuous_vartype else sol[f"{chosen_hw}_{target}"] for target in targets}
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
+        
+        # Decode one-hot variables
+        for var in str_vars:
+            chosen_category = {var : category.split(var + '_')[1] for category in str_vars[var] if hyperparams_values[category] == 1}
+            hyperparams_values = dict({hyperparam : value for hyperparam, value in hyperparams_values.items() if hyperparam not in str_vars[var]},
+            **chosen_category)
 
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
         solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values)
