@@ -21,6 +21,17 @@ sudo docker compose up
 
 Once everything is completed, the service can be found at `localhost:5000`.
 
+### GUI usage
+When optimizing for an algorithm which is input-dependent, the values for the inputs must be submitted. This is done via a JSON file that can be uploaded using the form. The file needs to be structured in this way (example):
+```
+{"inputs": [
+    {"name":"load_std", "value": 167},
+    {"name":"load_mean", "value": 314},
+    {"name":"pv_std", "value": 276},
+    {"name":"pv_mean", "value": 268}
+]}
+```
+where `name` is the name of a given input variable and `value` its value.
 ### API usage
 
 #### Get list of algorithms
@@ -31,15 +42,23 @@ Route: `http://localhost:5000/algorithms`
 Response (example):
 ```
 {
-  "algorithms": [
-    "correlation",
-    "fwt",
-    "convolution",
-    "mockalgo1",
-    "saxpy"
-  ]
+  "algorithms": {
+    "input-independent": [
+      "saxpy",
+      "toyalg",
+      "fwt",
+      "convolution",
+      "correlation",
+      "mockalgo1"
+    ],
+    "input-dependent": [
+      "contingency",
+      "anticipate"
+    ]
+  }
 }
 ```
+The same algorithm (same name) could be present both for input-dependent and input-independent cases.
 
 
 #### Get informations about an algorithm
@@ -47,36 +66,77 @@ Route: `http://localhost:5000/algorithms/<algorithm>`
 
 `GET` request.
 
-Response (example for "fwt" algorithm):
+Response (example for the "anticipate" algorithm):
 ```
 {
-  "algorithm": "fwt",
-  "hyperparameters": {
-    "var_0": {
-      "lb": 3,
-      "ub": 52
+  "algorithm": "anticipate",
+  "input-independent": null,
+  "input-dependent": {
+    "hws": {
+      "pc": {
+        "default_price": null
+      }
     },
-    "var_1": {
-      "lb": 3,
-      "ub": 52
-    }
-  },
-  "targets": {
-    "memory": {
-      "lb": 24.450379,
-      "ub": 52.31878
+    "hyperparameters": {
+      "nScenarios": {
+        "description": null,
+        "type": "int",
+        "lb": 1,
+        "ub": 100
+      }
     },
-    "price": {
-      "lb": null,
-      "ub": null
+    "targets": {
+      "sol": {
+        "description": null,
+        "lb": 150.0,
+        "ub": 420.0
+      },
+      "time": {
+        "description": null,
+        "lb": 0.5,
+        "ub": 230.0
+      },
+      "memory": {
+        "description": null,
+        "lb": 59.0,
+        "ub": 345.0
+      },
+      "price": {
+        "description": null,
+        "lb": null,
+        "ub": null
+      }
     },
-    "time": {
-      "lb": 60.57580995559693,
-      "ub": 864.9205942153931
+    "inputs": {
+      "pv_mean": {
+        "description": null,
+        "type": "float",
+        "lb": 240,
+        "ub": 300
+      },
+      "pv_std": {
+        "description": null,
+        "type": "float",
+        "lb": 0.0,
+        "ub": 1000.0
+      },
+      "load_mean": {
+        "description": null,
+        "type": "float",
+        "lb": 0.0,
+        "ub": 400.0
+      },
+      "load_std": {
+        "description": null,
+        "type": "float",
+        "lb": 0.0,
+        "ub": 1000.0
+      }
     }
   }
 }
 ```
+The example is for an algorithm which is present only in the input-dependent form; input-independent ones are described in the same manner, but lack an "inputs" field.
 
 ### Request an optimization (algorithm-specific)
 
@@ -84,39 +144,34 @@ Route: `http://localhost:5000/optimize`
 
 `POST` request (application/json).
 
-Request (example):
+The presence of the "inputs" field implies the optimization request will be targeted at an input-dependent algorithm; otherwise, if not present, to an input-independent one.
+
+Request (example, input-dependent case):
 ```
-curl -X POST -H 'Content-Type: application/json' -d 
-'{"algorithm":"correlation",
-  "objective": {"target":"memory", "type": "min"},
-  "robustness_fact": null,
-  "constraints": [
-    {'target': "time", "type": "leq", "value": 120},
-    ...
-   ],
-   "price_per_hw": [
-    {"hw":"pc", "price": 30},
-    ...
-   ]
-   }'
-http://localhost:5000/optimize
+curl -X POST -H 'Content-Type: application/json' -d '
+{"algorithm":"anticipate",
+"objective": {"target":"time", "type": "min"},
+"robustness_fact": null,
+"constraints": [
+    {"target": "time", "type": "leq", "value": 120}
+],
+"prices": [
+    {"hw":"pc", "price": 100}
+],
+"inputs": [
+    {"name":"load_std", "value": 167},
+    {"name":"load_mean", "value": 314},
+    {"name":"pv_std", "value": 276},
+    {"name":"pv_mean", "value": 268}
+]}' localhost:5000/optimize
 ```
 
 Response (example):
 ```
 {
   "solution": {
-    "hw": "vm",
-    "memory": 18.916514999999983,
-    "price": 30.0,
-    "time": 83.51820898,
-    "var_0": 3.0,
-    "var_1": 3.0,
-    "var_2": 3.0,
-    "var_3": 3.0,
-    "var_4": 3.0,
-    "var_5": 3.0,
-    "var_6": 10.0
-  }
-}
+    "hw": "pc",
+    "nScenarios": 1,
+    "time": 1.875
+ }
 ```

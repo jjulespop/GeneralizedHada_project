@@ -1,0 +1,19 @@
+{
+    "name": "contingency",
+    "HW_ID": "pc",
+    "HW_price": null,
+    "hyperparams": [
+        {"ID": "nTraces",  "description": null, "type": "int", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "sol",  "description": null, "LB": -10000.0, "UB": 10000.0},
+        {"ID": "time",  "description": null, "LB": 0.0, "UB": 230.0},
+        {"ID": "memory",  "description": null, "LB": 0.0, "UB": 350.0}
+    ],
+    "inputs": [
+       {"ID": "pv_mean",  "description": null, "type": "float", "LB": 240, "UB": 300},
+        {"ID": "pv_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000},
+        {"ID": "load_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
+        {"ID": "load_std",  "description": null, "type": "float", "LB": 150.0, "UB": 200.0}
+    ]
+}

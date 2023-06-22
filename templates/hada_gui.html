@@ -44,20 +44,51 @@
                 hide_prices();
         }
 
+        ////Show file upload elements
+        //show_upload = () => {document.querySelector('#upload_elements').style.display='block'}
+        ////Hide file upload elements
+        //hide_upload = () => {document.querySelector('#upload_elements').style.display='none'}
+
+        //Handles when to show the upload elements
+        //upload_elements_handler = () => {
+        //    upload_checkbox = document.querySelector('#upload_checkbox');
+        //    if (upload_checkbox.checked)
+        //        show_upload();
+        //    else 
+        //        hide_upload();
+        //}
+
+
         window.onload = function() {
             dropdown = document.querySelector('#algorithm');
+            hidden_selected_inp = document.getElementById('selected_input_dep');
             price_constraint = document.querySelector('#constraint_price');
             target = document.querySelector('#target');
+            //upload_checkbox = document.querySelector('#upload_checkbox');
 
-            //Algorithm menu handler
-            dropdown.addEventListener('change', function() {
+            //Algorithm menu and checkbox handler
+            submit_algo_change = function() {
+                selectedOption = event.target.selectedOptions[0];
+                optgroupLabel = selectedOption.parentNode.label;
+                
+                // infer input-dependency case by optgroup
+                if (optgroupLabel == 'input-independent')
+                    hidden_selected_inp.value = "False";
+                else
+                    hidden_selected_inp.value = "True";
                 const form = document.querySelector('#select_algorithm_form');
-                form.submit();
-            });
+                    
+                form.submit();}
+
+            dropdown.addEventListener('change', submit_algo_change);
+            //upload_checkbox.addEventListener('change', submit_algo_change);
         
             // Handling prices form
             target.addEventListener('change', prices_form_handler);
             price_constraint.addEventListener('input', prices_form_handler);
+
+            // Handling upload elements
+            //upload_checkbox.addEventListener('change', upload_elements_handler);
         };
     </script>
 
@@ -72,21 +103,31 @@
         </div>
 
             <div class="row">
-                <div class="column column-100">
-                    <form action="/" method="POST" id="select_algorithm_form">
-                        <input value = "select_algo" type="hidden" name="form_id">
+                    <div class="column column-100">
+                <form action="/" method="POST" id="select_algorithm_form">
+                    <input value = "select_algo" type="hidden" name="form_id">
+                    <input value = "{{input_dependent}}" type="hidden" name="selected_input_dep" id="selected_input_dep">
+
                         <label class="label-inline">Algorithm</label>
                         <select name="algorithm" id="algorithm">
-                            {% for algo in algorithms %}
-                            <option value="{{algo}}" {% if algo==selected_algo %}selected{% endif %}>{{algo}}</option>
+                            {% for case in ['input-independent', 'input-dependent'] %}
+                            <optgroup label={% if case=='input-dependent' %}"input-dependent"{% else %}"input-independent"{% endif %}>
+                                {% for algo in algorithms[case] %}
+                                <option value="{{algo}}" {% if algo==selected_algo and ((case=='input-dependent' and input_dependent) or (case=='input-independent' and not input_dependent) )%}selected{% endif %}>{{algo}}</option>
+                                {% endfor %}
+                            </optgroup>
                             {% endfor %}
                         </select>
-                    </form>
+                </form>
+        <form action="/" method="POST" id="optimization_request_form" enctype="multipart/form-data">
+                <div {% if not input_dependent %}class="hidden"{% endif %} id="upload_elements">
+                    <label class="label-inline">Input file</label>
+                    <input type="file" id="fileUpload" name="fileUpload">
                 </div>
             </div>
+            </div>
 
-        <form action="/" method="POST" id="optimization_request_form">
-        <input value = "optimize" type="hidden" name="form_id">
+        <input value="optimize" type="hidden" name="form_id">
             <div class="row">
                 <div class="column column-50">
                     <label class="label-inline">Target</label>
@@ -107,6 +148,12 @@
                     <input type="text" name="robust_factor" id="robust_factor" placeholder="None">
                 </div>
             </div>
+
+            <!--<div class="row">
+                <div class="column column-100">
+                    <br />
+                </div>
+            </div>-->
 
             <div class="row">
                 <h4>Constraints</h4>

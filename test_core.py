@@ -7,34 +7,38 @@ from core.ml_models import MLModels
 
 if __name__ == '__main__':
 
-    configs_path = './algorithms/configs'
-    data_path = './algorithms/data'
-    models_path = './algorithms/models'
-    storage_ws_url = 'http://localhost:5333'
+    #input_dependent=False
+    input_dependent=True
+    configs_path_no_inp = './algorithms/configs/input-independent'
+    configs_path_inp = './algorithms/configs/input-dependent'
+    data_path_no_inp = './algorithms/data/input-independent'
+    data_path_inp = './algorithms/data/input-dependent'
+    models_path_no_inp = './algorithms/models/input-independent'
+    models_path_inp = './algorithms/models/input-dependent'
+    #storage_ws_url = 'http://localhost:5333'
 
     ##### Init #####
-    db = ConfigDB.from_local(configs_path)
+    db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
     #db = ConfigDB.from_remote(storage_ws_url)
 
-    datasets = Datasets.from_local(db, data_path)
+    datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
     #datasets = Datasets.from_remote(db, storage_ws_url)
 
-    models = MLModels(db, datasets, models_path)
+    models = MLModels(db, datasets, models_path_no_inp, models_path_inp)
 
     #print(db.get_type_per_var('toyalgstr'))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'toyalgstr')
-    #user_constraints.add_constraint('memory', 'leq', 20)
-    user_constraints.add_constraint('time', 'leq', 77)
+    user_constraints = UserConstraints(db, 'toyalgstr', input_dependent)
+    user_constraints.add_constraint('time', 'leq', 120)
 
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'toyalgstr')
-    #hws_prices.add_hw_price('vm', 300)
+    hws_prices = HardwarePrices(db, 'toyalgstr', input_dependent)
+    hws_prices.add_hw_price('vm', 300)
     
     robustness_factor = 0.5
 
-    request = OptimizationRequest(db, 'toyalgstr', 'memory', 'max', robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, 'toyalgstr', 'memory', 'min', robustness_factor, user_constraints, hws_prices)
 
     ##### Handling datasets and models #####
     # extracting info from datasets

@@ -18,17 +18,18 @@ class Datasets(ABC):
         self.expander = StrExpander(self)
 
     @classmethod
-    def from_local(cls, db, data_path):
+    def from_local(cls, db, data_path_no_inp, data_path_inp):
         """Initialize Datasets using local datasets.
 
         Args:
             db (ConfigDB): instance of ConfigDB.
-            data_path (str): local path containing the datasets.
+            data_path_no_inp (str): local path containing the datasets (non input-dependent case).
+            data_path_inp (str): local path containing the datasets (input-dependent case).
 
         Returns:
             Datasets: instance of Datasets.
         """
-        return DatasetsLocal(db, data_path)
+        return DatasetsLocal(db, data_path_no_inp, data_path_inp)
 
     @classmethod
     def from_remote(cls, db, address):
@@ -44,22 +45,27 @@ class Datasets(ABC):
         return DatasetsRemote(db, address)
 
     @abstractmethod
-    def get_dataset(self, algorithm, hw) -> pd.DataFrame:
+    def get_dataset(self, algorithm, hw, input_dependent) -> pd.DataFrame:
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
-    def _check_dataset_consistency(self, df, algorithm, hw):
+    def _check_dataset_consistency(self, df, algorithm, hw, input_dependent=False):
         """Checking the columns are the expected ones and that they are numericals."""
-        hyperparams = self.db.get_hyperparams(algorithm)
-        data_targets = self.db.get_targets(algorithm)
+        hyperparams = self.db.get_hyperparams(algorithm, input_dependent)
+        data_targets = self.db.get_targets(algorithm, input_dependent)
         data_targets.remove('price')
+        if input_dependent:
+            inputs = self.db.get_inputs(algorithm)
 
-        if set(df.columns) != set(hyperparams + data_targets):
+        expected_columns = hyperparams + data_targets
+        if input_dependent:
+            expected_columns.extend(inputs)
+        if set(df.columns) != set(expected_columns):
             raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
          
         #from pandas.api.types import is_numeric_dtype
-        type_per_var = self.db.get_type_per_var(algorithm)
-        numerical_vars = [var for var in type_per_var if var not in self.db.get_str_vars(algorithm)]
+        type_per_var = self.db.get_type_per_var(algorithm, input_dependent)
+        numerical_vars = [var for var in type_per_var if var not in self.db.get_str_vars(algorithm, input_dependent)]
         for column in df.columns:
             if column in numerical_vars and not pd.api.types.is_numeric_dtype(df[column]):
                 raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
@@ -72,24 +78,25 @@ class Datasets(ABC):
             elif expected_dtype == 'bin' and set(df[column].unique()) != {0, 1}:
                 raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be binary, but has non-binary values.')
 
-    def extract_var_bounds(self, algorithm):
+    def extract_var_bounds(self, algorithm, input_dependent=False):
         """
         Compute upper and lower bounds of each variable.
         If UB/LB specified in configs, use that instead of extracting from data.
 
         Args:
             algorithm (str): algorithm for which we want to extract variable bounds.
+            input_dependent (bool): input case (True for input-dependent, False for input_independent).
 
         Returns:
-            lb_per_var (dict): lower bound for each variable (hyperparameters and targets).
-            ub_per_var (dict): upper bound for each variable (hyperparameters and targets).
+            lb_per_var (dict): lower bound for each variable (hyperparameters and targets; inputs too for the input-dependent cases).
+            ub_per_var (dict): upper bound for each variable (hyperparameters and targets; inputs too for the input-dependent cases).
         """
         # check if both UB and LB are specified in the configs
         # otherwise add to "missing_bounds"; if any extract from data and calculate those
 
         # retrieving LBs/UBs from configs
-        lb_per_var = self.db.get_lb_per_var(algorithm)
-        ub_per_var = self.db.get_ub_per_var(algorithm)
+        lb_per_var = self.db.get_lb_per_var(algorithm, input_dependent)
+        ub_per_var = self.db.get_ub_per_var(algorithm, input_dependent)
 
         str_vars = self.db.get_str_vars(algorithm)
         # handling non-specified bounds by extracting them from data; skipping str variables
@@ -105,9 +112,9 @@ class Datasets(ABC):
             all_mins_per_var = defaultdict(list)
             all_maxes_per_var = defaultdict(list)
 
-            for hw in self.db.get_hws(algorithm):
+            for hw in self.db.get_hws(algorithm, input_dependent):
             
-                dataset = self.get_dataset(algorithm, hw)
+                dataset = self.get_dataset(algorithm, hw, input_dependent)
 
                 for var in lb_missing_vars:
                     all_mins_per_var[var].append(dataset[var].min())
@@ -120,7 +127,7 @@ class Datasets(ABC):
                 ub_per_var[var] = max(all_maxes_per_var[var]).item()
 
             # checking that dtypes of variables are compatible with the bounds
-            type_per_var = self.db.get_type_per_var(algorithm)
+            type_per_var = self.db.get_type_per_var(algorithm, input_dependent)
             for var, dtype in type_per_var.items():
                 var_lb = lb_per_var[var]
                 var_ub = ub_per_var[var]
@@ -137,6 +144,7 @@ class Datasets(ABC):
         """
         Compute upper and lower bounds of each variable, including price.
         If UB/LB specified in configs, use that instead of extracting from data.
+        Handles "price" on top of the regular targets.
 
         Args:
             request (OptimizationRequest): instance of OptimizationRequest.
@@ -144,8 +152,7 @@ class Datasets(ABC):
         Returns:
             var_bounds (dict): lower bound and upper bound for each variable, including price.
         """
-
-        lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
+        lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm, request.input_dependent)
 
         if request.target == 'price' or 'price' in request.user_constraints.get_constraints():
             lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
@@ -169,16 +176,18 @@ class Datasets(ABC):
 
         if request.robustness_fact or request.robustness_fact == 0:
             robust_coeff = {}
-            for target in self.db.get_targets(request.algorithm): 
-                for hw in self.db.get_hws(request.algorithm): 
+            for target in self.db.get_targets(request.algorithm, request.input_dependent): 
+                for hw in self.db.get_hws(request.algorithm, request.input_dependent): 
                     # The target price is not estimated: it does not require any robustness coefficient 
                     if target == 'price': 
                         robust_coeff[(hw, "price")] = 0
                     else: 
-                        dataset = self.get_dataset(request.algorithm, hw)
-                        model = models.get_model(request.algorithm, hw, target)
+                        dataset = self.get_dataset(request.algorithm, hw, request.input_dependent)
+                        model = models.get_model(request.algorithm, hw, target, request.input_dependent)
 
-                        dataset[f'{target}_pred'] = model.predict(dataset[[col for col in dataset.columns if col not in self.db.get_targets(request.algorithm)]])
+                        #ml_inputs = [col for col in dataset.columns if col not in self.db.get_targets(request.algorithm)]
+                        ml_inputs = self.expander.get_expanded_ml_input_vars(request.algorithm, request.input_dependent)
+                        dataset[f'{target}_pred'] = model.predict(dataset[ml_inputs])
                         dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff
@@ -188,21 +197,23 @@ class Datasets(ABC):
 
 class DatasetsLocal(Datasets):
     """Handles datasets stored locally."""
-    def __init__(self, db, data_path):
-        super().__init__(db)
-        self.data_path = data_path
+    def __init__(self, db, data_path_no_inp, data_path_inp):
+        self.db = db
+        self.data_path_no_inp = data_path_no_inp
+        self.data_path_inp = data_path_inp
 
-    def get_dataset(self, algorithm, hw):
-        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+        path = self.data_path_inp if input_dependent else self.data_path_no_inp
+        dataset_path = os.path.join(path, f'{algorithm}_{hw}.csv')
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
 
         dataset = pd.read_csv(dataset_path)
 
-        # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw)
         # expanding str variables into bin (one-hot encoding) internally
         dataset = self.expander._expand_categoricals(dataset, algorithm)
+        # checking if data complies to configs
+        self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
 
         return dataset
 
@@ -212,8 +223,11 @@ class DatasetsRemote(Datasets):
         super().__init__(db)
         self.address = address
 
-    def get_dataset(self, algorithm, hw):
-        algo_hw_url = urljoin(self.address, f'/datasets/{algorithm}/{hw}')
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+        request_url = f'/datasets/{algorithm}/{hw}'
+        if input_dependent:
+            request_url += '/input'
+        algo_hw_url = urljoin(self.address, request_url)
         req = requests.request('GET', algo_hw_url)
         if req.status_code != 200:
             raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
@@ -221,10 +235,10 @@ class DatasetsRemote(Datasets):
 
         dataset = pd.read_csv(StringIO(csv_file.decode('utf-8')))
 
-        # checking if data complies to configs
-        self._check_dataset_consistency(dataset, algorithm, hw)
         # expanding str variables into bin (one-hot encoding) internally
         dataset = self.expander._expand_categoricals(dataset, algorithm)
+        # checking if data complies to configs
+        self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
 
         return dataset
 
@@ -234,11 +248,13 @@ class StrExpander():
     def __init__(self, datasets):
         self.datasets = datasets
         # path where the categories for "str" variables (categoricals) are stored
-        self.categories_path = "./algorithms/categorical_mappings"
+        self.categories_path_no_inp = "./algorithms/categorical_mappings_input_independent"
+        self.categories_path_inp = "./algorithms/categorical_mappings_input_dependent"
 
-    def _get_categories_path(self, algorithm):
+    def _get_categories_path(self, algorithm, input_dependent=False):
         """Returns path for the categories relative to an algorithm (pickle)."""
-        return os.path.join(self.categories_path, f'{algorithm}.pkl')
+        path = self.categories_path_inp if input_dependent else self.categories_path_no_inp
+        return os.path.join(path, f'{algorithm}.pkl')
 
     def _get_onehot_var_name(self, og_var_name, category):
         """Get name of a new (expanded) one-hot column."""
@@ -248,31 +264,62 @@ class StrExpander():
         """Extracts category values from a one-hot encoded column."""
         return onehot_var_name.split(f'{category}_')[-1]
 
-    def get_expanded_hyperparams(self, algorithm):
+    def get_expanded_hyperparams(self, algorithm, input_dependent=False):
         """Return list of new hyperparams, where str variables are one-hot encoded."""
-        og_hyperparams = self.datasets.db.get_hyperparams(algorithm)
-        str_vars = self.datasets.db.get_str_vars(algorithm)
+        og_hyperparams = self.datasets.db.get_hyperparams(algorithm, input_dependent)
+        str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
 
-        expanded_hyperparams = [hyperparam for hyperparam in og_hyperparams if hyperparam not in str_vars]
-        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm)
-        for str_var in str_vars:
-            expanded_hyperparams.extend(expanded_vars_per_str_var[str_var])
+        # some hyperparameters need to be expandend, others need to be kept as is (general case)
+        non_ext_hyperparams = [hyperparam for hyperparam in og_hyperparams if hyperparam not in str_vars]
+        hyperparams_to_extend = [hyperparam for hyperparam in og_hyperparams if hyperparam in str_vars]
+        # hyperparameters that have to be expanded
+        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm, input_dependent)
+        ext_hyperparams = []
+        for ext_hyperparam in hyperparams_to_extend:
+            ext_hyperparam.extend(expanded_vars_per_str_var[ext_hyperparam])
 
-        return expanded_hyperparams
+        return non_ext_hyperparams + ext_hyperparams
 
-    def get_expanded_var_type(self, algorithm):
+    def get_expanded_inputs(self, algorithm, input_dependent=False):
+        """Return list of new inputs, where str variables are one-hot encoded."""
+        og_inputs = self.datasets.db.get_inputs(algorithm, input_dependent)
+        str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
+
+        # some inputeters need to be expandend, others need to be kept as is (general case)
+        non_ext_inputs = [input for input in og_inputs if input not in str_vars]
+        inputs_to_extend = [input for input in og_inputs if input in str_vars]
+        # inputeters that have to be expanded
+        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm, input_dependent)
+        ext_inputs = []
+        for ext_input in inputs_to_extend:
+            ext_input.extend(expanded_vars_per_str_var[ext_input])
+
+        return non_ext_inputs + ext_inputs
+
+    def get_expanded_ml_input_vars(self, algorithm, input_dependent=False):
+        """Return list of features to be fed to ML models (hypeparameters and inputs), where str variables are one-hot encoded."""
+        expanded_hyperparams = self.get_expanded_hyperparams(algorithm, input_dependent)
+
+        if input_dependent:
+            #return expanded_hyperparams + self.datasets.db.get_inputs(algorithm, input_dependent)
+            expanded_inputs = self.get_expanded_inputs(algorithm, input_dependent)
+            return expanded_hyperparams + expanded_inputs
+        else:
+            return expanded_hyperparams
+
+    def get_expanded_var_type(self, algorithm, input_dependent):
         """Return list of new var_type, where str variables are one-hot encoded."""
-        og_var_type = self.datasets.db.get_type_per_var(algorithm)
-        str_vars = self.datasets.db.get_str_vars(algorithm)
+        og_var_type = self.datasets.db.get_type_per_var(algorithm, input_dependent)
+        str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
 
         expanded_var_type = {var : og_var_type[var] for var in og_var_type if var not in str_vars}
-        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm)
+        expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm, input_dependent)
         for str_var in str_vars:
             expanded_var_type.update({category : 'bin' for category in expanded_vars_per_str_var[str_var]})
 
         return expanded_var_type
 
-    def get_categories_per_str_var(self, algorithm):
+    def get_categories_per_str_var(self, algorithm, input_dependent=False):
         """
         Return dictionary with str variables as keys and the correspong set of unique values as values.
         Makes use of get_dataset to create create the file containing the categories, if it does not exist.
@@ -284,16 +331,16 @@ class StrExpander():
             dict: dictionary with str variables as keys and the corresponding set of unique values as values.
 
         """
-        algo_categories_path = self._get_categories_path(algorithm)
+        algo_categories_path = self._get_categories_path(algorithm, input_dependent)
         if not os.path.exists(algo_categories_path):
             # get_datasets() creates the categories pickle if it does not exist
-            first_hw = self.db.get_hws(algorithm)[0]
-            _ = self.datasets.get_dataset(algorithm, first_hw)
+            first_hw = self.db.get_hws(algorithm, input_dependent)[0]
+            _ = self.datasets.get_dataset(algorithm, first_hw, input_dependent)
 
         categories = pickle.load(open(algo_categories_path, 'rb'))
         return categories
 
-    def get_expanded_vars_per_str_var(self, algorithm):
+    def get_expanded_vars_per_str_var(self, algorithm, input_dependent=False):
         """
         Return dictionary with str variables as keys and the correspong set of new variables as values.
 
@@ -304,11 +351,11 @@ class StrExpander():
             dict: dictionary with str variables as keys and the corresponding set of new variables as values.
 
         """
-        categories = self.get_categories_per_str_var(algorithm)
+        categories = self.get_categories_per_str_var(algorithm, input_dependent)
         return {var:[self._get_onehot_var_name(var, category) for category in var_categories]
                 for var, var_categories in categories.items()}
 
-    def _expand_categoricals(self, df, algorithm):
+    def _expand_categoricals(self, df, algorithm, input_dependent=False):
         """
         Expands categorical variables (type "str") to one-hot encoding (type "bin") internally.
         The mapping is stored on disk if not already existing, and is common for all hardwares for a given algorithm; 
@@ -324,12 +371,12 @@ class StrExpander():
         """
 
         # load mapping (if existing) otherwise make it (based on current dataset) and store it
-        algo_categories_path = os.path.join(self.categories_path, f'{algorithm}.pkl')
+        algo_categories_path = self._get_categories_path(algorithm, input_dependent)
         if os.path.exists(algo_categories_path):
             categories = pickle.load(open(algo_categories_path, 'rb'))
         else:
             # get all str variables for all hw
-            str_vars = self.datasets.db.get_str_vars(algorithm)
+            str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
 
             # get all unique values from various hw datasets, to create global mapping for the algorithm
             categories = defaultdict(set)
