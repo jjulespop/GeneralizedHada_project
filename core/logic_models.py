@@ -1,5 +1,5 @@
 '''
-Class that handles operations that have to be carried out on the ML models.
+Class that handles operations that have to be carried out on logic rules.
 '''
 import ast
 import os
