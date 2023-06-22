@@ -1,0 +1,13 @@
+MODEL,VERSION,INPUT_TILE,ENGINE,PROCESSOR,PRECISION,QUALITY_METRIC,QUALITY_VALUE,GFLOP,#PARAMS,STORAGE,PREPROCESSING_TIME,INFERENCE_TIME,POSTPROCESSING_TIME,LATENCY,THROUGHPUT,DMIPS,CPU_MEM,CPU_MEM_PEAK,GPU_MEM,GPU_MEM_PEAK,MEMORY_BANDWIDTH,MEMORY_BANDWIDTH_PEAK,CPU_LOAD,GPU_LOAD,NPU_LOAD,CPU_TEMP,GPU_TEMP,POWER_CONSUMPTION,ENERGY_EFFICIENCY
+eyegaze-rankgaze,mobilefacenet-mpiigaze,224x224,lne,CPU,F32,Avg MAE,5.66,1.9,4.2,16.6,1.1,101.2,0.0,102.3,9.8,1950326.6,12.2,0.7,0.0,0.0,0.0,0.0,47.6,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze,224x224,onnxruntime,CPU,F32,Avg MAE,5.66,1.9,4.2,16.6,0.8,77.0,0.0,77.7,12.9,2565878.9,11.2,0.6,0.0,0.0,0.0,0.0,52.4,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,32x32,lne,CPU,F32,Avg MAE,5.9,0.0,4.1,16.2,0.1,5.1,0.0,5.2,191.9,38284385.1,9.9,0.5,0.0,0.0,0.0,0.0,36.0,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,32x32,onnxruntime,CPU,F32,Avg MAE,5.9,0.0,4.1,16.2,0.1,7.7,0.0,7.8,128.3,25591207.8,10.9,0.6,0.0,0.0,0.0,0.0,50.7,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,48x32,lne,CPU,F32,Avg MAE,7.25,0.1,4.1,16.2,0.1,5.9,0.0,6.0,165.4,32988321.8,10.1,0.5,0.0,0.0,0.0,0.0,36.7,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,48x32,onnxruntime,CPU,F32,Avg MAE,7.25,0.1,4.1,16.2,0.1,7.3,0.0,7.4,135.4,27008090.9,11.5,0.6,0.0,0.0,0.0,0.0,50.1,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,64x48,lne,CPU,F32,Avg MAE,6.32,0.1,4.1,16.2,0.1,8.7,0.0,8.8,113.1,22557398.5,10.9,0.6,0.0,0.0,0.0,0.0,37.8,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,64x48,onnxruntime,CPU,F32,Avg MAE,6.32,0.1,4.1,16.2,0.1,6.9,0.0,7.0,142.6,28447586.2,10.5,0.6,0.0,0.0,0.0,0.0,50.3,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,64x64,lne,CPU,F32,Avg MAE,5.82,0.2,4.1,16.2,0.1,11.0,0.0,11.2,89.7,17885978.4,10.9,0.6,0.0,0.0,0.0,0.0,38.9,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,mobilefacenet-mpiigaze-righteye-t50,64x64,onnxruntime,CPU,F32,Avg MAE,5.82,0.2,4.1,16.2,0.2,15.1,0.0,15.3,65.4,13055343.8,10.2,0.5,0.0,0.0,0.0,0.0,51.0,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,resnet50-mpiigaze,224x224,lne,CPU,F32,/,/,8.2,25.6,102.3,1.2,158.3,0.0,159.5,6.3,1250588.8,11.6,0.7,0.0,0.0,0.0,0.0,48.9,0.0,0.0,-263.2,0.0,0.0,0.0
+eyegaze-rankgaze,resnet50-mpiigaze,224x224,onnxruntime,CPU,F32,/,/,8.2,25.6,102.3,0.8,229.0,0.0,229.8,4.4,867922.7,12.5,0.7,0.0,0.0,0.0,0.0,52.0,0.0,0.0,-263.2,0.0,0.0,0.0

@@ -1,0 +1,39 @@
+{
+    "name": "3D-face-landmarks",
+    "HW_ID": "jetson-xav-agx",    
+    "HW_price": null,
+    "hyperparams": [
+        {"ID": "MODEL", "description": null, "type": "str"},
+        {"ID": "VERSION", "description": null, "type": "str"},
+        {"ID": "INPUT_TILE", "description": null, "type": "str"},
+        {"ID": "ENGINE", "description": null, "type": "str"},
+        {"ID": "PROCESSOR", "description": null, "type": "str"},
+        {"ID": "PRECISION", "description": null, "type": "str"},
+        {"ID": "QUALITY_METRIC", "description": null, "type": "str"},
+        {"ID": "QUALITY_VALUE", "description": null, "type": "str"},
+        {"ID": "GFLOP", "description": null, "type": "float"},
+        {"ID": "#PARAMS", "description": null, "type": "float"},
+        {"ID": "STORAGE", "description": null, "type": "float"}
+    ],
+    "targets": [
+        {"ID": "PREPROCESSING_TIME", "description": null, "type": "str"},
+        {"ID": "INFERENCE_TIME", "description": null, "type": "str"},
+        {"ID": "POSTPROCESSING_TIME", "description": null, "type": "str"},
+        {"ID": "LATENCY", "description": null, "type": "str"},
+        {"ID": "THROUGHPUT", "description": null, "type": "str"},
+        {"ID": "DMIPS", "description": null, "type": "str"},
+        {"ID": "CPU_MEM", "description": null, "type": "float"},
+        {"ID": "CPU_MEM_PEAK", "description": null, "type": "float"},
+        {"ID": "GPU_MEM", "description": null, "type": "float"},
+        {"ID": "GPU_MEM_PEAK", "description": null, "type": "float"},
+        {"ID": "MEMORY_BANDWIDTH", "description": null, "type": "float"},
+        {"ID": "MEMORY_BANDWIDTH_PEAK", "description": null, "type": "float"},
+        {"ID": "CPU_LOAD", "description": null, "type": "float"},
+        {"ID": "GPU_LOAD", "description": null, "type": "float"},
+        {"ID": "NPU_LOAD", "description": null, "type": "float"},
+        {"ID": "CPU_TEMP", "description": null, "type": "float"},
+        {"ID": "GPU_TEMP", "description": null, "type": "float"},
+        {"ID": "POWER_CONSUMPTION", "description": null, "type": "float"},
+        {"ID": "ENERGY_EFFICIENCY", "float"}
+    ]
+}
