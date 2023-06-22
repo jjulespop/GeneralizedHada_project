@@ -21,11 +21,11 @@ if __name__ == '__main__':
 
     ### input-dependent
     print('input-dependent')
-    print(db.get_algorithms(case_dependent=True))
-    print(db.get_hyperparams('toyalg', case_dependent=True))
-    print(db.get_targets('toyalg', case_dependent=True))
-    print(db.get_hws('toyalg', case_dependent=True))
-    print(db.get_prices('toyalg', case_dependent=True))
-    print(db.get_prices_per_hw('toyalg', case_dependent=True))
-    print(db.get_type_per_var('toyalg', case_dependent=True))
+    print(db.get_algorithms(input_dependent=True))
+    print(db.get_hyperparams('anticipate', input_dependent=True))
+    print(db.get_targets('anticipate', input_dependent=True))
+    print(db.get_hws('anticipate', input_dependent=True))
+    print(db.get_prices('anticipate', input_dependent=True))
+    print(db.get_prices_per_hw('anticipate', input_dependent=True))
+    print(db.get_type_per_var('anticipate', input_dependent=True))
     # ...

@@ -37,11 +37,11 @@ if __name__ == '__main__':
     storage_ws_url = 'http://localhost:5333'
 
     ##### Init #####
-    #db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
-    db = ConfigDB.from_remote(storage_ws_url)
+    db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
+    #db = ConfigDB.from_remote(storage_ws_url)
 
-    #datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
-    datasets = Datasets.from_remote(db, storage_ws_url)
+    datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp)
+    #datasets = Datasets.from_remote(db, storage_ws_url)
 
     models = MLModels(db, datasets, models_path_no_inp, models_path_inp)
 
@@ -80,5 +80,5 @@ if __name__ == '__main__':
 
     ##### Optimizing #####
     # submitting request to HADA
-    solution = HADA(db, request, models, var_bounds, robust_coeff)
+    solution = HADA(db, datasets, request, models, var_bounds, robust_coeff)
     print(solution)

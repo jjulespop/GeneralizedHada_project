@@ -124,8 +124,8 @@ class ConfigDB():
         # internal db structure
         hyperparams = {hyperparam['ID']: {'type': hyperparam['type'],
                                             'description': hyperparam['description'],
-                                            'LB': hyperparam['LB'],
-                                            'UB': hyperparam['UB']}
+                                            'LB': hyperparam['LB'] if hyperparam['type'] != 'str' else None,
+                                            'UB': hyperparam['UB'] if hyperparam['type'] != 'str' else None}
                         for hyperparam in config['hyperparams']}
 
         #'type': target['type'],
@@ -137,8 +137,8 @@ class ConfigDB():
         if input_dependent:
             inputs = {input['ID']: {'type': input['type'],
                                         'description': input['description'],
-                                        'LB': input['LB'],
-                                        'UB': input['UB']}
+                                        'LB': input['LB'] if input['type'] != 'str' else None,
+                                        'UB': input['UB'] if input['type'] != 'str' else None}
                             for input in config['inputs']}
 
 
@@ -277,7 +277,8 @@ class ConfigDB():
 
     def get_str_vars(self, algorithm, input_dependent=False):
         """Get names of all string variables (hyperparameters)."""
-        return [var for var,type in self.get_type_per_var(algorithm, input_dependent).items() if type == 'str']
+        return [var for var,type in self.get_type_per_var(algorithm, input_dependent).items()
+                if type == 'str']
 
 
     def get_ml_input_vars(self, algorithm, input_dependent=False):
@@ -312,13 +313,17 @@ class ConfigDB():
                     if input['description'] is not None and type(input['description']) is not str:
                         raise AttributeError("Input description must be a string")
 
-                    if input['type'] not in ['bin', 'int', 'float']:
+                    if input['type'] not in ['bin', 'int', 'float', 'str']:
                         raise AttributeError("Input type must be 'bin', 'int' or 'float'")
 
-                    if input['UB'] is not None and type(input['UB']) not in [int, float]:
-                        raise AttributeError("Input upper bound must be a number or None")
-                    if input['LB'] is not None and type(input['LB']) not in [int, float]:
-                        raise AttributeError("Input lower bound must be a number or None")
+                    if input['type'] == 'str':
+                        if ('UB' in input or 'LB' in input):
+                                raise AttributeError("Inputs of type str cannot have an upper bound nor a lower bound")
+                    else:
+                        if input['UB'] is not None and type(input['UB']) not in [int, float]:
+                            raise AttributeError("Input upper bound must be a number or None")
+                        if input['LB'] is not None and type(input['LB']) not in [int, float]:
+                            raise AttributeError("Input lower bound must be a number or None")
 
             for hyperparam in config['hyperparams']:
                 if type(hyperparam['ID']) is not str:

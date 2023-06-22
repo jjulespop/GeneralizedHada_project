@@ -43,16 +43,15 @@ def HADA(db : ConfigDB,
     targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
     
     # Expand data objects with one-hot encoded categorical variables
-    str_vars = datasets.expander.get_expanded_vars_per_str_var(request.algorithm)
-    hyperparams = datasets.expander.get_expanded_hyperparams(request.algorithm)
+    str_vars = datasets.expander.get_expanded_vars_per_str_var(request.algorithm, request.input_dependent)
+    hyperparams = datasets.expander.get_expanded_hyperparams(request.algorithm, request.input_dependent)
     inputs_and_hyperparams = datasets.expander.get_expanded_ml_input_vars(request.algorithm, request.input_dependent)
-    var_type = datasets.expander.get_expanded_var_type(request.algorithm)
+    var_type = datasets.expander.get_expanded_var_type(request.algorithm, request.input_dependent)
     var_bounds = dict({var : var_bounds[var] for var in var_bounds if var not in str_vars},
             **{category : {'lb' : 0, 'ub' : 1} for var, categories in str_vars.items() for category in categories})
 
     # Retrieve variable types, assuming that price is always a float
     cplex_type = {'bin' : mdl.binary_vartype, 'int' : mdl.integer_vartype, 'float' : mdl.continuous_vartype}
-    var_type = db.get_type_per_var(request.algorithm, request.input_dependent)
     var_type['price'] = 'float'
     var_type = {var : cplex_type[var_type[var]] for var in var_type.keys()}
 
@@ -105,8 +104,16 @@ def HADA(db : ConfigDB,
     # Constraints on input values
     if request.input_dependent:
         inputs = request.inputs.get_inputs()
-        for input_var in inputs.keys():
-            mdl.add_constraint(mdl.get_var_by_name(input_var) == inputs[input_var], ctname = f"auxiliary_{input_var}")
+        inputs_types = {var:type for var,type in db.get_type_per_var(request.algorithm, request.input_dependent).items()
+                        if var in inputs.keys()}
+        for input_var, type in inputs_types.items():
+            if type == 'str':
+                enc_categories = datasets.expander.get_encoded_selection(request.algorithm, input_var, inputs[input_var], request.input_dependent)
+                for enc_input, enc_value in enc_categories:
+                    mdl.add_constraint(mdl.get_var_by_name(enc_input) == enc_value, ctname = f"auxiliary_{enc_input}")
+            else:
+                mdl.add_constraint(mdl.get_var_by_name(input_var) == inputs[input_var], ctname = f"auxiliary_{input_var}")
+
 
     # HW Selection Constraint, enabling the selection of a single hw platform
     mdl.add_constraint(mdl.sum(mdl.get_var_by_name(f"b_{hw}") for hw in hws) == 1, ctname = "hw_selection")
@@ -127,9 +134,11 @@ def HADA(db : ConfigDB,
             model = models.get_model(request.algorithm, hw, target, request.input_dependent)
             model = read_sklearn_tree(model)
             #for i, hyperparam in enumerate(hyperparams):
-            for i, var in enumerate(inputs_and_hyperparams):
-                model.update_lb(i, var_bounds[var]['lb'])
-                model.update_ub(i, var_bounds[var]['ub'])
+            #for i, var in enumerate(inputs_and_hyperparams):
+            for idx in model.attributes_ub.keys():
+                var = inputs_and_hyperparams[idx]
+                model.update_lb(idx, var_bounds[var]['lb'])
+                model.update_ub(idx, var_bounds[var]['ub'])
             embed.encode_backward_implications(
                     bkd = bkd, mdl = mdl,
                     tree = model, 

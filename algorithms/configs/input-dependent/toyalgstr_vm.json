@@ -1,0 +1,24 @@
+{
+    "name": "toyalgstr",
+    "HW_ID": "vm",
+    "HW_price": null,
+    "inputs": [
+        {"ID": "inp_0", "description": null, "type": "str"},
+        {"ID": "inp_1", "description": null, "type": "float", "LB": null, "UB": null}
+    ],
+    "hyperparams": [
+        {"ID": "cat_0", "description": null, "type": "str"},
+        {"ID": "var_0", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_1", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_2", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "var_3", "description": null, "type": "bin", "LB": null, "UB": null},
+        {"ID": "cat_1", "description": null, "type": "str"},
+        {"ID": "var_4", "description": null, "type": "int", "LB": null, "UB": null},
+        {"ID": "var_5", "description": null, "type": "int", "LB": null, "UB": null},
+        {"ID": "var_6", "description": null, "type": "bin", "LB": null, "UB": null}
+    ],
+    "targets": [
+        {"ID": "time", "description": null, "LB": null, "UB": null},
+        {"ID": "memory", "description": null, "LB": null, "UB": null}
+    ]
+}

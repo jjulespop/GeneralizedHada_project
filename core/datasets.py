@@ -98,7 +98,7 @@ class Datasets(ABC):
         lb_per_var = self.db.get_lb_per_var(algorithm, input_dependent)
         ub_per_var = self.db.get_ub_per_var(algorithm, input_dependent)
 
-        str_vars = self.db.get_str_vars(algorithm)
+        str_vars = self.db.get_str_vars(algorithm, input_dependent)
         # handling non-specified bounds by extracting them from data; skipping str variables
         lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None and var not in str_vars]
         ub_missing_vars = [var for var,ub in ub_per_var.items() if ub is None and var not in str_vars]
@@ -198,7 +198,7 @@ class Datasets(ABC):
 class DatasetsLocal(Datasets):
     """Handles datasets stored locally."""
     def __init__(self, db, data_path_no_inp, data_path_inp):
-        self.db = db
+        super().__init__(db)
         self.data_path_no_inp = data_path_no_inp
         self.data_path_inp = data_path_inp
 
@@ -210,10 +210,10 @@ class DatasetsLocal(Datasets):
 
         dataset = pd.read_csv(dataset_path)
 
-        # expanding str variables into bin (one-hot encoding) internally
-        dataset = self.expander._expand_categoricals(dataset, algorithm)
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
+        # expanding str variables into bin (one-hot encoding) internally
+        dataset = self.expander._expand_categoricals(dataset, algorithm, input_dependent)
 
         return dataset
 
@@ -235,10 +235,10 @@ class DatasetsRemote(Datasets):
 
         dataset = pd.read_csv(StringIO(csv_file.decode('utf-8')))
 
-        # expanding str variables into bin (one-hot encoding) internally
-        dataset = self.expander._expand_categoricals(dataset, algorithm)
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
+        # expanding str variables into bin (one-hot encoding) internally
+        dataset = self.expander._expand_categoricals(dataset, algorithm, input_dependent)
 
         return dataset
 
@@ -248,8 +248,8 @@ class StrExpander():
     def __init__(self, datasets):
         self.datasets = datasets
         # path where the categories for "str" variables (categoricals) are stored
-        self.categories_path_no_inp = "./algorithms/categorical_mappings_input_independent"
-        self.categories_path_inp = "./algorithms/categorical_mappings_input_dependent"
+        self.categories_path_no_inp = "./algorithms/categorical_mappings/input-independent"
+        self.categories_path_inp = "./algorithms/categorical_mappings/input-dependent"
 
     def _get_categories_path(self, algorithm, input_dependent=False):
         """Returns path for the categories relative to an algorithm (pickle)."""
@@ -276,13 +276,13 @@ class StrExpander():
         expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm, input_dependent)
         ext_hyperparams = []
         for ext_hyperparam in hyperparams_to_extend:
-            ext_hyperparam.extend(expanded_vars_per_str_var[ext_hyperparam])
+            ext_hyperparams.extend(expanded_vars_per_str_var[ext_hyperparam])
 
         return non_ext_hyperparams + ext_hyperparams
 
     def get_expanded_inputs(self, algorithm, input_dependent=False):
         """Return list of new inputs, where str variables are one-hot encoded."""
-        og_inputs = self.datasets.db.get_inputs(algorithm, input_dependent)
+        og_inputs = self.datasets.db.get_inputs(algorithm)
         str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
 
         # some inputeters need to be expandend, others need to be kept as is (general case)
@@ -334,7 +334,7 @@ class StrExpander():
         algo_categories_path = self._get_categories_path(algorithm, input_dependent)
         if not os.path.exists(algo_categories_path):
             # get_datasets() creates the categories pickle if it does not exist
-            first_hw = self.db.get_hws(algorithm, input_dependent)[0]
+            first_hw = self.datasets.db.get_hws(algorithm, input_dependent)[0]
             _ = self.datasets.get_dataset(algorithm, first_hw, input_dependent)
 
         categories = pickle.load(open(algo_categories_path, 'rb'))
@@ -354,6 +354,17 @@ class StrExpander():
         categories = self.get_categories_per_str_var(algorithm, input_dependent)
         return {var:[self._get_onehot_var_name(var, category) for category in var_categories]
                 for var, var_categories in categories.items()}
+
+    def get_encoded_selection(self, algorithm, var, selected_category, input_dependent=False):
+        """Return dict with encoded variables (for a given categorical var.) as keys, with value being 1 for the selected category, 0 for the rest."""
+        categories = self.get_categories_per_str_var(algorithm, input_dependent)
+        encoded_values = {}
+        for category in categories[var]:
+            value = 1 if category == selected_category else 0
+            encoded_values[self._get_onehot_var_name(var, category)] = value
+        
+        return encoded_values
+
 
     def _expand_categoricals(self, df, algorithm, input_dependent=False):
         """
