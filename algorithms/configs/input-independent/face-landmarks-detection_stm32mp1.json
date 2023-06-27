@@ -9,8 +9,7 @@
         {"ID": "ENGINE", "description": null, "type": "str"},
         {"ID": "PROCESSOR", "description": null, "type": "str"},
         {"ID": "PRECISION", "description": null, "type": "str"},
-        {"ID": "QUALITY_METRIC", "description": null, "type": "str"},
-        {"ID": "QUALITY_VALUE", "description": null, "type": "float", "LB": null, "UB": null},
+        {"ID": "QUALITY_VALUE", "description": "AP-medium", "type": "float", "LB": null, "UB": null},
         {"ID": "GFLOP", "description": null, "type": "float", "LB": null, "UB": null},
         {"ID": "#PARAMS", "description": null, "type": "float", "LB": null, "UB": null},
         {"ID": "STORAGE", "description": null, "type": "float", "LB": null, "UB": null}

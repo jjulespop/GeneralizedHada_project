@@ -132,6 +132,8 @@ def HADA(db : ConfigDB,
         # dedicated predictive models
         for hw in hws:
             model = models.get_model(request.algorithm, hw, target, request.input_dependent)
+            if model.tree_.node_count <= 1:
+                continue
             model = read_sklearn_tree(model)
             #for i, hyperparam in enumerate(hyperparams):
             #for i, var in enumerate(inputs_and_hyperparams):
@@ -139,12 +141,14 @@ def HADA(db : ConfigDB,
                 var = inputs_and_hyperparams[idx]
                 model.update_lb(idx, var_bounds[var]['lb'])
                 model.update_ub(idx, var_bounds[var]['ub'])
+
             embed.encode_backward_implications(
                     bkd = bkd, mdl = mdl,
                     tree = model, 
                     tree_in = [mdl.get_var_by_name(ml_var[var]) for var in inputs_and_hyperparams],
                     tree_out = mdl.get_var_by_name(ml_var[f"{hw}_{target}"]),
                     name = f"DT_{hw}_{target}")
+
     
     # Handling non-estimated target (price) and robustness coefficients: 
     # 1.Equality constraints, fixing each price variable hw_price to the usage price of the corresponding hw,

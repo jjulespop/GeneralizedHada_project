@@ -96,6 +96,7 @@ class MLModels():
 
         # training the DT
         dt = DecisionTreeRegressor(max_depth=10, random_state=42)
+        #dt = DecisionTreeRegressor(max_depth=None, random_state=42)
         dt.fit(X, y)
 
         # storing the DT

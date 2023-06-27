@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from io import StringIO
 from urllib.parse import urljoin
+import numpy as np
 import pandas as pd
 from core.optimization_request import OptimizationRequest
 
@@ -45,8 +46,13 @@ class Datasets(ABC):
         return DatasetsRemote(db, address)
 
     @abstractmethod
+    def get_raw_dataset(self, algorithm, hw, input_dependent) -> pd.DataFrame:
+        """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present. No categorical expansion."""
+        pass
+
+    @abstractmethod
     def get_dataset(self, algorithm, hw, input_dependent) -> pd.DataFrame:
-        """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
+        """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present. Includes categorical expansion."""
         pass
 
     def _check_dataset_consistency(self, df, algorithm, hw, input_dependent=False):
@@ -202,7 +208,7 @@ class DatasetsLocal(Datasets):
         self.data_path_no_inp = data_path_no_inp
         self.data_path_inp = data_path_inp
 
-    def get_dataset(self, algorithm, hw, input_dependent=False):
+    def get_raw_dataset(self, algorithm, hw, input_dependent=False):
         path = self.data_path_inp if input_dependent else self.data_path_no_inp
         dataset_path = os.path.join(path, f'{algorithm}_{hw}.csv')
         if not os.path.exists(dataset_path):
@@ -212,6 +218,12 @@ class DatasetsLocal(Datasets):
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
+
+        return dataset
+
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+
+        dataset = self.get_raw_dataset(algorithm, hw, input_dependent)
         # expanding str variables into bin (one-hot encoding) internally
         dataset = self.expander._expand_categoricals(dataset, algorithm, input_dependent)
 
@@ -223,7 +235,7 @@ class DatasetsRemote(Datasets):
         super().__init__(db)
         self.address = address
 
-    def get_dataset(self, algorithm, hw, input_dependent=False):
+    def get_raw_dataset(self, algorithm, hw, input_dependent=False):
         request_url = f'/datasets/{algorithm}/{hw}'
         if input_dependent:
             request_url += '/input'
@@ -237,6 +249,12 @@ class DatasetsRemote(Datasets):
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw, input_dependent)
+
+        return dataset
+
+    def get_dataset(self, algorithm, hw, input_dependent=False):
+        
+        dataset = self.get_raw_dataset(algorithm, hw, input_dependent)
         # expanding str variables into bin (one-hot encoding) internally
         dataset = self.expander._expand_categoricals(dataset, algorithm, input_dependent)
 
@@ -258,7 +276,7 @@ class StrExpander():
 
     def _get_onehot_var_name(self, og_var_name, category):
         """Get name of a new (expanded) one-hot column."""
-        return og_var_name + '_' + category
+        return og_var_name + '_' + str(category)
 
     def get_category_from_onehot(category, onehot_var_name):
         """Extracts category values from a one-hot encoded column."""
@@ -370,7 +388,8 @@ class StrExpander():
         """
         Expands categorical variables (type "str") to one-hot encoding (type "bin") internally.
         The mapping is stored on disk if not already existing, and is common for all hardwares for a given algorithm; 
-        Assumption: the dataset of any hardware for a given algorithm has the same categories.
+        Assumption: if new hardware platforms are added for a given algorithm, they must have no new categories for the str variables;
+        otherwise the mappings have to be invalidated manually.
 
         Args:
             df (pd.DataFrame): dataset about a specific algorithm and hardware.
@@ -390,16 +409,24 @@ class StrExpander():
             str_vars = self.datasets.db.get_str_vars(algorithm, input_dependent)
 
             # get all unique values from various hw datasets, to create global mapping for the algorithm
+            # get categories for all current hardware platforms
             categories = defaultdict(set)
-            for var in str_vars:
-                    categories[var] = set(df[var].unique().tolist())
+            hws = self.datasets.db.get_hws(algorithm, input_dependent)
+            for hw in hws:
+                df_hw = self.datasets.get_raw_dataset(algorithm, hw, input_dependent)
+                for var in str_vars:
+                        new_values = set(df_hw[var].dropna().unique().tolist())
+                        categories[var] = categories[var].union(new_values)
+            
             pickle.dump(categories, open(algo_categories_path, 'wb'))
 
         # expanding variables
         for var, var_categories in categories.items():
-            if set(df[var].unique().tolist()) != var_categories:
+            if not set(df[var].unique().tolist()).issubset(var_categories):
                 raise AttributeError(f"Found unexpected categories for algorithm {algorithm}")
             
+            # adding all categories (for all harware platforms), even if not present in this specific dataset
+            df[var] = pd.Categorical(df[var], categories=var_categories)
             new_cols = pd.get_dummies(df[var], prefix=var, prefix_sep='_')
             df.drop(var, axis=1, inplace=True)
             df = pd.concat([df,new_cols], axis=1)

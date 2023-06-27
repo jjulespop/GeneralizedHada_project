@@ -1,72 +1,58 @@
-MODEL,VERSION,INPUT_TILE,ENGINE,PROCESSOR,PRECISION,QUALITY_METRIC,QUALITY_VALUE,GFLOP,#PARAMS,STORAGE,PREPROCESSING_TIME,INFERENCE_TIME,POSTPROCESSING_TIME,LATENCY,THROUGHPUT,DMIPS,CPU_MEM,CPU_MEM_PEAK,GPU_MEM,GPU_MEM_PEAK,MEMORY_BANDWIDTH,MEMORY_BANDWIDTH_PEAK,CPU_LOAD,GPU_LOAD,NPU_LOAD,CPU_TEMP,GPU_TEMP,POWER_CONSUMPTION,ENERGY_EFFICIENCY
-headpose-rankpose,mobilefacenetfc512,112x112,lne,CPU,F32,Avg MAE,4.4,0.5,6.2,25.0,1.4,29.0,0.0,30.5,32.8,342134.1,6.1,2.2,6.1,1.9,1.4,2.0,65.6,0.0,0.0,41.2,40.5,8.0,1.0
-headpose-rankpose,mobilefacenetfc512,112x112,onnxruntime,CPU,F32,Avg MAE,4.4,0.5,6.2,25.0,1.2,104.2,0.1,105.5,9.5,98769.6,6.1,2.2,6.1,1.9,1.0,1.0,68.8,0.0,0.0,41.3,40.7,8.1,0.3
-headpose-rankpose,mobilefacenetfc512,112x112,lne,GPU/CPU,F32,Avg MAE,4.4,0.5,6.2,25.0,3.5,41.2,0.0,44.8,22.3,232817.6,13.0,6.1,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.5,37.5,9.2,0.6
-headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,NPU/GPU,S8,Avg MAE,4.4,0.5,6.2,6.2,2.4,19.6,0.7,22.7,44.0,458094.2,16.4,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.2
-headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,S8,Avg MAE,4.4,0.5,6.2,6.2,2.2,9.9,3.1,15.2,66.0,687722.3,16.2,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,NPU/GPU,F16,Avg MAE,4.4,0.5,6.2,12.5,1.8,28.0,0.5,30.4,32.9,343157.1,16.3,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,0.9
-headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,F16,Avg MAE,4.4,0.5,6.2,12.5,1.6,9.2,1.9,12.7,78.8,820826.7,16.3,7.0,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.5,37.5,9.2,2.1
-headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,F32,Avg MAE,4.4,0.5,6.2,25.0,3.2,11.1,1.9,16.3,61.4,640216.2,16.3,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.6
-headpose-rankpose,mobilefacenetfc512,112x112,onnxruntime,CPU,F32,Avg MAE,4.4,0.5,6.2,25.0,2.7,181.8,0.1,184.6,5.4,56451.5,9.9,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,0.1
-headpose-rankpose,mobilefacenetfc512,192x224,lne,CPU,F32,Avg MAE,4.63,1.6,6.3,25.2,2.2,90.6,0.0,92.8,10.8,112293.6,6.3,2.2,6.3,2.0,2.0,2.0,68.0,0.0,0.0,41.1,40.4,8.3,1.1
-headpose-rankpose,mobilefacenetfc512,192x224,onnxruntime,CPU,F32,Avg MAE,4.63,1.6,6.3,25.2,2.0,238.3,0.2,240.6,4.2,43312.8,6.2,2.2,6.2,1.9,1.3,2.0,69.9,0.0,0.0,41.4,40.6,8.3,0.4
-headpose-rankpose,mobilefacenetfc512,192x224,lne,GPU/CPU,F32,Avg MAE,4.63,1.6,6.3,25.2,,,,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,NPU/GPU,S8,Avg MAE,4.63,1.6,6.3,6.3,3.2,30.1,0.9,34.2,29.2,304586.2,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,1.0,35.8,37.5,9.2,2.6
-headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,S8,Avg MAE,4.63,1.6,6.3,6.3,4.0,8.8,2.2,15.0,66.6,693653.4,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,5.9
-headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,NPU/GPU,F16,Avg MAE,4.63,1.6,6.3,12.6,4.3,46.5,0.9,51.7,19.4,201697.6,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,2.0,35.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,F16,Avg MAE,4.63,1.6,6.3,12.6,4.1,9.8,2.6,16.6,60.4,628814.7,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,5.3
-headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,F32,Avg MAE,4.63,1.6,6.3,25.2,4.1,9.5,1.9,15.6,64.3,669539.6,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,5.7
-headpose-rankpose,mobilefacenetfc512,192x224,onnxruntime,CPU,F32,Avg MAE,4.63,1.6,6.3,25.2,3.6,390.4,0.1,394.0,2.5,26442.0,9.8,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,0.2
-headpose-rankpose,mobilefacenetfc512,224x224,lne,CPU,F32,Avg MAE,4.43,1.9,6.3,25.3,2.4,154.5,0.1,156.9,6.4,66418.5,6.1,2.2,6.1,1.9,2.0,2.0,68.7,0.0,0.0,41.4,40.5,8.4,0.7
-headpose-rankpose,mobilefacenetfc512,224x224,onnxruntime,CPU,F32,Avg MAE,4.43,1.9,6.3,25.3,2.3,288.3,0.2,290.8,3.4,35833.2,6.2,2.2,6.2,1.9,1.8,2.0,69.8,0.0,0.0,41.8,41.0,8.3,0.4
-headpose-rankpose,mobilefacenetfc512,224x224,lne,GPU/CPU,F32,Avg MAE,4.43,1.9,6.3,25.3,4.8,53.6,0.1,58.5,17.1,178077.2,13.0,6.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.8
-headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,NPU/GPU,S8,Avg MAE,4.43,1.9,6.3,6.3,4.2,35.9,0.8,41.0,24.4,254401.7,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,2.5
-headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,S8,Avg MAE,4.43,1.9,6.3,6.3,3.9,11.3,2.2,17.4,57.3,597383.8,15.9,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,5.9
-headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,NPU/GPU,F16,Avg MAE,4.43,1.9,6.3,12.6,4.2,54.0,1.3,59.5,16.8,175070.1,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,36.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,F16,Avg MAE,4.43,1.9,6.3,12.6,4.5,11.2,2.4,18.1,55.3,576109.3,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,5.7
-headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,F32,Avg MAE,4.43,1.9,6.3,25.3,4.3,11.5,1.9,17.7,56.5,588316.0,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,5.8
-headpose-rankpose,mobilefacenetfc512,224x224,ncnn,GPU,F16,Avg MAE,4.43,1.9,6.3,12.6,4.7,13.8,1.0,19.5,51.4,535201.9,10.4,5.2,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.0,37.5,9.2,5.3
-headpose-rankpose,mobilefacenetfc512,224x224,ncnn,GPU,F32,Avg MAE,4.43,1.9,6.3,25.3,5.0,13.6,0.8,19.4,51.5,536842.1,10.4,5.2,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,5.3
-headpose-rankpose,mobilefacenetfc512,224x224,onnxruntime,CPU,F32,Avg MAE,4.43,1.9,6.3,25.3,3.7,478.5,0.2,482.4,2.1,21599.4,9.6,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,0.2
-headpose-rankpose,mobilefacenetfc512,96x112,lne,CPU,F32,Avg MAE,4.63,0.4,6.2,25.0,1.3,24.7,0.1,26.1,38.3,399062.5,6.2,2.2,6.1,1.9,1.6,2.0,65.9,0.0,0.0,41.0,40.3,7.9,1.0
-headpose-rankpose,mobilefacenetfc512,96x112,onnxruntime,CPU,F32,Avg MAE,4.63,0.4,6.2,25.0,1.3,95.5,0.2,97.0,10.3,107450.4,6.1,2.2,6.1,1.9,1.0,1.0,69.1,0.0,0.0,41.2,40.3,8.1,0.3
-headpose-rankpose,mobilefacenetfc512,96x112,lne,GPU/CPU,F32,Avg MAE,4.63,0.4,6.2,25.0,,,,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,NPU/GPU,S8,Avg MAE,4.63,0.4,6.2,6.2,2.5,18.5,1.0,21.9,45.6,474927.0,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,2.0,35.8,37.5,9.2,1.0
-headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,S8,Avg MAE,4.63,0.4,6.2,6.2,2.1,9.0,3.1,14.1,70.8,737822.6,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.6
-headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,NPU/GPU,F16,Avg MAE,4.63,0.4,6.2,12.5,2.3,27.2,0.8,30.2,33.1,344952.7,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,5.0,36.0,37.5,9.2,0.7
-headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,F16,Avg MAE,4.63,0.4,6.2,12.5,3.2,10.1,2.9,16.2,61.7,642331.8,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.4
-headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,F32,Avg MAE,4.63,0.4,6.2,25.0,2.8,11.7,2.6,17.1,58.4,608384.6,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,1.3
-headpose-rankpose,mobilefacenetfc512,96x112,onnxruntime,CPU,F32,Avg MAE,4.63,0.4,6.2,25.0,2.3,147.7,0.1,150.1,6.7,69435.2,9.7,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,0.2
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,lne,CPU,F32,Avg MAE,4.34,0.4,3.0,12.1,1.1,38.0,0.0,39.1,25.5,266200.4,6.2,2.2,6.2,1.9,1.0,1.0,65.0,0.0,0.0,40.8,39.9,7.9,0.7
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,onnxruntime,CPU,F32,Avg MAE,4.34,0.4,3.0,12.1,1.0,82.0,0.1,83.0,12.0,125507.9,6.2,2.2,6.2,1.9,1.0,1.0,68.9,0.0,0.0,40.9,40.0,8.1,0.3
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,lne,GPU/CPU,F32,Avg MAE,4.34,0.4,3.0,12.1,,,,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,NPU/GPU,S8,Avg MAE,4.34,0.4,3.0,3.0,1.8,19.2,1.4,22.5,44.4,462526.8,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,35.5,37.5,9.2,1.0
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,S8,Avg MAE,4.34,0.4,3.0,3.0,2.6,9.2,2.3,14.2,70.6,736044.7,15.9,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.2,37.5,9.2,1.6
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,NPU/GPU,F16,Avg MAE,4.34,0.4,3.0,6.0,2.0,24.6,0.7,27.2,36.7,382665.0,16.1,7.0,9.7,3.0,2.0,2.0,99.8,0.0,0.0,35.5,37.5,9.2,0.8
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,F16,Avg MAE,4.34,0.4,3.0,6.0,2.7,7.6,2.7,13.0,76.6,798556.0,15.9,6.9,9.7,3.0,2.0,2.0,99.9,0.0,0.0,35.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,F32,Avg MAE,4.34,0.4,3.0,12.1,2.8,10.3,2.5,15.6,64.0,667003.0,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.4
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,ncnn,GPU,F16,Avg MAE,4.34,0.4,3.0,6.0,2.3,10.3,0.6,13.2,75.6,787312.3,10.3,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,ncnn,GPU,F32,Avg MAE,4.34,0.4,3.0,12.1,3.1,10.1,0.3,13.5,73.8,769425.0,10.3,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.2,37.5,9.2,1.6
-headpose-rankpose,mobilefacenetfc512onlypose,96x112,onnxruntime,CPU,F32,Avg MAE,4.34,0.4,3.0,12.1,2.8,133.6,0.1,136.5,7.3,76353.6,9.7,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.3,37.5,9.2,0.2
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,lne,CPU,F32,Avg MAE,4.38,0.5,3.0,12.1,1.5,43.7,0.0,45.2,22.1,230343.5,6.2,2.2,6.2,1.9,1.0,1.0,65.9,0.0,0.0,40.7,39.6,8.0,0.7
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,onnxruntime,CPU,F32,Avg MAE,4.38,0.5,3.0,12.1,1.5,92.0,0.1,93.6,10.7,111325.8,6.2,2.2,6.2,1.9,1.0,1.0,69.4,0.0,0.0,41.0,39.8,8.2,0.3
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,lne,GPU/CPU,F32,Avg MAE,4.38,0.5,3.0,12.1,3.1,40.3,0.2,43.6,22.9,238932.9,13.6,6.3,9.7,3.0,2.0,2.0,99.9,0.0,0.0,35.0,37.5,9.2,0.6
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,NPU/GPU,S8,Avg MAE,4.38,0.5,3.0,3.0,2.7,19.8,0.7,23.3,42.9,447446.8,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,1.1
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,S8,Avg MAE,4.38,0.5,3.0,3.0,2.5,9.6,2.9,14.9,67.0,698410.1,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,NPU/GPU,F16,Avg MAE,4.38,0.5,3.0,6.1,1.8,24.9,0.8,27.5,36.4,378766.9,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,35.2,37.5,9.2,0.9
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,F16,Avg MAE,4.38,0.5,3.0,6.1,2.2,8.7,2.7,13.6,73.6,766542.0,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.9
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,F32,Avg MAE,4.38,0.5,3.0,12.1,2.5,10.8,2.1,15.5,64.6,673254.2,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.7
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,ncnn,GPU,F16,Avg MAE,4.38,0.5,3.0,6.1,2.6,9.7,0.3,12.5,79.7,830421.5,10.4,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,2.1
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,ncnn,GPU,F32,Avg MAE,4.38,0.5,3.0,12.1,1.7,10.6,0.3,12.7,78.6,818933.8,10.4,5.2,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,2.0
-headpose-rankpose,mobilefacenetonlyposefc512,112x112,onnxruntime,CPU,F32,Avg MAE,4.38,0.5,3.0,12.1,2.4,173.1,0.1,175.6,5.7,59322.2,9.8,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,0.1
-headpose-rankpose,resnet50,224x224,lne,CPU,F32,,,8.2,23.8,95.1,2.4,291.9,0.1,294.3,3.4,35403.3,7.2,2.4,7.1,2.2,2.9,3.0,70.1,0.0,0.0,42.2,40.8,8.7,1.6
-headpose-rankpose,resnet50,224x224,onnxruntime,CPU,F32,,,8.2,23.8,95.1,2.5,762.9,0.1,765.4,1.3,13612.3,6.5,2.2,6.5,2.0,1.0,2.0,69.3,0.0,0.0,42.6,41.5,8.4,0.6
-headpose-rankpose,resnet50,224x224,lne,GPU/CPU,F32,,,8.2,23.8,95.1,6.7,379.7,0.1,386.5,2.6,26958.1,13.8,6.4,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,1.2
-headpose-rankpose,resnet50,224x224,tensorrt,NPU/GPU,S8,,,8.2,23.8,23.8,4.4,35.0,1.2,40.6,24.6,256377.8,16.6,7.2,9.7,3.0,2.0,2.0,100.0,0.0,1.0,35.0,37.5,9.2,11.0
-headpose-rankpose,resnet50,224x224,tensorrt,GPU,S8,,,8.2,23.8,23.8,4.3,10.7,2.3,17.2,58.0,604395.9,16.4,7.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,25.9
-headpose-rankpose,resnet50,224x224,tensorrt,NPU/GPU,F16,,,8.2,23.8,47.5,4.6,50.2,0.9,55.7,17.9,186918.6,15.2,6.7,9.7,3.0,2.0,2.0,100.0,0.0,1.0,35.0,37.5,9.2,8.0
-headpose-rankpose,resnet50,224x224,tensorrt,GPU,F16,,,8.2,23.8,47.5,5.0,9.9,1.7,16.6,60.2,627132.3,16.7,7.2,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,26.9
-headpose-rankpose,resnet50,224x224,tensorrt,GPU,F32,,,8.2,23.8,95.1,4.3,18.4,1.0,23.6,42.3,440685.3,16.9,7.3,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,18.9
-headpose-rankpose,resnet50,224x224,ncnn,GPU,F16,,,8.2,23.8,47.5,4.5,30.2,1.1,35.8,28.0,291236.0,11.7,5.7,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,12.5
-headpose-rankpose,resnet50,224x224,ncnn,GPU,F32,,,8.2,23.8,95.1,4.0,29.4,0.4,33.8,29.6,308240.8,11.8,5.7,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.2,37.5,9.2,13.2
-headpose-rankpose,resnet50,224x224,onnxruntime,CPU,F32,,,8.2,23.8,95.1,3.9,1136.1,0.2,1140.1,0.9,9138.3,9.9,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,0.4
+MODEL,VERSION,INPUT_TILE,ENGINE,PROCESSOR,PRECISION,QUALITY_VALUE,GFLOP,#PARAMS,STORAGE,PREPROCESSING_TIME,INFERENCE_TIME,POSTPROCESSING_TIME,LATENCY,THROUGHPUT,DMIPS,CPU_MEM,CPU_MEM_PEAK,GPU_MEM,GPU_MEM_PEAK,MEMORY_BANDWIDTH,MEMORY_BANDWIDTH_PEAK,CPU_LOAD,GPU_LOAD,NPU_LOAD,CPU_TEMP,GPU_TEMP,POWER_CONSUMPTION,ENERGY_EFFICIENCY
+headpose-rankpose,mobilefacenetfc512,112x112,lne,CPU,F32,4.4,0.5,6.2,25.0,1.4,29.0,0.0,30.5,32.8,342134.1,6.1,2.2,6.1,1.9,1.4,2.0,65.6,0.0,0.0,41.2,40.5,8.0,1.0
+headpose-rankpose,mobilefacenetfc512,112x112,onnxruntime,CPU,F32,4.4,0.5,6.2,25.0,1.2,104.2,0.1,105.5,9.5,98769.6,6.1,2.2,6.1,1.9,1.0,1.0,68.8,0.0,0.0,41.3,40.7,8.1,0.3
+headpose-rankpose,mobilefacenetfc512,112x112,lne,GPU/CPU,F32,4.4,0.5,6.2,25.0,3.5,41.2,0.0,44.8,22.3,232817.6,13.0,6.1,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.5,37.5,9.2,0.6
+headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,NPU/GPU,S8,4.4,0.5,6.2,6.2,2.4,19.6,0.7,22.7,44.0,458094.2,16.4,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.2
+headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,S8,4.4,0.5,6.2,6.2,2.2,9.9,3.1,15.2,66.0,687722.3,16.2,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,NPU/GPU,F16,4.4,0.5,6.2,12.5,1.8,28.0,0.5,30.4,32.9,343157.1,16.3,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,0.9
+headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,F16,4.4,0.5,6.2,12.5,1.6,9.2,1.9,12.7,78.8,820826.7,16.3,7.0,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.5,37.5,9.2,2.1
+headpose-rankpose,mobilefacenetfc512,112x112,tensorrt,GPU,F32,4.4,0.5,6.2,25.0,3.2,11.1,1.9,16.3,61.4,640216.2,16.3,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,1.6
+headpose-rankpose,mobilefacenetfc512,112x112,onnxruntime,CPU,F32,4.4,0.5,6.2,25.0,2.7,181.8,0.1,184.6,5.4,56451.5,9.9,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,0.1
+headpose-rankpose,mobilefacenetfc512,192x224,lne,CPU,F32,4.63,1.6,6.3,25.2,2.2,90.6,0.0,92.8,10.8,112293.6,6.3,2.2,6.3,2.0,2.0,2.0,68.0,0.0,0.0,41.1,40.4,8.3,1.1
+headpose-rankpose,mobilefacenetfc512,192x224,onnxruntime,CPU,F32,4.63,1.6,6.3,25.2,2.0,238.3,0.2,240.6,4.2,43312.8,6.2,2.2,6.2,1.9,1.3,2.0,69.9,0.0,0.0,41.4,40.6,8.3,0.4
+headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,NPU/GPU,S8,4.63,1.6,6.3,6.3,3.2,30.1,0.9,34.2,29.2,304586.2,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,1.0,35.8,37.5,9.2,2.6
+headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,S8,4.63,1.6,6.3,6.3,4.0,8.8,2.2,15.0,66.6,693653.4,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,5.9
+headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,NPU/GPU,F16,4.63,1.6,6.3,12.6,4.3,46.5,0.9,51.7,19.4,201697.6,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,2.0,35.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,F16,4.63,1.6,6.3,12.6,4.1,9.8,2.6,16.6,60.4,628814.7,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,5.3
+headpose-rankpose,mobilefacenetfc512,192x224,tensorrt,GPU,F32,4.63,1.6,6.3,25.2,4.1,9.5,1.9,15.6,64.3,669539.6,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,5.7
+headpose-rankpose,mobilefacenetfc512,192x224,onnxruntime,CPU,F32,4.63,1.6,6.3,25.2,3.6,390.4,0.1,394.0,2.5,26442.0,9.8,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,0.2
+headpose-rankpose,mobilefacenetfc512,224x224,lne,CPU,F32,4.43,1.9,6.3,25.3,2.4,154.5,0.1,156.9,6.4,66418.5,6.1,2.2,6.1,1.9,2.0,2.0,68.7,0.0,0.0,41.4,40.5,8.4,0.7
+headpose-rankpose,mobilefacenetfc512,224x224,onnxruntime,CPU,F32,4.43,1.9,6.3,25.3,2.3,288.3,0.2,290.8,3.4,35833.2,6.2,2.2,6.2,1.9,1.8,2.0,69.8,0.0,0.0,41.8,41.0,8.3,0.4
+headpose-rankpose,mobilefacenetfc512,224x224,lne,GPU/CPU,F32,4.43,1.9,6.3,25.3,4.8,53.6,0.1,58.5,17.1,178077.2,13.0,6.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.8
+headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,NPU/GPU,S8,4.43,1.9,6.3,6.3,4.2,35.9,0.8,41.0,24.4,254401.7,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,2.5
+headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,S8,4.43,1.9,6.3,6.3,3.9,11.3,2.2,17.4,57.3,597383.8,15.9,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,5.9
+headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,NPU/GPU,F16,4.43,1.9,6.3,12.6,4.2,54.0,1.3,59.5,16.8,175070.1,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,36.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,F16,4.43,1.9,6.3,12.6,4.5,11.2,2.4,18.1,55.3,576109.3,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.5,37.5,9.2,5.7
+headpose-rankpose,mobilefacenetfc512,224x224,tensorrt,GPU,F32,4.43,1.9,6.3,25.3,4.3,11.5,1.9,17.7,56.5,588316.0,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.2,37.5,9.2,5.8
+headpose-rankpose,mobilefacenetfc512,224x224,ncnn,GPU,F16,4.43,1.9,6.3,12.6,4.7,13.8,1.0,19.5,51.4,535201.9,10.4,5.2,9.7,3.0,2.0,2.0,99.9,0.0,0.0,36.0,37.5,9.2,5.3
+headpose-rankpose,mobilefacenetfc512,224x224,ncnn,GPU,F32,4.43,1.9,6.3,25.3,5.0,13.6,0.8,19.4,51.5,536842.1,10.4,5.2,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,5.3
+headpose-rankpose,mobilefacenetfc512,224x224,onnxruntime,CPU,F32,4.43,1.9,6.3,25.3,3.7,478.5,0.2,482.4,2.1,21599.4,9.6,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,0.2
+headpose-rankpose,mobilefacenetfc512,96x112,lne,CPU,F32,4.63,0.4,6.2,25.0,1.3,24.7,0.1,26.1,38.3,399062.5,6.2,2.2,6.1,1.9,1.6,2.0,65.9,0.0,0.0,41.0,40.3,7.9,1.0
+headpose-rankpose,mobilefacenetfc512,96x112,onnxruntime,CPU,F32,4.63,0.4,6.2,25.0,1.3,95.5,0.2,97.0,10.3,107450.4,6.1,2.2,6.1,1.9,1.0,1.0,69.1,0.0,0.0,41.2,40.3,8.1,0.3
+headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,NPU/GPU,S8,4.63,0.4,6.2,6.2,2.5,18.5,1.0,21.9,45.6,474927.0,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,2.0,35.8,37.5,9.2,1.0
+headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,S8,4.63,0.4,6.2,6.2,2.1,9.0,3.1,14.1,70.8,737822.6,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.6
+headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,NPU/GPU,F16,4.63,0.4,6.2,12.5,2.3,27.2,0.8,30.2,33.1,344952.7,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,5.0,36.0,37.5,9.2,0.7
+headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,F16,4.63,0.4,6.2,12.5,3.2,10.1,2.9,16.2,61.7,642331.8,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,36.0,37.5,9.2,1.4
+headpose-rankpose,mobilefacenetfc512,96x112,tensorrt,GPU,F32,4.63,0.4,6.2,25.0,2.8,11.7,2.6,17.1,58.4,608384.6,16.0,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.8,37.5,9.2,1.3
+headpose-rankpose,mobilefacenetfc512,96x112,onnxruntime,CPU,F32,4.63,0.4,6.2,25.0,2.3,147.7,0.1,150.1,6.7,69435.2,9.7,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,0.2
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,lne,CPU,F32,4.34,0.4,3.0,12.1,1.1,38.0,0.0,39.1,25.5,266200.4,6.2,2.2,6.2,1.9,1.0,1.0,65.0,0.0,0.0,40.8,39.9,7.9,0.7
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,onnxruntime,CPU,F32,4.34,0.4,3.0,12.1,1.0,82.0,0.1,83.0,12.0,125507.9,6.2,2.2,6.2,1.9,1.0,1.0,68.9,0.0,0.0,40.9,40.0,8.1,0.3
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,NPU/GPU,S8,4.34,0.4,3.0,3.0,1.8,19.2,1.4,22.5,44.4,462526.8,16.1,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,35.5,37.5,9.2,1.0
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,S8,4.34,0.4,3.0,3.0,2.6,9.2,2.3,14.2,70.6,736044.7,15.9,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.2,37.5,9.2,1.6
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,NPU/GPU,F16,4.34,0.4,3.0,6.0,2.0,24.6,0.7,27.2,36.7,382665.0,16.1,7.0,9.7,3.0,2.0,2.0,99.8,0.0,0.0,35.5,37.5,9.2,0.8
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,F16,4.34,0.4,3.0,6.0,2.7,7.6,2.7,13.0,76.6,798556.0,15.9,6.9,9.7,3.0,2.0,2.0,99.9,0.0,0.0,35.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,tensorrt,GPU,F32,4.34,0.4,3.0,12.1,2.8,10.3,2.5,15.6,64.0,667003.0,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.4
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,ncnn,GPU,F16,4.34,0.4,3.0,6.0,2.3,10.3,0.6,13.2,75.6,787312.3,10.3,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,ncnn,GPU,F32,4.34,0.4,3.0,12.1,3.1,10.1,0.3,13.5,73.8,769425.0,10.3,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.2,37.5,9.2,1.6
+headpose-rankpose,mobilefacenetfc512onlypose,96x112,onnxruntime,CPU,F32,4.34,0.4,3.0,12.1,2.8,133.6,0.1,136.5,7.3,76353.6,9.7,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.3,37.5,9.2,0.2
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,lne,CPU,F32,4.38,0.5,3.0,12.1,1.5,43.7,0.0,45.2,22.1,230343.5,6.2,2.2,6.2,1.9,1.0,1.0,65.9,0.0,0.0,40.7,39.6,8.0,0.7
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,onnxruntime,CPU,F32,4.38,0.5,3.0,12.1,1.5,92.0,0.1,93.6,10.7,111325.8,6.2,2.2,6.2,1.9,1.0,1.0,69.4,0.0,0.0,41.0,39.8,8.2,0.3
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,lne,GPU/CPU,F32,4.38,0.5,3.0,12.1,3.1,40.3,0.2,43.6,22.9,238932.9,13.6,6.3,9.7,3.0,2.0,2.0,99.9,0.0,0.0,35.0,37.5,9.2,0.6
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,NPU/GPU,S8,4.38,0.5,3.0,3.0,2.7,19.8,0.7,23.3,42.9,447446.8,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,1.1
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,S8,4.38,0.5,3.0,3.0,2.5,9.6,2.9,14.9,67.0,698410.1,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,NPU/GPU,F16,4.38,0.5,3.0,6.1,1.8,24.9,0.8,27.5,36.4,378766.9,16.2,7.0,9.7,3.0,2.0,2.0,100.0,0.0,3.0,35.2,37.5,9.2,0.9
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,F16,4.38,0.5,3.0,6.1,2.2,8.7,2.7,13.6,73.6,766542.0,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.9
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,tensorrt,GPU,F32,4.38,0.5,3.0,12.1,2.5,10.8,2.1,15.5,64.6,673254.2,16.0,6.9,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.5,37.5,9.2,1.7
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,ncnn,GPU,F16,4.38,0.5,3.0,6.1,2.6,9.7,0.3,12.5,79.7,830421.5,10.4,5.1,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,2.1
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,ncnn,GPU,F32,4.38,0.5,3.0,12.1,1.7,10.6,0.3,12.7,78.6,818933.8,10.4,5.2,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,2.0
+headpose-rankpose,mobilefacenetonlyposefc512,112x112,onnxruntime,CPU,F32,4.38,0.5,3.0,12.1,2.4,173.1,0.1,175.6,5.7,59322.2,9.8,5.0,9.7,3.0,2.0,2.0,100.0,0.0,0.0,35.0,37.5,9.2,0.1
