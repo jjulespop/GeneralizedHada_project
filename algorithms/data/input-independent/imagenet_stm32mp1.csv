@@ -1,0 +1,11 @@
+MODEL,VERSION,INPUT_TILE,ENGINE,PROCESSOR,PRECISION,QUALITY_METRIC,QUALITY_VALUE,GFLOP,#PARAMS,STORAGE,PREPROCESSING_TIME,INFERENCE_TIME,POSTPROCESSING_TIME,LATENCY,THROUGHPUT,DMIPS,CPU_MEM,CPU_MEM_PEAK,GPU_MEM,GPU_MEM_PEAK,MEMORY_BANDWIDTH,MEMORY_BANDWIDTH_PEAK,CPU_LOAD,GPU_LOAD,NPU_LOAD,CPU_TEMP,GPU_TEMP,POWER_CONSUMPTION,ENERGY_EFFICIENCY
+imagenet-efficientb0,default,224x224,lne,CPU,F32,Accuracy top-1,77.1,0.8,5.3,21.1,70.1,2863.9,0.1,2934.2,0.3,0.7,58.5,0.2,0.0,0.0,0.0,0.0,99.6,0.0,0.0,53.1,0.0,0.0,0.0
+imagenet-googlenet,benchmark,224x224,lne,CPU,F32,Accuracy top-1,66.5,3.2,7.0,28.0,69.1,3185.0,0.1,3254.2,0.3,0.6,75.0,0.3,0.0,0.0,0.0,0.0,99.6,0.0,0.0,53.6,0.0,0.0,0.0
+imagenet-mobilenet,default,224x224,lne,CPU,F32,Accuracy top-1,69.5,1.1,4.2,16.9,70.1,1739.0,0.2,1809.3,0.6,1.1,51.7,0.2,0.0,0.0,0.0,0.0,99.4,0.0,0.0,52.2,0.0,0.0,0.0
+imagenet-mobilenet-v2,fp32,224x224,lne,CPU,F32,Accuracy top-1,71.8,0.6,3.5,14.0,90.6,1289.1,0.1,1379.8,0.7,1.4,52.8,0.2,0.0,0.0,0.0,0.0,99.1,0.0,0.0,52.7,0.0,0.0,0.0
+imagenet-mobilenetv3,large,223x224,lne,CPU,F32,Accuracy top-1,75.2,0.4,5.5,21.9,74.6,878.4,0.1,953.1,1.0,2.1,57.1,0.2,0.0,0.0,0.0,0.0,99.1,0.0,0.0,52.4,0.0,0.0,0.0
+imagenet-mobilenetv3,small,223x224,lne,CPU,F32,Accuracy top-1,67.4,0.1,2.9,11.8,71.7,277.9,0.1,349.7,2.9,5.7,52.7,0.2,0.0,0.0,0.0,0.0,98.2,0.0,0.0,51.9,0.0,0.0,0.0
+imagenet-resnet-resnet18,benchmark,224x224,lne,CPU,F32,Accuracy top-1,69.6,3.7,11.7,46.8,77.8,2771.2,0.9,2849.9,0.4,0.7,95.6,0.3,0.0,0.0,0.0,0.0,99.6,0.0,0.0,54.8,0.0,0.0,0.0
+imagenet-resnet-resnet32,caffe,224x224,lne,CPU,F32,Accuracy top-1,73.3,4.6,20.7,82.9,72.5,5120.1,0.1,5192.7,0.2,0.4,67.4,0.3,0.0,0.0,0.0,0.0,99.6,0.0,0.0,54.0,0.0,0.0,0.0
+imagenet-resnet-resnet50,onnx,224x224,lne,CPU,F32,Accuracy top-1,76.0,7.7,25.5,102.1,,,,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+imagenet-squeezenet,benchmark,227x227,lne,CPU,F32,Accuracy top-1,58.2,0.8,1.2,4.9,75.7,874.9,0.2,950.9,1.1,2.1,46.3,0.2,0.0,0.0,0.0,0.0,99.1,0.0,0.0,52.1,0.0,0.0,0.0
