@@ -2,13 +2,13 @@
 
 <head>
     <!-- Google Fonts -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='font.css') }}">
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='font.css') }}">
     <!-- CSS Reset -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='normalize.css') }}">
     <!-- Milligram CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='milligram.css') }}">
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='milligram.css') }}">
     <!-- Microtip -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='microtip.min.css') }}">
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='microtip.min.css') }}">
 
     <title>HADA (demo)</title>
 
@@ -104,7 +104,7 @@
 
             <div class="row">
                     <div class="column column-100">
-                <form action="/" method="POST" id="select_algorithm_form">
+                <form action="/vemm" method="POST" id="select_algorithm_form">
                     <input value = "select_algo" type="hidden" name="form_id">
                     <input value = "{{input_dependent}}" type="hidden" name="selected_input_dep" id="selected_input_dep">
 
@@ -119,7 +119,7 @@
                             {% endfor %}
                         </select>
                 </form>
-        <form action="/" method="POST" id="optimization_request_form" enctype="multipart/form-data">
+        <form action="/vemm" method="POST" id="optimization_request_form" enctype="multipart/form-data">
                 <div {% if not input_dependent %}class="hidden"{% endif %} id="upload_elements">
                     <label class="label-inline">Input file</label>
                     <input type="file" id="fileUpload" name="fileUpload">
