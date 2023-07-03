@@ -145,7 +145,7 @@
 
                 <div class="column column-50">
                     <label class="label-inline">Robustness factor</label>
-                    <input type="text" name="robust_factor" id="robust_factor" placeholder="None">
+                    <input type="text" name="robust_factor" id="robust_factor" placeholder="Optional">
                 </div>
             </div>
 
@@ -161,7 +161,7 @@
 
             {% for target in targets %}
             <div class="row">
-                <div class="column column-15">
+                <div class="column column-20">
                     <label class="label-inline">
                         {{target.capitalize()}}
                         {% if target in description_per_var.keys() and description_per_var[target] %}
@@ -176,7 +176,7 @@
                         <option value="geq">&#8805;</option>
                     </select>
                 </div>
-                <div class="column column-75">
+                <div class="column column-70">
                     {% if target|lower=='price' %}
                     <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
                     {% else %}
@@ -228,31 +228,71 @@
 
         <div class="row">
             <div class="center">
+        <!-- Chosen HW-->
                 <table>
                     <thead>
                         <tr>
-                            {% for k in out.keys() %}
                             <th>
-                            {{k}}
-                            {% if k in description_per_var.keys() and description_per_var[k] %}
-                            <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
-                            {% endif %}
+                                Selected HW
                             </th>
-                            {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            {% for v in out.values() %}
-                            <td>{{v}}</td>
-                            {% endfor %}
+                            <td>{{out['hw']}}</td>
                         </tr>
+                    </tbody>
+                </table>
+        <!-- Hyperparameters-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Selected hyperparameters</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['hyperparams'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['hyperparams'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+        <!-- Targets-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Estimated<sup role="tooltip" data-microtip-position="top" aria-label="The target values represent estimates made by the Machine Learning models internal to the vertical matchmaking engine; they have the purpose of providing a glimpse at the internal work of the engine ">?</sup> targets</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['targets'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['targets'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        {% endif %}
-        {% endif %}
+    {% endif %}
+    {% endif %}
 </body>
 
 </html>

@@ -150,10 +150,9 @@ def parse_request_json(data):
 
 
 def format_solution(solution):
-    sol_hw = {'hw': solution.chosen_hw}
     sol_hyperparams = {hyperparam:val for hyperparam,val in solution.hyperparams_values.items()}
     sol_targets = {target:val for target,val in solution.targets_values.items()}
-    out = {**sol_hw, **sol_hyperparams, **sol_targets}
+    out = {'hw': solution.chosen_hw, 'hyperparams': sol_hyperparams,'targets': sol_targets}
 
     return out
 
