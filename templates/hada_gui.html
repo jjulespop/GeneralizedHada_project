@@ -228,31 +228,71 @@
 
         <div class="row">
             <div class="center">
+        <!-- Chosen HW-->
                 <table>
                     <thead>
                         <tr>
-                            {% for k in out.keys() %}
                             <th>
-                            {{k}}
-                            {% if k in description_per_var.keys() and description_per_var[k] %}
-                            <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
-                            {% endif %}
+                                Selected HW
                             </th>
-                            {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            {% for v in out.values() %}
-                            <td>{{v}}</td>
-                            {% endfor %}
+                            <td>{{out['hw']}}</td>
                         </tr>
+                    </tbody>
+                </table>
+        <!-- Hyperparameters-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Selected hyperparameters</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['hyperparams'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['hyperparams'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+        <!-- Targets-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Estimated targets</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['targets'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['targets'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        {% endif %}
-        {% endif %}
+    {% endif %}
+    {% endif %}
 </body>
 
 </html>
