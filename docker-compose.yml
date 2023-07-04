@@ -1,6 +1,0 @@
-version: '2.0'
-services:
-  hada_ws:
-    build: .
-    ports:
-    - "5000:5000"
