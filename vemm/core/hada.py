@@ -109,7 +109,7 @@ def HADA(db : ConfigDB,
         for input_var, type in inputs_types.items():
             if type == 'str':
                 enc_categories = datasets.expander.get_encoded_selection(request.algorithm, input_var, inputs[input_var], request.input_dependent)
-                for enc_input, enc_value in enc_categories:
+                for enc_input, enc_value in enc_categories.items():
                     mdl.add_constraint(mdl.get_var_by_name(enc_input) == enc_value, ctname = f"auxiliary_{enc_input}")
             else:
                 mdl.add_constraint(mdl.get_var_by_name(input_var) == inputs[input_var], ctname = f"auxiliary_{input_var}")
@@ -197,8 +197,8 @@ def HADA(db : ConfigDB,
         targets_values = {target: round(sol[f"{chosen_hw}_{target}"]) if var_type[target] != mdl.continuous_vartype else sol[f"{chosen_hw}_{target}"] for target in targets}
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
         
-        # Decode one-hot variables
-        for var in str_vars:
+        # Decode one-hot hyperparameters
+        for var in set(str_vars.keys()).intersection(db.get_hyperparams(request.algorithm, request.input_dependent)):
             chosen_category = {var : category.split(var + '_')[1] for category in str_vars[var] if hyperparams_values[category] == 1}
             hyperparams_values = dict({hyperparam : value for hyperparam, value in hyperparams_values.items() if hyperparam not in str_vars[var]},
             **chosen_category)

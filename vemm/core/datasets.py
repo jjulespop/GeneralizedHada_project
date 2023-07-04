@@ -310,7 +310,7 @@ class StrExpander():
         expanded_vars_per_str_var = self.get_expanded_vars_per_str_var(algorithm, input_dependent)
         ext_inputs = []
         for ext_input in inputs_to_extend:
-            ext_input.extend(expanded_vars_per_str_var[ext_input])
+            ext_inputs.extend(expanded_vars_per_str_var[ext_input])
 
         return non_ext_inputs + ext_inputs
 

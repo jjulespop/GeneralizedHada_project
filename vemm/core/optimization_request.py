@@ -71,8 +71,6 @@ class Inputs():
     def add_input(self, input_var, value):
         if input_var not in self.db.get_inputs(self.algorithm):
             raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
-        if type(value) not in [float, int]:
-            raise AttributeError("Input value must be numerical.")
 
         self.inputs[input_var] = value
 

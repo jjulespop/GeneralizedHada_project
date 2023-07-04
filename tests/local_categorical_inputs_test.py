@@ -3,13 +3,13 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from vemm.core.hada import HADA
 from vemm.core.configdb import ConfigDB
-from vemm.core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
+from vemm.core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices, Inputs
 from vemm.core.datasets import Datasets
 from vemm.core.ml_models import MLModels
 
 if __name__ == '__main__':
 
-    input_dependent=False
+    input_dependent=True
     configs_path_no_inp = './vemm/algorithms/configs/input-independent'
     configs_path_inp = './vemm/algorithms/configs/input-dependent'
     data_path_no_inp = './vemm/algorithms/data/input-independent'
@@ -29,8 +29,11 @@ if __name__ == '__main__':
 
     models = MLModels(db, datasets, models_path_no_inp, models_path_inp)
 
-    #print(db.get_type_per_var('toyalgstr'))
     ##### Preparing a request #####
+    # inputs
+    inputs = Inputs(db, 'toyalgstr')
+    inputs.add_input('inp_0', 'a')
+
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, 'toyalgstr', input_dependent)
     user_constraints.add_constraint('time', 'leq', 120)
@@ -41,7 +44,7 @@ if __name__ == '__main__':
     
     robustness_factor = 0.5
 
-    request = OptimizationRequest(db, 'toyalgstr', 'memory', 'min', robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, 'toyalgstr', 'memory', 'min', robustness_factor, user_constraints, hws_prices, inputs)
 
     ##### Handling datasets and models #####
     # extracting info from datasets
