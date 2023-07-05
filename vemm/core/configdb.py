@@ -258,13 +258,22 @@ class ConfigDB():
 
         return description_per_var
 
+    def get_type_per_input(self, algorithm):
+        """Get type for all input variables; input-dependent case only."""
+        type_per_input = {}
+
+        for var in self.db['input-dependent'][algorithm]['inputs']:
+            type_per_input[var] = self.db['input-dependent'][algorithm]['inputs'][var]["type"]
+
+        return type_per_input
+
     def get_type_per_var(self, algorithm, input_dependent=False):
         """Get type for all variables (hyperparameters and targets); inputs too for the input-dependent cases."""
         type_per_var = {}
 
         if input_dependent:
-            for var in self.db['input-dependent'][algorithm]['inputs']:
-                type_per_var[var] = self.db['input-dependent'][algorithm]['inputs'][var]["type"]
+            for var, type in self.get_type_per_input(algorithm).items():
+                type_per_var[var] = type
 
         for var in self.get_db_by_case(input_dependent)[algorithm]['hyperparams']:
             type_per_var[var] = self.get_db_by_case(input_dependent)[algorithm]['hyperparams'][var]["type"]

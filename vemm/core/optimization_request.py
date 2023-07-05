@@ -65,12 +65,25 @@ class Inputs():
             raise AttributeError(f'Algorithm {algorithm} not available.')
         self.algorithm = algorithm
 
+        self.type_per_input = self.db.get_type_per_input(algorithm)
+
         # target : (type, value)
         self.inputs = {}
 
     def add_input(self, input_var, value):
         if input_var not in self.db.get_inputs(self.algorithm):
             raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
+        
+        # check type for input value
+        input_type = self.type_per_input[input_var]
+        if input_type == 'str' and type(value) is not str:
+                raise ValueError(f"Input {input_var} must be a string.")
+        if input_type == 'bin' and (type(value) is not int or value not in [0,1]):
+                raise ValueError(f"Input {input_var} must be a 0 or 1 (bin).")
+        if input_type == 'float' and (type(value) not in [float, int]):
+                raise ValueError(f"Input {input_var} must be numerical.")
+        if input_type == 'int' and type(value) is not int:
+                raise ValueError(f"Input {input_var} must be an integer.")
 
         self.inputs[input_var] = value
 
@@ -99,6 +112,7 @@ class UserConstraints():
         if constr_type not in ['eq', 'leq', 'geq']:
             raise AttributeError("Constraint type can only be one of 'eq', 'leq', 'geq'.")
 
+        # constraints are on targets, and targets can only be numerical
         if type(value) not in [float, int]:
             raise AttributeError("Constraint value must be numerical.")
 
