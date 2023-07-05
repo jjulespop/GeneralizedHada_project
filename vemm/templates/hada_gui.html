@@ -1,0 +1,298 @@
+<!doctype html>
+
+<head>
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='font.css') }}">
+    <!-- CSS Reset -->
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='normalize.css') }}">
+    <!-- Milligram CSS -->
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='milligram.css') }}">
+    <!-- Microtip -->
+    <link rel="stylesheet" href="/vemm{{ url_for('static', filename='microtip.min.css') }}">
+
+    <title>HADA (demo)</title>
+
+    <style>
+        div.hidden {
+            display: none;
+        }
+
+        div.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .column {
+            align-self: baseline;
+        }
+    </style>
+
+    <script>
+        //Show prices form
+        show_prices = () => {document.querySelector('#prices_form').style.display='block'}
+        //Hide prices form
+        hide_prices = () => {document.querySelector('#prices_form').style.display='none'}
+        
+        //Handles when to show the prices form
+        prices_form_handler = () => {
+            price_value = document.getElementById('constraint_price');
+            target = document.querySelector('#target');
+
+            if (price_value.value.length > 0 || target.value == 'price')
+                show_prices();
+            else
+                hide_prices();
+        }
+
+        ////Show file upload elements
+        //show_upload = () => {document.querySelector('#upload_elements').style.display='block'}
+        ////Hide file upload elements
+        //hide_upload = () => {document.querySelector('#upload_elements').style.display='none'}
+
+        //Handles when to show the upload elements
+        //upload_elements_handler = () => {
+        //    upload_checkbox = document.querySelector('#upload_checkbox');
+        //    if (upload_checkbox.checked)
+        //        show_upload();
+        //    else 
+        //        hide_upload();
+        //}
+
+
+        window.onload = function() {
+            dropdown = document.querySelector('#algorithm');
+            hidden_selected_inp = document.getElementById('selected_input_dep');
+            price_constraint = document.querySelector('#constraint_price');
+            target = document.querySelector('#target');
+            //upload_checkbox = document.querySelector('#upload_checkbox');
+
+            //Algorithm menu and checkbox handler
+            submit_algo_change = function() {
+                selectedOption = event.target.selectedOptions[0];
+                optgroupLabel = selectedOption.parentNode.label;
+                
+                // infer input-dependency case by optgroup
+                if (optgroupLabel == 'input-independent')
+                    hidden_selected_inp.value = "False";
+                else
+                    hidden_selected_inp.value = "True";
+                const form = document.querySelector('#select_algorithm_form');
+                    
+                form.submit();}
+
+            dropdown.addEventListener('change', submit_algo_change);
+            //upload_checkbox.addEventListener('change', submit_algo_change);
+        
+            // Handling prices form
+            target.addEventListener('change', prices_form_handler);
+            price_constraint.addEventListener('input', prices_form_handler);
+
+            // Handling upload elements
+            //upload_checkbox.addEventListener('change', upload_elements_handler);
+        };
+    </script>
+
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <h3>HADA (demo)</h3>
+        </div>
+
+            <div class="row">
+                    <div class="column column-100">
+                <form action="/vemm" method="POST" id="select_algorithm_form">
+                    <input value = "select_algo" type="hidden" name="form_id">
+                    <input value = "{{input_dependent}}" type="hidden" name="selected_input_dep" id="selected_input_dep">
+
+                        <label class="label-inline">Algorithm</label>
+                        <select name="algorithm" id="algorithm">
+                            {% for case in ['input-independent', 'input-dependent'] %}
+                            <optgroup label={% if case=='input-dependent' %}"input-dependent"{% else %}"input-independent"{% endif %}>
+                                {% for algo in algorithms[case] %}
+                                <option value="{{algo}}" {% if algo==selected_algo and ((case=='input-dependent' and input_dependent) or (case=='input-independent' and not input_dependent) )%}selected{% endif %}>{{algo}}</option>
+                                {% endfor %}
+                            </optgroup>
+                            {% endfor %}
+                        </select>
+                </form>
+        <form action="/vemm" method="POST" id="optimization_request_form" enctype="multipart/form-data">
+                <div {% if not input_dependent %}class="hidden"{% endif %} id="upload_elements">
+                    <label class="label-inline">Input file</label>
+                    <input type="file" id="fileUpload" name="fileUpload">
+                </div>
+            </div>
+            </div>
+
+        <input value="optimize" type="hidden" name="form_id">
+            <div class="row">
+                <div class="column column-50">
+                    <label class="label-inline">Target</label>
+                    <select name="target" id="target">
+                        {% for target in targets %}
+                        <option value="{{target}}">{{target}}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="label-inline">minimize</label>
+                    <input type="radio" name="objective_type" id="min" value="min" checked />
+                    <label class="label-inline">maximize</label>
+                    <input type="radio" name="objective_type" id="max" value="max" />
+                    <br />
+                </div>
+
+                <div class="column column-50">
+                    <label class="label-inline">Robustness factor</label>
+                    <input type="text" name="robust_factor" id="robust_factor" placeholder="Optional">
+                </div>
+            </div>
+
+            <!--<div class="row">
+                <div class="column column-100">
+                    <br />
+                </div>
+            </div>-->
+
+            <div class="row">
+                <h4>Constraints</h4>
+            </div>
+
+            {% for target in targets %}
+            <div class="row">
+                <div class="column column-20">
+                    <label class="label-inline">
+                        {{target.capitalize()}}
+                        {% if target in description_per_var.keys() and description_per_var[target] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[target]}}">?</sup>
+                        {% endif %}
+                    </label>
+                </div>
+                <div class="column column-10">
+                    <select name="constraint_{{target}}_type" id="constraint_{{target}}_type">
+                        <option value="leq">&#8804;</option>
+                        <option value="eq">=</option>
+                        <option value="geq">&#8805;</option>
+                    </select>
+                </div>
+                <div class="column column-70">
+                    {% if target|lower=='price' %}
+                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
+                    {% else %}
+                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="[{{lb_per_var[target]}},{{ub_per_var[target]}}]">
+                    {% endif %}
+                </div>
+                </br>
+            </div>
+            {% endfor %}
+
+            <div id="prices_form" class="hidden">
+                <div class="row">
+                    <h4>Prices</h4>
+                    <br/>
+                </div>
+
+                <p><b>Disclaimer</b>: prices for the hardware platforms are relevant only if the price is constrainted and/or the target of the optimization.</p>
+                {% for hw, price in price_per_hw.items() %}
+                <div class="row">
+                    <div class="column column-10">
+                        <label class="label-inline">{{hw}}</label><br />
+                    </div>
+                    <div class="column column-90">
+                        <input type="text" name="price_{{hw}}" id="price_{{hw}}" value="{{price if price else ''}}"><br />
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <div class="center">
+                    <input class="button" type="submit" id="submit" name="submit" value="Optimize" />
+                </div>
+            </div>
+        </form>
+        <!--{% if out %}
+        {{out}}
+        {% endif %}-->
+
+        {% if out %}
+        {% if out is string %}
+        <div class="row">
+            <h4>{{out}}</h4>
+        </div>
+        {% else %}
+        <div class="row">
+            <h4>Solution</h4>
+        </div>
+
+        <div class="row">
+            <div class="center">
+        <!-- Chosen HW-->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Selected HW
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{out['hw']}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+        <!-- Hyperparameters-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Selected hyperparameters</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['hyperparams'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['hyperparams'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+        <!-- Targets-->
+                <table>
+                    <thead>
+                    <tr>
+                        <th colspan="2">Estimated<sup role="tooltip" data-microtip-position="top" aria-label="The target values represent estimates made by the Machine Learning models internal to the vertical matchmaking engine; they have the purpose of providing a glimpse at the internal work of the engine ">?</sup> targets</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for k in out['targets'].keys() %}
+                    <tr>
+                        <td>
+                        {{k}}
+                        {% if k in description_per_var.keys() and description_per_var[k] %}
+                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                        {% endif %}
+                        </td>
+                        <td>
+                        {{out['targets'][k]}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    {% endif %}
+</body>
+
+</html>

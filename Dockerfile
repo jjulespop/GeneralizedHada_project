@@ -12,10 +12,7 @@ RUN pip install -r requirements.txt
 # emllib bug fix
 COPY embed.py /usr/local/lib/python3.8/site-packages/eml/tree/embed.py
 
-COPY core ./core
-COPY algorithms ./algorithms
-COPY app.py .
-COPY templates ./templates
-COPY static ./static
+COPY vemm ./vemm 
+WORKDIR /hada/vemm
 
 ENTRYPOINT ["flask", "run", "--host=0.0.0.0"]
