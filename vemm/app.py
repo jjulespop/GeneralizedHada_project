@@ -20,19 +20,28 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
+
+# for local init modality
 data_path_no_inp = 'algorithms/data/input-independent'
 data_path_inp = 'algorithms/data/input-dependent'
+configs_path_no_inp = 'algorithms/configs/input-independent'
+configs_path_inp = 'algorithms/configs/input-dependent'
+# for both init modalities
 categories_path_no_inp = "algorithms/categorical_mappings/input-independent"
 categories_path_inp = "algorithms/categorical_mappings/input-dependent"
 models_path_no_inp = 'algorithms/models/input-independent'
 models_path_inp = 'algorithms/models/input-dependent'
-configs_path_no_inp = 'algorithms/configs/input-independent'
-configs_path_inp = 'algorithms/configs/input-dependent'
 
-db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
-datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp, categories_path_no_inp, categories_path_inp)
-#db = ConfigDB.from_remote('http://localhost:5333')
-#datasets = Datasets.from_remote(db, 'http://localhost:5333', categories_path_no_inp, categories_path_inp)
+init_type = os.getenv('INIT_TYPE')
+if init_type == 'local' or init_type is None:
+    db = ConfigDB.from_local(configs_path_no_inp, configs_path_inp)
+    datasets = Datasets.from_local(db, data_path_no_inp, data_path_inp, categories_path_no_inp, categories_path_inp)
+elif init_type == 'remote':
+    db = ConfigDB.from_remote('http://localhost:5333')
+    datasets = Datasets.from_remote(db, 'http://localhost:5333', categories_path_no_inp, categories_path_inp)
+else:
+    raise AttributeError('Environment variable INIT_TYPE must be se to "local" or "remote"')
+
 models = MLModels(db, datasets, models_path_no_inp, models_path_no_inp)
 
 # ==============================================================================
