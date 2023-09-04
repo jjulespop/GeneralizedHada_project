@@ -1,6 +1,0 @@
-cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, Cost) :-
-    PV_mean in [261.18, 293.42], PV_std in [268.41, 301.55], Load_mean in [308.72, 346.84], Load_std in [159.83, 181.20], NScenarios in [30.99, 100.00], Cost is -33.39 + -3.30 * Load_mean + -0.13 * Load_std + 3.52 * PV_mean + 1.24 * PV_std + -0.95 * NScenarios.
-cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, Cost) :-
-    PV_mean in [251.43, 293.42], PV_std in [260.01, 301.55], Load_mean in [299.34, 346.84], Load_std in [157.50, 181.20], NScenarios in [30.99, 100.00], Cost is -316285715.97 + -74260062.27 * Load_mean + 19497049.77 * Load_std + 74578003.14 * PV_mean + -53371771.06 * PV_std + -0.95 * NScenarios.
-cost(Load_mean, Load_std, PV_mean, PV_std, NScenarios, Cost) :-
-    PV_mean in [251.43, 293.42], PV_std in [260.01, 301.55], Load_mean in [299.34, 346.84], Load_std in [157.50, 181.20], NScenarios in [0.99, 100.00], Cost is -17.03 + -3.31 * Load_mean + -0.16 * Load_std + 3.52 * PV_mean + 1.21 * PV_std + -0.56 * NScenarios.

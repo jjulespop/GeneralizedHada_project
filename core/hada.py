@@ -132,20 +132,29 @@ def HADA(db: ConfigDB,
                 # if part of the rule
                 if_con_vars = []
                 for j, var in enumerate(if_con["var"]):
-                    if_con_var_name = f'var_if_{hw}_{target}_{var}_{i}'
+                    if_con_var_name = f'var_if_{hw}_{target}_{var}_{i}_{j}'
                     if_con_var = mdl.binary_var(if_con_var_name)
                     if_con_vars.append(if_con_var)
                     if if_con["type"][j] == "range":#only one in gridrex
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j][1], name=f'ub_{var}_{i}_{target}_{hw}')
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j][0], name=f'lb_{var}_{i}_{target}_{hw}')
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j][1], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j][0], name=f'lb_{var}_{i}_{j}_{target}_{hw}')
+                    if if_con["type"][j] == ">=":#to remove array
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    if if_con["type"][j] == "<=":
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    if if_con["type"][j] == ">":
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    if if_con["type"][j] == "<":
+                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
                 #linking if to then
-                mdl.add_indicator(then_var, mdl.sum(if_con_vars) == len(if_con["var"]), name=f'sum_int_{i}_{target}_{hw}') #all the bounds are respected
+                if len(if_con["var"]) > 0:
+                    mdl.add_indicator(then_var, mdl.sum(if_con_vars) == len(if_con["var"]), name=f'sum_int_{i}_{j}_{target}_{hw}') #all the bounds are respected
                 #then part of the rule
                 then_con = rule["then"]
                 for j, var in enumerate(then_con["var"]):
                     if then_con["type"][j] == "==":#only one in gridrex
                         expression = then_con["value"][j]
-                        mdl.add_indicator(then_var, mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)), name=f'expression_{i}_{target}_{hw}')
+                        mdl.add_indicator(then_var, mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)), name=f'expression_{i}_{j}_{target}_{hw}')
 
             mdl.add_constraint(mdl.sum(then_vars) == 1, ctname=f"one_rule_{target}_{hw}")#only one rule is true
     # Handling non-estimated target (price) and robustness coefficients: 

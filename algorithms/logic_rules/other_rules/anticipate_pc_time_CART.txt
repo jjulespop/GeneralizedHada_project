@@ -1,7 +1,7 @@
-time(NScenarios, 21.11) :-
-    NScenarios =< 46.5, NScenarios =< 25.5.
-time(NScenarios, 71.40) :-
-    NScenarios =< 46.5, NScenarios > 25.5.
-time(NScenarios, 158.40) :-
-    NScenarios =< 86.5.
-time(NScenarios, 197.106106).
+time(nScenarios, 21.11) :-
+    nScenarios =< 46.5, nScenarios =< 25.5.
+time(nScenarios, 71.40) :-
+    nScenarios =< 46.5, nScenarios > 25.5.
+time(nScenarios, 158.40) :-
+    nScenarios =< 86.5.
+time(nScenarios, 197.106106).

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
     algorithm = 'anticipate'#'contingency' #
-    models = LogicModels(db,  models_path)
+    models = LogicModels(db,  models_path, 'CReEPY')
 
     print(db.get_type_per_var(algorithm))
     ##### Preparing a request #####

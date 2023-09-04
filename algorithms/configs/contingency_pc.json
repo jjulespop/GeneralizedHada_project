@@ -7,8 +7,8 @@
     ],
     "targets": [
         {"ID": "sol",  "description": null, "LB": -10000.0, "UB": 10000.0},
-        {"ID": "time",  "description": null, "LB": 0.0, "UB": 230.0},
-        {"ID": "memory",  "description": null, "LB": 0.0, "UB": 350.0}
+        {"ID": "time",  "description": null, "LB": -100.0, "UB": 500.0},
+        {"ID": "memory",  "description": null, "LB": 0.0, "UB": 500.0}
     ],
     "input_vars": [
        {"ID": "pv_mean",  "description": null, "type": "float", "LB": 240, "UB": 300},

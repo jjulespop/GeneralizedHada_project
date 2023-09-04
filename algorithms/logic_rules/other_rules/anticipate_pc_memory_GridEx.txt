@@ -1,10 +1,10 @@
-memo(NScenarios, 108.36) :-
-    NScenarios in [0.99, 20.79].
-memo(NScenarios, 168.63) :-
-    NScenarios in [20.79, 40.6].
-memo(NScenarios, 219.42) :-
-    NScenarios in [40.6, 60.4].
-memo(NScenarios, 270.62) :-
-    NScenarios in [60.4, 80.20].
-memo(NScenarios, 317.22) :-
-    NScenarios in [80.20, 100.00].
+memory(nScenarios, 108.36) :-
+    nScenarios in [0.99, 20.79].
+memory(nScenarios, 168.63) :-
+    nScenarios in [20.79, 40.6].
+memory(nScenarios, 219.42) :-
+    nScenarios in [40.6, 60.4].
+memory(nScenarios, 270.62) :-
+    nScenarios in [60.4, 80.20].
+memory(nScenarios, 317.22) :-
+    nScenarios in [80.20, 100.00].

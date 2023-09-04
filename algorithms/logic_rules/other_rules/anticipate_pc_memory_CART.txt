@@ -1,7 +1,7 @@
-memo(NScenarios, 104.86) :-
-    NScenarios =< 49.5, NScenarios =< 19.5.
-memo(NScenarios, 177.01) :-
-    NScenarios =< 49.5, NScenarios > 19.5.
-memo(NScenarios, 246.28) :-
-    NScenarios =< 73.5.
-memo(NScenarios, 309.25037).
+memory(nScenarios, 104.86) :-
+    nScenarios =< 49.5, nScenarios =< 19.5.
+memory(nScenarios, 177.01) :-
+    nScenarios =< 49.5, nScenarios > 19.5.
+memory(nScenarios, 246.28) :-
+    nScenarios =< 73.5.
+memory(nScenarios, 309.25037).

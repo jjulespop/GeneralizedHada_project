@@ -1,0 +1,6 @@
+sol(load_mean, load_std, pv_mean, pv_std, nScenarios, sol) :-
+    pv_mean in [261.18, 293.42], pv_std in [268.41, 301.55], load_mean in [308.72, 346.84], load_std in [159.83, 181.20], nScenarios in [30.99, 100.00], sol is -33.39 + -3.30 * load_mean + -0.13 * load_std + 3.52 * pv_mean + 1.24 * pv_std + -0.95 * nScenarios.
+sol(load_mean, load_std, pv_mean, pv_std, nScenarios, sol) :-
+    pv_mean in [251.43, 293.42], pv_std in [260.01, 301.55], load_mean in [299.34, 346.84], load_std in [157.50, 181.20], nScenarios in [30.99, 100.00], sol is -316285715.97 + -74260062.27 * load_mean + 19497049.77 * load_std + 74578003.14 * pv_mean + -53371771.06 * pv_std + -0.95 * nScenarios.
+sol(load_mean, load_std, pv_mean, pv_std, nScenarios, sol) :-
+    pv_mean in [251.43, 293.42], pv_std in [260.01, 301.55], load_mean in [299.34, 346.84], load_std in [157.50, 181.20], nScenarios in [0.99, 100.00], sol is -17.03 + -3.31 * load_mean + -0.16 * load_std + 3.52 * pv_mean + 1.21 * pv_std + -0.56 * nScenarios.

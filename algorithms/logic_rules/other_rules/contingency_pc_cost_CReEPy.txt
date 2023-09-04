@@ -1,9 +1,0 @@
-cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, Cost) :-
-    PV_mean in [251.43, 277.45], PV_std in [260.01, 283.33], Load_mean in [299.34, 328.87], Load_std in [157.50, 170.76], NTraces in [0.99, 100.00], Cost is -432.08 + -5.56 * Load_mean + 3.38 * Load_std + 3.44 * PV_mean + 1.56 * PV_std + -0.22 * NTraces.
-cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, Cost) :-
-    PV_mean in [251.43, 281.42], PV_std in [260.01, 290.06], Load_mean in [299.34, 332.16], Load_std in [157.50, 173.09], NTraces in [0.99, 100.00], Cost is -2684.26 + 17.30 * Load_mean + -14.18 * Load_std + -1.06 * PV_mean + 15.73 * PV_std + -0.28 * NTraces.
-cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, Cost) :-
-    PV_mean in [251.43, 281.42], PV_std in [260.01, 290.06], Load_mean in [299.34, 332.16], Load_std in [157.50, 176.42], NTraces in [0.99, 100.00], Cost is -2151.79 + 30.15 * Load_mean + -7.83 * Load_std + 14.62 * PV_mean + -47.51 * PV_std + -0.26 * NTraces.
-cost(Load_mean, Load_std, PV_mean, PV_std, NTraces, Cost) :-
-    PV_mean in [251.43, 293.42], PV_std in [260.01, 301.55], Load_mean in [299.34, 346.84], Load_std in [157.50, 181.20], NTraces in [0.99, 100.00], Cost is -932.00 + -3027.46 * Load_mean + 965.39 * Load_std + 2450.70 * PV_mean + -1386.79 * PV_std + -0.49 * NTraces.
-

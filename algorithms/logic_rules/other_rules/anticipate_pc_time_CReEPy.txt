@@ -1,6 +1,6 @@
-time(NScenarios, Time) :-
-    NScenarios in [46.99, 100.00], Time is 77.39 + 1.23 * NScenarios.
-time(NScenarios, Time) :-
-    NScenarios in [38.99, 100.00], Time is -12.16 + 2.35 * NScenarios.
-time(NScenarios, Time) :-
-    NScenarios in [0.99, 100.00], Time is -4.41 + 2.00 * NScenarios.
+time(nScenarios, time) :-
+    nScenarios in [46.99, 100.00], time is 77.39 + 1.23 * nScenarios.
+time(nScenarios, time) :-
+    nScenarios in [38.99, 100.00], time is -12.16 + 2.35 * nScenarios.
+time(nScenarios, time) :-
+    nScenarios in [0.99, 100.00], time is -4.41 + 2.00 * nScenarios.

@@ -31,11 +31,17 @@ if __name__ == '__main__':
     configs_path = './algorithms/configs'
     time_bounds = [None, 60, 120, 300]
     mem_bounds = [None, 100, 200, 300]
-    bounds = {"time": [60, 120, 180, 300, None], 'memory': [100, 200, 300, 350, None], 'sol': [300, 340, 380, 420, None]}
+    #bounds = {"time": [60, 120, 180, 300, None], 'memory': [100, 200, 300, 350, None], 'sol': [300, 340, 380, 420, None]}
+    #bounds = {"time": [60, 120, 180, 300], 'memory': [100, 200, 300, 350], 'sol': [300, 340, 380, 420]}
     #bounds = {"time": [None], 'memory': [None], 'sol': [None]}
+    #bounds = {"sol": [250, 314,   340,  363, 393, 538], 'memory': [59, 87, 88, 141, 241, 343], 'time': [1,  22, 41, 59, 151, 349]}
+    #bounds = {"sol": [250, 314, 340, 363, 393, 538], 'memory': [59, 87, 88, 141, 241, 343],       'time': [1, 22, 41, 59, 151, 349]}
+    bounds = {"sol": [250, 314, 340, 363, 393, None], 'memory': [59, 87, 88, 141, 241, None],
+              'time': [1, 22, 41, 59, 151, None]}
     db = ConfigDB.from_local(configs_path)
     targets = db.get_targets('anticipate')
     targets.pop()#removes price
+    targets = ['sol', 'time', "memory"]
     for algorithm in ['anticipate', 'contingency']:
         for objective in targets:
             new_bounds = bounds.copy()
@@ -45,12 +51,15 @@ if __name__ == '__main__':
             for first_bound in new_bounds[bound_targets[0]]:
                 current_bounds[bound_targets[0]] = first_bound
                 for second_bound in new_bounds[bound_targets[1]]:
-                    if first_bound is not None:
+                    """if first_bound is not None:
                         current_bounds[bound_targets[1]] = None
                     else:
                         if second_bound is None:
                             continue
-                        current_bounds[bound_targets[1]] = second_bound
+                        current_bounds[bound_targets[1]] = second_bound"""
+                    current_bounds[bound_targets[1]] = second_bound
+                    if first_bound is not None and second_bound is not None: #
+                        continue
                     mem_bound = current_bounds["memory"]
                     sol_bound = current_bounds["sol"]
                     time_bound = current_bounds["time"]
@@ -74,5 +83,5 @@ if __name__ == '__main__':
                     result_df = pd.read_csv(file_name)
                     new_df = result_df.assign(**new_columns)
                     new_df.to_csv(path_or_buf=file_name, index=False)
-                    if first_bound is not None:
-                        break
+                    """if first_bound is not None:
+                        break"""
