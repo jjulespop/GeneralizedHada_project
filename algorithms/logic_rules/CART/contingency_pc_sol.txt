@@ -1,0 +1,7 @@
+sol(load_mean, load_std, pv_mean, pv_std, nTraces, 340.99) :-
+    load_std =< 168.30.
+sol(load_mean, load_std, pv_mean, pv_std, nTraces, 548.58) :-
+    load_mean > 343.17.
+sol(load_mean, load_std, pv_mean, pv_std, nTraces, 400.78) :-
+    nTraces =< 89.5.
+sol(load_mean, load_std, pv_mean, pv_std, nTraces, 347.659686)

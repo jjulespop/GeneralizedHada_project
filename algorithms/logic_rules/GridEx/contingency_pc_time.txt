@@ -1,0 +1,10 @@
+time(nTraces, 11.30) :-
+    nTraces in [0.99, 20.79].
+time(nTraces, 24.30) :-
+    nTraces in [20.79, 40.6].
+time(nTraces, 36.06) :-
+    nTraces in [40.6, 60.4].
+time(nTraces, 47.97) :-
+    nTraces in [60.4, 80.20].
+time(nTraces, 59.13) :-
+    nTraces in [80.20, 100.00].

@@ -1,0 +1,8 @@
+memory(nTraces, 87.21) :-
+    nTraces in [0.99, 25.74].
+memory(nTraces, 90.13) :-
+    nTraces in [25.74, 50.5].
+memory(nTraces, 89.07) :-
+    nTraces in [50.5, 75.25].
+memory(nTraces, 91.41) :-
+    nTraces in [75.25, 100.00].

@@ -1,0 +1,10 @@
+time(nScenarios, 16.43) :-
+    nScenarios in [0.99, 20.79].
+time(nScenarios, 58.16) :-
+    nScenarios in [20.79, 40.6].
+time(nScenarios, 128.55) :-
+    nScenarios in [40.6, 60.4].
+time(nScenarios, 165.71) :-
+    nScenarios in [60.4, 80.20].
+time(nScenarios, 188.46) :-
+    nScenarios in [80.20, 100.00].

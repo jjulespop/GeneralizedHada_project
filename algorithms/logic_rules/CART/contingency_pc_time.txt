@@ -1,0 +1,7 @@
+time(nTraces, 13.08) :-
+    nTraces =< 50.5, nTraces =< 26.5.
+time(nTraces, 29.45) :-
+    nTraces =< 50.5, nTraces > 26.5.
+time(nTraces, 42.02) :-
+    nTraces =< 71.5.
+time(nTraces, 56.667674).
