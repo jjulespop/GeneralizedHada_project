@@ -3,10 +3,10 @@ services:
   hada_ws:
     build: .
     ports:
-    - "5000:5000"
-    # INIT_TYPE:
-    # local: standalone mode, uses configuration files and datasets
-    # remote: uses the Data Exchange service for resources,
-    #         expected to be reacheable at localhost:5333
+      - "5000:5000"
+      # INIT_TYPE:
+      # local: standalone mode, uses local configuration files and datasets
+      # remote: uses the Data Exchange service for resources,
+      #         expected to be reacheable at localhost:5333
     environment:
-    - INIT_TYPE=remote
+      - INIT_TYPE=remote
