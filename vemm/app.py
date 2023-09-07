@@ -183,17 +183,8 @@ def hada_gui():
             
             if form_dict['form_id'] == 'select_algo':
                 # populating GUI
-                prev_input_dep = session['last_input_dependent']
-                #session['last_input_dependent'] = 'upload_checkbox' in form_dict
                 session['last_input_dependent'] = form_dict['selected_input_dep'] == "True"
-                
-                # checking for switch between input-dependent case and input-independent case
-                # same case as before
-                if session['last_input_dependent'] == prev_input_dep:
-                    session['last_selected_algo'] = form_dict['algorithm']
-                else: # select first algo from the new case (switch happened)
-                    first_algo =  db.get_algorithms(input_dependent=session['last_input_dependent'])[0]
-                    session['last_selected_algo'] = first_algo
+                session['last_selected_algo'] = form_dict['algorithm']
 
 
             if form_dict['form_id'] == 'optimize':
