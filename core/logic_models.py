@@ -10,7 +10,7 @@ import re
 
 class LogicModels():
     def __init__(self, db, rules_path, rules_name):
-        """Handles all operations on ML logic_rules.
+        """Handles all operations on the Logic Model.
 
         Args:
             db (ConfigDB): ConfigDB instance.
@@ -26,26 +26,13 @@ class LogicModels():
 
     def __get_rules_path(self, algorithm, hw, target):
         return os.path.join(self.rules_path, f'{self.rules_name}/{algorithm}_{hw}_{target}.txt')
-        #return os.path.join(self.rules_path, f'other_rules/{algorithm}_{hw}_{target}_CReEPy.txt')
-        #return os.path.join(self.rules_path, f'other_rules/{algorithm}_{hw}_{target}_GridEx.txt')
-        #return os.path.join(self.rules_path, f'other_rules/{algorithm}_{hw}_{target}_CART.txt')
 
 
 
 
-    def get_rules_GridREX(self, algorithm, hw, target):
-        """Returns the rule (Decision).
-
-        Args:
-            algorithm (str): algorithm id.
-            hw (str): hardware platform id
-            target (str): target id.
-
-        Raises:
-            Exception: if rule is not found
-
-        Returns:
-            logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
+    def get_rules_GridREx(self, algorithm, hw, target):
+        """Returns the logic rules for CART
+           called by get_rules()
         """
         rules_path = self.__get_rules_path(algorithm, hw, target)
 
@@ -68,7 +55,6 @@ class LogicModels():
                     var = var.strip()
                     if_constraint["var"].append(var)
                     var_interval = ast.literal_eval(interval_s)
-                    #interval[var] = var_interval
                     if_constraint["value"].append(var_interval)
                     if_constraint["type"].append("range")
                 then_constraint["var"].append(target)
@@ -78,18 +64,8 @@ class LogicModels():
         return rules
 
     def get_rules_GridEx(self, algorithm, hw, target):
-        """Returns the rule (Decision).
-
-        Args:
-            algorithm (str): algorithm id.
-            hw (str): hardware platform id
-            target (str): target id.
-
-        Raises:
-            Exception: if rule is not found
-
-        Returns:
-            logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
+        """Returns the logic rules for GridEx and CReEPY
+           called by get_rules()
         """
         rules_path = self.__get_rules_path(algorithm, hw, target)
 
@@ -132,18 +108,8 @@ class LogicModels():
         return rules
 
     def get_rules_CART(self, algorithm, hw, target):
-        """Returns the rule (Decision).
-
-        Args:
-            algorithm (str): algorithm id.
-            hw (str): hardware platform id
-            target (str): target id.
-
-        Raises:
-            Exception: if rule is not found
-
-        Returns:
-            logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
+        """ Returns the logic rules for CART
+           called by get_rules().
         """
         rules_path = self.__get_rules_path(algorithm, hw, target)
         print(rules_path)
@@ -199,7 +165,7 @@ class LogicModels():
 
 
     def get_rules(self, algorithm, hw, target):
-        """Returns the rule (Decision).
+        """Returns the logic rules.
 
         Args:
             algorithm (str): algorithm id.
@@ -213,7 +179,7 @@ class LogicModels():
             logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
         """
         if self.rules_name == 'GridREx' or self.rules_name == 'CReEPY':
-            return self.get_rules_GridREX( algorithm, hw, target)
+            return self.get_rules_GridREx( algorithm, hw, target)
         if self.rules_name == 'GridEx':
             return self.get_rules_GridEx( algorithm, hw, target)
         if self.rules_name == 'CART':
@@ -221,24 +187,6 @@ class LogicModels():
 
 
 
-"""
-        for index, line in enumerate(lines):
-            if index % 2 == 1:
-                interval = {}
-                if_constraint = {"var": [], "value": [], "type": ["range"]}
-                then_constraint = {"var": [], "value": [], "type": ["=="]}
-                first, expression = line.split(', '+target+' is ')
-                var, interval_s = first.split(' in ')
-                var = var.strip()
-                if_constraint["var"].append(var)
-                var_interval = ast.literal_eval(interval_s)
-                interval[var] = var_interval
-                if_constraint["value"].append(var_interval)
-                then_constraint["var"].append(target)
-                then_constraint["value"].append(expression.strip()[0:-1])
-                rule = {"if": if_constraint, "then": then_constraint}
-                rules.append(rule)
-        return rules"""
 
 
 def get_linear_expression(s: str):
@@ -248,7 +196,7 @@ def get_linear_expression(s: str):
     :return:
         A string with where the variables' name in the original linear expression have been replaced by the corresponding
         cplex model variables
-    @author: EleMisi
+    credit https://github.com/ai-research-disi/Logic_HADA/blob/main/utils/util_functions.py
     """
     l = s.split()
     for i, token in enumerate(l):

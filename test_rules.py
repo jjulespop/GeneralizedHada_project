@@ -7,7 +7,7 @@ if __name__ == '__main__':
     # db = ConfigDB(path)
     # db = ConfigDB.from_remote('http://localhost:5333')
     db = ConfigDB.from_local('./algorithms/configs')
-    lr = LogicModels(db, "algorithms/logic_rules", 'GridEx')
+    lr = LogicModels(db, "algorithms/logic_rules", 'CART')
     rules = lr.get_rules('anticipate', 'pc', 'sol')
     print(rules)
     rules = lr.get_rules('contingency', 'pc', 'time')

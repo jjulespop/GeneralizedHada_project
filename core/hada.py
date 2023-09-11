@@ -135,16 +135,12 @@ def HADA(db: ConfigDB,
                     if_con_var_name = f'var_if_{hw}_{target}_{var}_{i}_{j}'
                     if_con_var = mdl.binary_var(if_con_var_name)
                     if_con_vars.append(if_con_var)
-                    if if_con["type"][j] == "range":#only one in gridrex
+                    if if_con["type"][j] == "range":
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j][1], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j][0], name=f'lb_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == ">=":#to remove array
+                    if if_con["type"][j] == ">=" or  if_con["type"][j] == ">":
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == "<=":
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == ">":
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == "<":
+                    if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
                         mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
                 #linking if to then
                 if len(if_con["var"]) > 0:
