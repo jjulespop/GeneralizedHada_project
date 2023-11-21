@@ -8,10 +8,20 @@ if __name__ == '__main__':
     # db = ConfigDB.from_remote('http://localhost:5333')
     db = ConfigDB.from_local('./algorithms/configs')
     lr = LogicModels(db, "algorithms/logic_rules", 'CART')
-    rules = lr.get_rules('anticipate', 'pc', 'sol')
-    print(rules)
-    rules = lr.get_rules('contingency', 'pc', 'time')
-    print(rules)
+    rules = lr.get_rules('anticipate', 'pc', 'memory')
+    #print(rules)
+    for rule in rules:
+        print(rule)
+    new_rules = lr.reduce_domain(rules)
+    print("new rules")
+    for rule in new_rules:
+        print(rule)
+
+
+
+
+    #rules = lr.get_rules_new('contingency', 'pc', 'sol')
+    #print(rules)
     #gr = (rules)
     #df = pd.read_csv("algorithms/data/anticipate_pc.csv")
     #pred = gr.predict(df)

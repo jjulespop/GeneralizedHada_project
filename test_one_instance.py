@@ -57,7 +57,7 @@ if __name__ == '__main__':
     algorithm = args.algorithm
     print(algorithm)
     file_name = f'algorithms/results/results_{algorithm}_{objective}_m{mem_bound}_t{time_bound}_s{sol_bound}.csv'
-    models = LogicModels(db,  models_path, 'GridEx')
+    models = LogicModels(db,  models_path, 'CART')
     validation_set = pd.read_csv("algorithms/data/ValidationSet.csv")
     instance = validation_set.iloc[instance_index]
     print(instance)

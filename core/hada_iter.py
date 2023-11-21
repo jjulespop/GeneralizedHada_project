@@ -1,4 +1,5 @@
 import docplex
+import numpy as np
 from eml.backend import cplex_backend
 from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
@@ -37,7 +38,9 @@ def HADA(db: ConfigDB,
     #mdl.parameters.mip.tolerances.integrality = 0.0
 
     hws = db.get_hws(request.algorithm)
-    targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
+    #targets = set(list(request.user_constraints.get_constraints().keys()) + [request.target])
+    targets = list(set(list(request.user_constraints.get_constraints().keys()) + [request.target]))
+    list.sort(targets)
     hyperparams = db.get_hyperparams(request.algorithm)
     input_vars = db.get_input_vars(request.algorithm)
 
@@ -113,48 +116,6 @@ def HADA(db: ConfigDB,
     # HW Selection Constraint, enabling the selection of a single hw platform
     mdl.add_constraint(mdl.sum(mdl.get_var_by_name(f"b_{hw}") for hw in hws) == 1, ctname = "hw_selection")
 
-    # Empirical Constraints: embed the predictive models into the system (through emllib)
-    for target in targets:
-        # target price is not predicted, but indicated by the hw provider: it does not require any
-        # dedicated predictive model
-        if target == "price": 
-            continue
-        # time and memory depend on both the hw and the algorithm configuration: each of them requires three 
-        # dedicated predictive models
-        for hw in hws:
-            rules = logic_models.get_rules(request.algorithm, hw, target)
-            #avoid intersections
-            rules = logic_models.reduce_domain(rules)
-            then_vars = []
-            for i, rule in enumerate(rules):#add the logic logic_rules to the model
-                if_con = rule["if"]
-                then_var_name = f'var_then_{hw}_{target}_{i}'
-                then_var = mdl.binary_var(then_var_name)
-                then_vars.append(then_var)
-                # if part of the rule
-                if_con_vars = []
-                for j, var in enumerate(if_con["var"]):
-                    if_con_var_name = f'var_if_{hw}_{target}_{var}_{i}_{j}'
-                    if_con_var = mdl.binary_var(if_con_var_name)
-                    if_con_vars.append(if_con_var)
-                    if if_con["type"][j] == "range":
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j][1], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j][0], name=f'lb_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == ">=" or  if_con["type"][j] == ">":
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) >= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                    if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
-                        mdl.add_indicator(if_con_var, mdl.get_var_by_name(var) <= if_con["value"][j], name=f'ub_{var}_{i}_{j}_{target}_{hw}')
-                #linking if to then
-                if len(if_con["var"]) > 0:
-                    mdl.add_indicator(then_var, mdl.sum(if_con_vars) == len(if_con["var"]), name=f'sum_int_{i}_{j}_{target}_{hw}') #all the bounds are respected
-                #then part of the rule
-                then_con = rule["then"]
-                for j, var in enumerate(then_con["var"]):
-                    if then_con["type"][j] == "==":#only one in gridrex
-                        expression = then_con["value"][j]
-                        mdl.add_indicator(then_var, mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)), name=f'expression_{i}_{j}_{target}_{hw}')
-
-            mdl.add_constraint(mdl.sum(then_vars) == 1, ctname=f"one_rule_{target}_{hw}")#only one rule is true
     # Handling non-estimated target (price) and robustness coefficients: 
     # 1.Equality constraints, fixing each price variable hw_price to the usage price of the corresponding hw,
     # as required by the hw provider
@@ -191,14 +152,129 @@ def HADA(db: ConfigDB,
     else: 
         mdl.maximize(mdl.sum(mdl.get_var_by_name(f"{hw}_{request.target}") * mdl.get_var_by_name(f"b_{hw}") for hw in hws))
 
-        
-    ##### SOLVE #####
-    mdl.export_as_lp('model.lp') #export the model
-    sol = mdl.solve(log_output=False)
-    #print(mdl.solve_details)
-    #cref = cr.ConflictRefiner()
-    #cref.refine_conflict(mdl, display=True)
+
     solution = None
+    logic_constraints = {}
+    for hw in hws:
+        while_condition = True
+        rules = {}
+        rules_len= []#number of rules, one for each target
+        rules_i = []#index for the rules, one for each target
+        changed = []#if the index changed and we need to update, one for each target
+        #setting up the first constraints
+        for target in targets:
+            rules[target] = logic_models.get_rules(request.algorithm, hw, target)
+            rules_len.append(len(rules[target]))
+            rules_i.append(0)
+            changed.append(False)
+            # add the starting constraints
+
+            rule = rules[target][0]  # chosing the fist rule
+            i = 0
+            if_con = rule["if"]
+            # if part of the rule
+            last_constraints = []
+            for j, var in enumerate(if_con["var"]):
+                if if_con["type"][j] == "range":
+                    con1 = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j][1],
+                                              ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    con0 = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j][0],
+                                              ctname=f'lb_{var}_{i}_{j}_{target}_{hw}')
+                    last_constraints.append(con0)
+                    last_constraints.append(con1)
+                if if_con["type"][j] == ">=" or if_con["type"][j] == ">":
+                    con = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j],
+                                             ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    last_constraints.append(con)
+                if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
+                    con = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j],
+                                             ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                    last_constraints.append(con)
+
+            then_con = rule["then"]
+            for j, var in enumerate(then_con["var"]):
+                if then_con["type"][j] == "==":  # only one in gridrex
+                    expression = then_con["value"][j]
+                    con = mdl.add_constraint(
+                        mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)),
+                        ctname=f'expression_{i}_{j}_{target}_{hw}')
+                    last_constraints.append(con)
+
+            logic_constraints[f'{hw}_{target}'] = last_constraints
+
+        #we search a solution with different rules till we find it
+        n_variables = []
+        n_constraints = []
+        while(while_condition):
+            #solve
+            sol = mdl.solve(log_output=False)
+            n_variables.append(mdl.number_of_variables)
+            n_constraints.append(mdl.number_of_constraints)
+
+            if sol:
+                #we found the right solution
+                while_condition = False
+                break;
+                break;
+
+            #setting things for next iteration
+            rules_i[0] += 1#change the rule relative to the first target
+            changed[0] = True
+            for k, target in enumerate(targets):
+                if rules_i[k] == rules_len[k]:
+                    if k == len(targets)-1:
+                        while_condition = False #no rule combination gives a feasible solution
+                        break;
+                    else:
+                        # change the ruke relative to next target if we got to the last
+                        rules_i[k] =  0
+                        changed[k] = True
+                        rules_i[k+1] += 1
+                        changed[k+1] = True
+                if changed[k]:
+                    #remove old constraints
+                    mdl.remove(logic_constraints[f'{hw}_{target}'])
+
+                    changed[k] = False
+                    # add the new constraints
+                    i = rules_i[k]
+                    rule = rules[target][i]
+
+                    if_con = rule["if"]
+                    # if part of the rule
+                    last_constraints = []
+                    for j, var in enumerate(if_con["var"]):
+                        if if_con["type"][j] == "range":
+                            con1 = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j][1],
+                                                      ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                            con0 = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j][0],
+                                                      ctname=f'lb_{var}_{i}_{j}_{target}_{hw}')
+                            last_constraints.append(con0)
+                            last_constraints.append(con1)
+                        if if_con["type"][j] == ">=" or if_con["type"][j] == ">":
+                            con = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j],
+                                                     ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                            last_constraints.append(con)
+                        if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
+                            con = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j],
+                                                     ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                            last_constraints.append(con)
+
+                    then_con = rule["then"]
+                    for j, var in enumerate(then_con["var"]):
+                        if then_con["type"][j] == "==":  # only one in gridrex
+                            expression = then_con["value"][j]
+                            con = mdl.add_constraint(
+                                mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)),
+                                ctname=f'expression_{i}_{j}_{target}_{hw}')
+                            last_constraints.append(con)
+
+                    logic_constraints[f'{hw}_{target}'] = last_constraints
+
+
+
+    #mdl.export_as_lp('model.lp') #export the model
+
     if sol:
         for hw in hws:
             if round(sol[f'b_{hw}']) == 1:
@@ -207,7 +283,7 @@ def HADA(db: ConfigDB,
         targets_values = {target: round(sol[f"{chosen_hw}_{target}"]) if var_type[target] != mdl.continuous_vartype else sol[f"{chosen_hw}_{target}"] for target in targets}
         hyperparams_values = {hyperparam: round(sol[hyperparam]) if var_type[hyperparam] != mdl.continuous_vartype else sol[hyperparam] for hyperparam in hyperparams}
         #solution = {'chosen_hw': chosen_hw, 'hyperparams': hyperparams_values, 'targets': targets_values}
-        solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values, mdl.number_of_variables, mdl.number_of_constraints)
+        solution = OptimizationSolution(chosen_hw, hyperparams_values, targets_values, np.average(n_variables), np.average(n_constraints))
     else:
-        solution = OptimizationSolution(num_variables=mdl.number_of_variables, num_constraints=mdl.number_of_constraints)
+        solution = OptimizationSolution(num_variables=np.average(n_variables), num_constraints=np.average(n_constraints))
     return solution

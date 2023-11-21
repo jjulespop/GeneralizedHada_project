@@ -29,8 +29,6 @@ if __name__ == '__main__':
     data_path = './algorithms/data'
     validation_set = pd.read_csv("algorithms/data/ValidationSet.csv")
     configs_path = './algorithms/configs'
-    time_bounds = [None, 60, 120, 300]
-    mem_bounds = [None, 100, 200, 300]
     #bounds = {"time": [60, 120, 180, 300, None], 'memory': [100, 200, 300, 350, None], 'sol': [300, 340, 380, 420, None]}
     #bounds = {"time": [60, 120, 180, 300], 'memory': [100, 200, 300, 350], 'sol': [300, 340, 380, 420]}
     #bounds = {"time": [None], 'memory': [None], 'sol': [None]}
@@ -41,7 +39,7 @@ if __name__ == '__main__':
     db = ConfigDB.from_local(configs_path)
     targets = db.get_targets('anticipate')
     targets.pop()#removes price
-    targets = ['sol', 'time', "memory"]
+    targets = ['sol', 'time', 'memory']
     for algorithm in ['anticipate', 'contingency']:
         for objective in targets:
             new_bounds = bounds.copy()
@@ -58,8 +56,10 @@ if __name__ == '__main__':
                             continue
                         current_bounds[bound_targets[1]] = second_bound"""
                     current_bounds[bound_targets[1]] = second_bound
-                    if first_bound is not None and second_bound is not None: #
-                        continue
+                    #if first_bound is not None and second_bound is not None:
+                    #    continue
+                    #if first_bound is None or second_bound is None:
+                    #    continue
                     mem_bound = current_bounds["memory"]
                     sol_bound = current_bounds["sol"]
                     time_bound = current_bounds["time"]

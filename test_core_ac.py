@@ -25,10 +25,11 @@ if __name__ == '__main__':
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, algorithm)
-    user_constraints.add_constraint('memory', 'leq', 400)
+    user_constraints.add_constraint('memory', 'leq', 350)
     user_constraints.add_constraint('sol', 'leq', 400)
-    user_constraints.add_constraint('sol', 'geq', 50)
+    #user_constraints.add_constraint('sol', 'geq', 50)
     user_constraints.add_constraint('time', 'leq', 200)
+    #user_constraints.add_constraint('time', 'geq', 50)
     # setting input
     inputs = Inputs(db, algorithm)
     inputs.add_input('load_std', 167)
