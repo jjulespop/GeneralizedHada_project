@@ -18,15 +18,16 @@ if __name__ == '__main__':
 
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
-    algorithm = 'anticipate'#'contingency' #
-    models = LogicModels(db,  models_path, 'CART')
+    algorithm ='contingency' # 'anticipate' #
+    rule_type = 'GridREx'
+    models = LogicModels(db,  models_path, rule_type)
 
     print(db.get_type_per_var(algorithm))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, algorithm)
     user_constraints.add_constraint('memory', 'leq', 350)
-    user_constraints.add_constraint('sol', 'leq', 400)
+    #user_constraints.add_constraint('sol', 'leq', 400)
     #user_constraints.add_constraint('sol', 'geq', 50)
     user_constraints.add_constraint('time', 'leq', 200)
     #user_constraints.add_constraint('time', 'geq', 50)
@@ -40,17 +41,17 @@ if __name__ == '__main__':
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
     
-    robustness_factor = 0
+    robustness_factor = 0.9
 
-    request = OptimizationRequest(db, algorithm, 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, algorithm, 'sol', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
     #print(request.inputs.get_inputs()["pv_std"])
     #print(request.user_constraints.get_constraints()["memory"])
     ##### Handling datasets and models #####
     # extracting info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
-    print(var_bounds)
-    robust_coeff = None #datasets.get_robust_coeff(models, request)
+    #print(var_bounds)
+    robust_coeff = datasets.get_robust_coeff(models, request)
     print(robust_coeff)
 
     ##### Optimizing #####

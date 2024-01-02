@@ -57,7 +57,7 @@ if __name__ == '__main__':
     algorithm = args.algorithm
     print(algorithm)
     file_name = f'algorithms/results/results_{algorithm}_{objective}_m{mem_bound}_t{time_bound}_s{sol_bound}.csv'
-    models = LogicModels(db,  models_path, 'CART')
+    models = LogicModels(db,  models_path, 'GridREx')
     validation_set = pd.read_csv("algorithms/data/ValidationSet.csv")
     instance = validation_set.iloc[instance_index]
     print(instance)
@@ -76,17 +76,17 @@ if __name__ == '__main__':
     inputs.add_input('load_mean', float(instance['load_mean']))
     inputs.add_input('pv_std', float(instance['pv_std']))
     inputs.add_input('pv_mean', float(instance['pv_mean']))
-    # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
+
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
-    robustness_factor = None
+    robustness_factor = 0.9 #None
     request = OptimizationRequest(db, algorithm, objective, inputs, 'min', robustness_factor, user_constraints,
                                                   hws_prices)
     ##### Handling datasets and models #####
      # extracting info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
      #print(var_bounds)
-    robust_coeff = None #datasets.get_robust_coeff(models, request)
+    robust_coeff = datasets.get_robust_coeff(models, request)
     #print(robust_coeff)
 
     ##### Optimizing #####

@@ -1,10 +1,8 @@
 time(nTraces, time) :-
-    nTraces in [0.99, 20.79], time is 5.05 + 0.59 * nTraces.
+    nTraces in [0.99, 33.99], time is 5.00 + 0.62 * nTraces.
 time(nTraces, time) :-
-    nTraces in [20.79, 40.6], time is 2.27 + 0.71 * nTraces.
+    nTraces in [67.00, 100.00], time is 9.91 + 0.54 * nTraces.
 time(nTraces, time) :-
-    nTraces in [40.6, 60.4], time is 12.13 + 0.47 * nTraces.
+    nTraces in [56.0, 67.00], time is 1.42 + 0.67 * nTraces.
 time(nTraces, time) :-
-    nTraces in [60.4, 80.20], time is 9.31 + 0.54 * nTraces.
-time(nTraces, time) :-
-    nTraces in [80.20, 100.00], time is 9.81 + 0.54 * nTraces.
+    nTraces in [33.99, 56.0], time is 13.70 + 0.44 * nTraces.

@@ -3,52 +3,79 @@
 \Problem name: HADA
 
 Minimize
- obj: [ 2 b_pc*pc_memory ]/2
+ obj: [ 2 b_pc*pc_sol ]/2
 Subject To
  nTraces_integrality_constraint: nTraces - auxiliary_nTraces = 0
- load_std_input_variable_constraint: load_std = 164.587558829592
- load_mean_input_variable_constraint: load_mean = 315.028125000000
- pv_std_input_variable_constraint: pv_std = 273.895336158305
- pv_mean_input_variable_constraint: pv_mean = 266.506250000000
+ load_std_input_variable_constraint: load_std = 167
+ load_mean_input_variable_constraint: load_mean = 314
+ pv_std_input_variable_constraint: pv_std = 276
+ pv_mean_input_variable_constraint: pv_mean = 268
  hw_selection: b_pc = 1
  one_rule_memory_pc: var_then_pc_memory_0 + var_then_pc_memory_1
                      + var_then_pc_memory_2 + var_then_pc_memory_3 = 1
+ one_rule_time_pc: var_then_pc_time_0 + var_then_pc_time_1 + var_then_pc_time_2
+                   + var_then_pc_time_3 = 1
+ one_rule_sol_pc: var_then_pc_sol_0 = 1
  ub_nTraces_0_0_memory_pc: var_if_pc_memory_nTraces_0_0 = 1 -> nTraces <= 
-                           29.500000000000
+                           25.740000000000
+ lb_nTraces_0_0_memory_pc: var_if_pc_memory_nTraces_0_0 = 1 -> nTraces >= 
+                           0.990000000000
  sum_int_0_0_memory_pc: var_then_pc_memory_0 = 1 -> var_if_pc_memory_nTraces_0_0
                          = 1
- _expression_0_0_memory_pc: var_then_pc_memory_0 = 1 -> pc_memory = 
-                            87.200000000000
- ub_nTraces_1_0_memory_pc: var_if_pc_memory_nTraces_1_0 = 1 -> nTraces >= 
-                           99.500000000000
- ub_nTraces_1_1_memory_pc: var_if_pc_memory_nTraces_1_1 = 1 -> nTraces >= 
-                           29.500000000000
- sum_int_1_1_memory_pc: var_then_pc_memory_1 = 1 -> var_if_pc_memory_nTraces_1_0
-                        + var_if_pc_memory_nTraces_1_1 = 2
- _expression_1_0_memory_pc: var_then_pc_memory_1 = 1 -> pc_memory = 
-                            96.970000000000
+ _expression_0_0_memory_pc: var_then_pc_memory_0 = 1 -> pc_memory
+                            - 0.100000000000 nTraces = 82.770000000000
+ ub_nTraces_1_0_memory_pc: var_if_pc_memory_nTraces_1_0 = 1 -> nTraces <= 
+                           50.500000000000
+ lb_nTraces_1_0_memory_pc: var_if_pc_memory_nTraces_1_0 = 1 -> nTraces >= 
+                           25.740000000000
+ sum_int_1_0_memory_pc: var_then_pc_memory_1 = 1 -> var_if_pc_memory_nTraces_1_0
+                         = 1
+ _expression_1_0_memory_pc: var_then_pc_memory_1 = 1 -> pc_memory
+                            - 0.110000000000 nTraces = 82.680000000000
  ub_nTraces_2_0_memory_pc: var_if_pc_memory_nTraces_2_0 = 1 -> nTraces <= 
-                           30.500000000000
- ub_nTraces_2_1_memory_pc: var_if_pc_memory_nTraces_2_1 = 1 -> nTraces >= 
-                           29.500000000000
- ub_nTraces_2_2_memory_pc: var_if_pc_memory_nTraces_2_2 = 1 -> nTraces <= 
-                           99.500000000000
- sum_int_2_2_memory_pc: var_then_pc_memory_2 = 1 -> var_if_pc_memory_nTraces_2_0
-                        + var_if_pc_memory_nTraces_2_1
-                        + var_if_pc_memory_nTraces_2_2 = 3
- _expression_2_0_memory_pc: var_then_pc_memory_2 = 1 -> pc_memory = 
-                            94.730000000000
- ub_nTraces_3_0_memory_pc: var_if_pc_memory_nTraces_3_0 = 1 -> nTraces >= 
-                           29.500000000000
- ub_nTraces_3_1_memory_pc: var_if_pc_memory_nTraces_3_1 = 1 -> nTraces <= 
-                           99.500000000000
- ub_nTraces_3_2_memory_pc: var_if_pc_memory_nTraces_3_2 = 1 -> nTraces >= 
-                           30.500000000000
- sum_int_3_2_memory_pc: var_then_pc_memory_3 = 1 -> var_if_pc_memory_nTraces_3_0
-                        + var_if_pc_memory_nTraces_3_1
-                        + var_if_pc_memory_nTraces_3_2 = 3
- _expression_3_0_memory_pc: var_then_pc_memory_3 = 1 -> pc_memory = 
-                            90.100316000000
+                           75.250000000000
+ lb_nTraces_2_0_memory_pc: var_if_pc_memory_nTraces_2_0 = 1 -> nTraces >= 
+                           50.500000000000
+ sum_int_2_0_memory_pc: var_then_pc_memory_2 = 1 -> var_if_pc_memory_nTraces_2_0
+                         = 1
+ _expression_2_0_memory_pc: var_then_pc_memory_2 = 1 -> pc_memory
+                            - 0.040000000000 nTraces = 83.470000000000
+ ub_nTraces_3_0_memory_pc: var_if_pc_memory_nTraces_3_0 = 1 -> nTraces <= 100
+ lb_nTraces_3_0_memory_pc: var_if_pc_memory_nTraces_3_0 = 1 -> nTraces >= 
+                           75.250000000000
+ sum_int_3_0_memory_pc: var_then_pc_memory_3 = 1 -> var_if_pc_memory_nTraces_3_0
+                         = 1
+ _expression_3_0_memory_pc: var_then_pc_memory_3 = 1 -> pc_memory
+                            - 0.070000000000 nTraces = 81.940000000000
+ ub_nTraces_0_0_time_pc: var_if_pc_time_nTraces_0_0 = 1 -> nTraces <= 
+                         33.990000000000
+ lb_nTraces_0_0_time_pc: var_if_pc_time_nTraces_0_0 = 1 -> nTraces >= 
+                         0.990000000000
+ sum_int_0_0_time_pc: var_then_pc_time_0 = 1 -> var_if_pc_time_nTraces_0_0 = 1
+ _expression_0_0_time_pc: var_then_pc_time_0 = 1 -> pc_time
+                          - 0.620000000000 nTraces = 5
+ ub_nTraces_1_0_time_pc: var_if_pc_time_nTraces_1_0 = 1 -> nTraces <= 100
+ lb_nTraces_1_0_time_pc: var_if_pc_time_nTraces_1_0 = 1 -> nTraces >= 67
+ sum_int_1_0_time_pc: var_then_pc_time_1 = 1 -> var_if_pc_time_nTraces_1_0 = 1
+ _expression_1_0_time_pc: var_then_pc_time_1 = 1 -> pc_time
+                          - 0.540000000000 nTraces = 9.910000000000
+ ub_nTraces_2_0_time_pc: var_if_pc_time_nTraces_2_0 = 1 -> nTraces <= 67
+ lb_nTraces_2_0_time_pc: var_if_pc_time_nTraces_2_0 = 1 -> nTraces >= 56
+ sum_int_2_0_time_pc: var_then_pc_time_2 = 1 -> var_if_pc_time_nTraces_2_0 = 1
+ _expression_2_0_time_pc: var_then_pc_time_2 = 1 -> pc_time
+                          - 0.670000000000 nTraces = 1.420000000000
+ ub_nTraces_3_0_time_pc: var_if_pc_time_nTraces_3_0 = 1 -> nTraces <= 56
+ lb_nTraces_3_0_time_pc: var_if_pc_time_nTraces_3_0 = 1 -> nTraces >= 
+                         33.990000000000
+ sum_int_3_0_time_pc: var_then_pc_time_3 = 1 -> var_if_pc_time_nTraces_3_0 = 1
+ _expression_3_0_time_pc: var_then_pc_time_3 = 1 -> pc_time
+                          - 0.440000000000 nTraces = 13.700000000000
+ _expression_0_0_sol_pc: var_then_pc_sol_0 = 1 -> pc_sol
+                         + 0.250000000000 nTraces + 1.840000000000 pv_mean
+                         - 2.540000000000 pv_std - 1.250000000000 load_mean
+                         - 4.200000000000 load_std = -934.800000000000
+ user_constraint_memory_pc: b_pc = 1 -> pc_memory <= 349.887787693529
+ user_constraint_time_pc: b_pc = 1 -> pc_time <= 198.719534016086
 
 Bounds
  0 <= b_pc <= 1
@@ -59,26 +86,33 @@ Bounds
        load_mean <= 400
  150 <= load_std <= 200
        pc_memory <= 500
+ -100 <= pc_time <= 500
+ -10000 <= pc_sol <= 10000
  0 <= var_then_pc_memory_0 <= 1
  0 <= var_if_pc_memory_nTraces_0_0 <= 1
  0 <= var_then_pc_memory_1 <= 1
  0 <= var_if_pc_memory_nTraces_1_0 <= 1
- 0 <= var_if_pc_memory_nTraces_1_1 <= 1
  0 <= var_then_pc_memory_2 <= 1
  0 <= var_if_pc_memory_nTraces_2_0 <= 1
- 0 <= var_if_pc_memory_nTraces_2_1 <= 1
- 0 <= var_if_pc_memory_nTraces_2_2 <= 1
  0 <= var_then_pc_memory_3 <= 1
  0 <= var_if_pc_memory_nTraces_3_0 <= 1
- 0 <= var_if_pc_memory_nTraces_3_1 <= 1
- 0 <= var_if_pc_memory_nTraces_3_2 <= 1
+ 0 <= var_then_pc_time_0 <= 1
+ 0 <= var_if_pc_time_nTraces_0_0 <= 1
+ 0 <= var_then_pc_time_1 <= 1
+ 0 <= var_if_pc_time_nTraces_1_0 <= 1
+ 0 <= var_then_pc_time_2 <= 1
+ 0 <= var_if_pc_time_nTraces_2_0 <= 1
+ 0 <= var_then_pc_time_3 <= 1
+ 0 <= var_if_pc_time_nTraces_3_0 <= 1
+ 0 <= var_then_pc_sol_0 <= 1
 
 Binaries
  b_pc var_then_pc_memory_0 var_if_pc_memory_nTraces_0_0 var_then_pc_memory_1
- var_if_pc_memory_nTraces_1_0 var_if_pc_memory_nTraces_1_1 var_then_pc_memory_2
- var_if_pc_memory_nTraces_2_0 var_if_pc_memory_nTraces_2_1
- var_if_pc_memory_nTraces_2_2 var_then_pc_memory_3 var_if_pc_memory_nTraces_3_0
- var_if_pc_memory_nTraces_3_1 var_if_pc_memory_nTraces_3_2
+ var_if_pc_memory_nTraces_1_0 var_then_pc_memory_2 var_if_pc_memory_nTraces_2_0
+ var_then_pc_memory_3 var_if_pc_memory_nTraces_3_0 var_then_pc_time_0
+ var_if_pc_time_nTraces_0_0 var_then_pc_time_1 var_if_pc_time_nTraces_1_0
+ var_then_pc_time_2 var_if_pc_time_nTraces_2_0 var_then_pc_time_3
+ var_if_pc_time_nTraces_3_0 var_then_pc_sol_0
 
 Generals
  nTraces

@@ -6,7 +6,7 @@ from io import StringIO
 from urllib.parse import urljoin
 import pandas as pd
 from core.optimization_request import OptimizationRequest
-
+from core.logic_models import LogicModels
 
 class Datasets(ABC):
     """Class that handles all the operations on the datasets."""
@@ -111,9 +111,10 @@ class Datasets(ABC):
                     all_maxes_per_var[var].append(dataset[var].max())
 
             for var in lb_missing_vars:
-                lb_per_var[var] = min(all_mins_per_var[var]).item()
+                lb_per_var[var] = min(all_mins_per_var[var])
+                #lb_per_var[var] = min(all_mins_per_var[var]).item()
             for var in ub_missing_vars:
-                ub_per_var[var] = max(all_maxes_per_var[var]).item()
+                ub_per_var[var] = max(all_maxes_per_var[var])
 
             # checking that dtypes of variables are compatible with the bounds
             type_per_var = self.db.get_type_per_var(algorithm)
@@ -173,9 +174,8 @@ class Datasets(ABC):
                         robust_coeff[(hw, "price")] = 0
                     else: 
                         dataset = self.get_dataset(request.algorithm, hw)
-                        model = models.get_model(request.algorithm, hw, target)
-
-                        dataset[f'{target}_pred'] = model.predict(dataset[hyperparams+input_vars].values)#col for col in dataset.columns if 'var' in col
+                        rules = models.get_rules(request.algorithm, hw, target)
+                        dataset[f'{target}_pred'] = LogicModels.predict(rules, dataset[hyperparams+input_vars])#col for col in dataset.columns if 'var' in col
                         dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
                         robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
             return robust_coeff

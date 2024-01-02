@@ -6,7 +6,7 @@ import os
 import re
 import copy
 
-
+import numpy as np
 
 
 class LogicModels():
@@ -193,7 +193,7 @@ class LogicModels():
 
 
     def get_rules_new(self, algorithm, hw, target):
-        """Returns the logic rules for GridEx and CReEPy
+        """Returns the logic rules for GridEx, GridREx CReEPy and CART
            called by get_rules()
         """
         rules_path = self.__get_rules_path(algorithm, hw, target)
@@ -225,7 +225,9 @@ class LogicModels():
                 if_constraint = {"var": [], "value": [], "type": []}
                 if " is " in line:
                     then_constraint = {"var": [], "value": [], "type": ["=="]}
-                    line, expression = line.split(', ' + target + ' is ')
+                    #line, expression = line.split(', ' + target + ' is ')
+                    line, expression = line.split( ' '+target + ' is ')
+                    line = line.strip()
                     then_constraint["var"].append(target)
                     then_constraint["value"].append(expression.strip()[0:-1])
                 if "[" in line:#intervals
@@ -282,6 +284,15 @@ class LogicModels():
         return rules
 
     def reduce_domain(self, rules):
+        """
+        reduces the domain in which each rule is true, avoiding intersections,
+        rules that
+        Args:
+            rules: logic rules from get_rules
+
+        Returns: new_logic rules with no intersections
+
+        """
         new_rules = []
         if self.rules_name == "CReEPy":
             new_rules.append(copy.deepcopy(rules[0]))
@@ -344,12 +355,106 @@ class LogicModels():
                                 new_rule["if"]["type"].append("<=")
                             break  # only one
                 new_rules.append(new_rule)
-        if self.rules_name == "GridREx" or self.rules_name == "GridEx":
+
+            for rule in new_rules:
+                vars = rule["if"]["var"]
+                values = rule["if"]["value"]
+                types = rule["if"]["type"]
+                up_bounds = {}
+                lw_bounds = {}
+                for i in range(len(vars)):
+                    var = vars[i]
+                    value = values[i]
+                    type = types[i]
+                    if type == "<=" or type == "<":
+                        if var in up_bounds.keys():
+                            if value <= up_bounds[var]:
+                                up_bounds[var] = value
+                        else:
+                            up_bounds[var] = value
+                    if type == ">=" or type == ">":
+                        if var in lw_bounds.keys():
+                            if value >= lw_bounds[var]:
+                                lw_bounds[var] = value
+                        else:
+                            lw_bounds[var] = value
+                new_if = {}
+                new_if["var"] = []
+                new_if["type"] = []
+                new_if["value"] = []
+                for var in lw_bounds.keys():
+                    new_if["var"].append(var)
+                    new_if["value"].append(lw_bounds[var])
+                    new_if["type"].append(">=")
+                for var in up_bounds.keys():
+                    new_if["var"].append(var)
+                    new_if["value"].append(up_bounds[var])
+                    new_if["type"].append("<=")
+                rule["if"] = new_if
+        if self.rules_name == "GridREx" or self.rules_name == "GridEx":  #no intersections already
             new_rules = rules
 
         return new_rules
 
+    @staticmethod
+    def predict(rules, data):
+        """
+            predicts value of target
+            Args:
+                rules: logic rules from get_rules, the rules define the model
+                data: pandas.DataFrame with the input vars as columns and the instances as rows
 
+            Returns: numpy array containing the results
+
+        """
+        results = np.zeros(data.shape[0])
+        count = 0
+        for index, row in data.iterrows():
+            for rule in rules:
+                all_conditions = True
+                for condition in range(len(rule["if"]["var"])):
+                    var = rule["if"]["var"][condition]
+                    type = rule["if"]["type"][condition]
+                    value = rule["if"]["value"][condition]
+                    if type == "<":
+                        if row[var] >= value:
+                            all_conditions = False
+                            break
+                    if type == "<=":
+                        if row[var] > value:
+                            all_conditions = False
+                            break
+                    if type == ">":
+                        if row[var] <= value:
+                            all_conditions = False
+                            break
+                    if type == ">=":
+                        if row[var] < value:
+                            all_conditions = False
+                            break
+                    if type == "range":
+                        if row[var] < value[0] or row[var] > value[1]:
+                            all_conditions = False
+                            break
+                if all_conditions:
+                    # the rule is true and we assign the result
+                    var_dict = {}
+                    for var in data.columns.values.tolist():
+                        var_dict[var] = row[var]
+                    value = rule["then"]["value"][0]
+                    count += 1
+                    if isinstance(value, int):
+                        results[index] = value
+                    else:
+                        res =  eval(value, var_dict)
+                        results[index] = res
+                    break
+
+            if count != index + 1:
+                #if no rule is true
+                results[index] = np.nan
+                count = index + 1
+        return results
 
 def get_linear_expression(s: str):
     """

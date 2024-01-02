@@ -6,17 +6,30 @@ if __name__ == '__main__':
 
     # db = ConfigDB(path)
     # db = ConfigDB.from_remote('http://localhost:5333')
+    algorithm = 'anticipate'
+    if algorithm == 'anticipate':
+        param = "nScenarios"
+    else:
+        param = "nTraces"
     db = ConfigDB.from_local('./algorithms/configs')
-    lr = LogicModels(db, "algorithms/logic_rules", 'CART')
-    rules = lr.get_rules('anticipate', 'pc', 'memory')
+    lr = LogicModels(db, "algorithms/logic_rules", 'GridREx')
+    rules = lr.get_rules(algorithm, 'pc', 'memory')
     #print(rules)
     for rule in rules:
         print(rule)
+    print("reducing domain")
     new_rules = lr.reduce_domain(rules)
     print("new rules")
+
+
     for rule in new_rules:
         print(rule)
-
+    exit(0)
+    dt = pd.read_csv(f'algorithms/data/{algorithm}_pc.csv')
+    input = dt[["load_mean", "load_std", param, "pv_mean", "pv_std"]]
+    output = lr.predict(new_rules, dt)
+    print(output)
+    print(len(output))
 
 
 
