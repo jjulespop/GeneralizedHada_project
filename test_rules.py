@@ -7,13 +7,14 @@ if __name__ == '__main__':
     # db = ConfigDB(path)
     # db = ConfigDB.from_remote('http://localhost:5333')
     algorithm = 'anticipate'
+    target = 'sol'
     if algorithm == 'anticipate':
         param = "nScenarios"
     else:
         param = "nTraces"
     db = ConfigDB.from_local('./algorithms/configs')
-    lr = LogicModels(db, "algorithms/logic_rules", 'GridREx')
-    rules = lr.get_rules(algorithm, 'pc', 'memory')
+    lr = LogicModels(db, "algorithms/logic_rules", 'CART')
+    rules = lr.get_rules(algorithm, 'pc', target)
     #print(rules)
     for rule in rules:
         print(rule)
@@ -24,14 +25,17 @@ if __name__ == '__main__':
 
     for rule in new_rules:
         print(rule)
-    exit(0)
+    #exit(0)
     dt = pd.read_csv(f'algorithms/data/{algorithm}_pc.csv')
     input = dt[["load_mean", "load_std", param, "pv_mean", "pv_std"]]
     output = lr.predict(new_rules, dt)
     print(output)
     print(len(output))
-
-
+    print((dt[target] - output).abs().mean())
+    """errors{"sol": {"gridrex": , "gridex": , "cart":, "creepy": }, 
+    "memory": {"gridrex": , "gridex": , "cart":, "creepy": }, 
+    time{"gridrex": , "gridex": , "cart":, "creepy": } }
+    """
 
     #rules = lr.get_rules_new('contingency', 'pc', 'sol')
     #print(rules)

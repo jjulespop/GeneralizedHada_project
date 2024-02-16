@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
-    robustness_factor = 0.9 #None
+    robustness_factor = 0.9
     request = OptimizationRequest(db, algorithm, objective, inputs, 'min', robustness_factor, user_constraints,
                                                   hws_prices)
     ##### Handling datasets and models #####

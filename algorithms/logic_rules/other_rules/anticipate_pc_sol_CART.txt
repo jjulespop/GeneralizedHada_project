@@ -1,7 +1,0 @@
-sol(load_mean, load_std, pv_mean, pv_std, nScenarios, 321.44) :-
-    nScenarios > 44.5, nScenarios =< 73.5.
-sol(load_mean, load_std, pv_mean, pv_std, nScenarios, 294.10) :-
-    nScenarios > 44.5, nScenarios > 73.5.
-sol(load_mean, load_std, pv_mean, pv_std, nScenarios, 370.49) :-
-    nScenarios =< 30.5.
-sol(load_mean, load_std, pv_mean, pv_std, nScenarios, 342.173846).

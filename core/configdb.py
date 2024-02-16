@@ -303,3 +303,7 @@ class ConfigDB():
         except AttributeError as e:
             print(f'Error in config ({algorithm}, {hw})')
             raise e
+
+        except AttributeError as e:
+            print(f'Error in config ({algorithm}, {hw})')
+            raise e

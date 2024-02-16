@@ -1,4 +1,0 @@
-memory(nScenarios, memory) :-
-    nScenarios in [9.99, 100.00], memory is 91.14 + 2.51 * nScenarios.
-memory(nScenarios, memory) :-
-    nScenarios in [0.99, 100.00], memory is 62.89 + 4.54 * nScenarios.

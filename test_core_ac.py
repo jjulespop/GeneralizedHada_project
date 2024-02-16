@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
-    algorithm ='contingency' # 'anticipate' #
+    algorithm = 'anticipate' #'contingency' #
     rule_type = 'GridREx'
     models = LogicModels(db,  models_path, rule_type)
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
     
-    robustness_factor = 0.9
+    robustness_factor = 0.2
 
     request = OptimizationRequest(db, algorithm, 'sol', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     # extracting info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
     #print(var_bounds)
-    robust_coeff = datasets.get_robust_coeff(models, request)
+    robust_coeff =  datasets.get_robust_coeff(models, request)
     print(robust_coeff)
 
     ##### Optimizing #####
@@ -59,3 +59,5 @@ if __name__ == '__main__':
     solution = HADA(db, request, models, var_bounds, robust_coeff)
     print("solution")
     print(solution)
+    data = datasets.get_dataset(algorithm, "pc")
+    rules = models.get_rules(algorithm, "pc", "sol")

@@ -1,9 +1,0 @@
-sol(load_mean, load_std, pv_mean, pv_std, nTraces, sol) :-
-    pv_mean in [251.43, 277.45], pv_std in [260.01, 283.33], load_mean in [299.34, 328.87], load_std in [157.50, 170.76], nTraces in [0.99, 100.00], sol is -432.08 + -5.56 * load_mean + 3.38 * load_std + 3.44 * pv_mean + 1.56 * pv_std + -0.22 * nTraces.
-sol(load_mean, load_std, pv_mean, pv_std, nTraces, sol) :-
-    pv_mean in [251.43, 281.42], pv_std in [260.01, 290.06], load_mean in [299.34, 332.16], load_std in [157.50, 173.09], nTraces in [0.99, 100.00], sol is -2684.26 + 17.30 * load_mean + -14.18 * load_std + -1.06 * pv_mean + 15.73 * pv_std + -0.28 * nTraces.
-sol(load_mean, load_std, pv_mean, pv_std, nTraces, sol) :-
-    pv_mean in [251.43, 281.42], pv_std in [260.01, 290.06], load_mean in [299.34, 332.16], load_std in [157.50, 176.42], nTraces in [0.99, 100.00], sol is -2151.79 + 30.15 * load_mean + -7.83 * load_std + 14.62 * pv_mean + -47.51 * pv_std + -0.26 * nTraces.
-sol(load_mean, load_std, pv_mean, pv_std, nTraces, sol) :-
-    pv_mean in [251.43, 293.42], pv_std in [260.01, 301.55], load_mean in [299.34, 346.84], load_std in [157.50, 181.20], nTraces in [0.99, 100.00], sol is -932.00 + -3027.46 * load_mean + 965.39 * load_std + 2450.70 * pv_mean + -1386.79 * pv_std + -0.49 * nTraces.
-

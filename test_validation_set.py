@@ -34,11 +34,12 @@ if __name__ == '__main__':
     #bounds = {"time": [None], 'memory': [None], 'sol': [None]}
     #bounds = {"sol": [250, 314,   340,  363, 393, 538], 'memory': [59, 87, 88, 141, 241, 343], 'time': [1,  22, 41, 59, 151, 349]}
     #bounds = {"sol": [250, 314, 340, 363, 393, 538], 'memory': [59, 87, 88, 141, 241, 343],       'time': [1, 22, 41, 59, 151, 349]}
-    bounds = {"sol": [250, 314, 340, 363, 393, None], 'memory': [59, 87, 88, 141, 241, None],
-              'time': [1, 22, 41, 59, 151, None]}
+    #bounds = {"sol": [250, 314, 340, 363, 393, None], 'memory': [59, 87, 88, 141, 241, None], 'time': [1, 22, 41, 59, 151, None]}
+    bounds = {"sol": [250, 313, 339, 362, 392, None], 'memory': [59, 86, 87, 140, 241, None],
+              'time': [1, 21, 40, 58, 150, None]}
     db = ConfigDB.from_local(configs_path)
-    targets = db.get_targets('anticipate')
-    targets.pop()#removes price
+    #targets = db.get_targets('anticipate')
+    #targets.pop()#removes price
     targets = ['sol', 'time', 'memory']
     for algorithm in ['anticipate', 'contingency']:
         for objective in targets:

@@ -31,144 +31,9 @@ class LogicModels():
 
 
 
-    def get_rules_GridREx(self, algorithm, hw, target):
-        """Returns the logic rules for GridREx and CReEPy
-           called by get_rules()
-        """
-        rules_path = self.__get_rules_path(algorithm, hw, target)
-
-        if not os.path.exists(rules_path):
-            raise Exception(f'logic_rules for ({algorithm}, {hw}, {target}) not available')
-        with open(rules_path, "r") as file:
-            lines = file.readlines()
-        rules=[]
-        for index, line in enumerate(lines):
-            if index % 2 == 1:
-                interval = {}
-                if_constraint = {"var": [], "value": [], "type": []}
-                then_constraint = {"var": [], "value": [], "type": ["=="]}
-                first, expression = line.split(', '+target+' is ')
-                if_parts = first.split('],')
-                for i, part in enumerate(if_parts):
-                    if i != len(if_parts)-1 :
-                        part = part + "]"
-                    var, interval_s = part.split(' in ')
-                    var = var.strip()
-                    if_constraint["var"].append(var)
-                    var_interval = ast.literal_eval(interval_s)
-                    if_constraint["value"].append(var_interval)
-                    if_constraint["type"].append("range")
-                then_constraint["var"].append(target)
-                then_constraint["value"].append(expression.strip()[0:-1])
-                rule = {"if": if_constraint, "then": then_constraint}
-                rules.append(rule)
-        return rules
-
-    def get_rules_GridEx(self, algorithm, hw, target):
-        """Returns the logic rules for GridEx
-           called by get_rules()
-        """
-        rules_path = self.__get_rules_path(algorithm, hw, target)
-
-        if not os.path.exists(rules_path):
-            raise Exception(f'logic_rules for ({algorithm}, {hw}, {target}) not available')
-        with open(rules_path, "r") as file:
-            lines = file.readlines()
-        rules=[]
-        if algorithm == 'anticipate':
-            hyperpar = 'nScenarios'
-        else:
-            hyperpar = 'nTraces'
-
-        for index, line in enumerate(lines):
-            if index % 2 == 1:
-                interval = {}
-                if_constraint = {"var": [], "value": [], "type": []}
-                if_parts = re.split('][.,]', line)
-                #print(if_parts)
-                for i, part in enumerate(if_parts):
-                    if i != len(if_parts)-1 :
-                        part = part + "]"
-                    if len(part) < 2:
-                        continue
-                    var, interval_s = part.split(' in ')
-                    var = var.strip()
-                    if_constraint["var"].append(var)
-                    var_interval = ast.literal_eval(interval_s)
-                    interval[var] = var_interval
-                    if_constraint["value"].append(var_interval)
-                    if_constraint["type"].append("range")
-                rule = {"if": if_constraint, "then": then_constraint}
-                rules.append(rule)
-            else:
-                then_constraint = {"var": [], "value": [], "type": ["=="]}
-                then_constraint["var"].append(target)
-                first, expression = line.split(hyperpar+',')
-                expression , _ = expression.split(')')
-                then_constraint["value"].append(expression.strip())
-        return rules
-
-    def get_rules_CART(self, algorithm, hw, target):
-        """ Returns the logic rules for CART
-           called by get_rules().
-        """
-        rules_path = self.__get_rules_path(algorithm, hw, target)
-        #print(rules_path)
-        if not os.path.exists(rules_path):
-            raise Exception(f'logic_rules for ({algorithm}, {hw}, {target}) not available')
-        with open(rules_path, "r") as file:
-            lines = file.readlines()
-        rules = []
-        if algorithm == 'anticipate':
-            hyperpar = 'nScenarios'
-        else:
-            hyperpar = 'nTraces'
-
-        for index, line in enumerate(lines):
-            if index % 2 == 1:
-                if_constraint = {"var": [], "value": [], "type": []}
-                if_parts = re.split(',', line)
-                # print(if_parts)
-                for i, part in enumerate(if_parts):
-                    if i == len(if_parts) - 1:
-                        part = part[0: -2]
-                    if len(part) < 2:
-                        continue
-                    if '=<' in part:
-                        con_type = '<='
-                    else:
-                        if '=>' in part:
-                            con_type = '>='
-                        else:
-                            if '<' in part:
-                                con_type = '<'
-                            else:
-                                if '>' in part:
-                                    con_type = '>'
-
-                    var, value_s = re.split('[=]*[<>]', part)
-                    var = var.strip()
-                    if_constraint["var"].append(var)
-                    if_constraint["value"].append(eval(value_s.strip()))
-                    if_constraint["type"].append(con_type)
-                rule = {"if": if_constraint, "then": then_constraint}
-                rules.append(rule)
-            else:
-                then_constraint = {"var": [], "value": [], "type": ["=="]}
-                then_constraint["var"].append(target)
-                first, expression = line.split(hyperpar + ',')
-                expression, _ = expression.split(')')
-                then_constraint["value"].append(expression.strip())
-        if index %2 == 0:
-            rule = {"if": {"var": [], "value": [], "type": []}, "then": then_constraint}
-            rules.append(rule)
-        return rules
-
-
     def get_rules(self, algorithm, hw, target):
-        """Returns the logic rules.
-
-        Args:
+        """Returns the logic rules for GridEx, GridREx CReEPy and CART
+           Args:
             algorithm (str): algorithm id.
             hw (str): hardware platform id
             target (str): target id.
@@ -179,23 +44,7 @@ class LogicModels():
         Returns:
             logic_rules  [{'if': {'var': [...], 'type': ['range'], value:[[lb, up], ...]} ,  'then':{'var': [...], 'type': ['=='], value:[expr, ...]} }, ...]
         """
-        return self.get_rules_new(algorithm, hw, target)
-        '''
-        if self.rules_name == 'GridREx' or self.rules_name == 'CReEPy':
-            return self.get_rules_GridREx( algorithm, hw, target)
-        if self.rules_name == 'GridEx':
-            return self.get_rules_GridEx( algorithm, hw, target)
-        if self.rules_name == 'CART':
-            return self.get_rules_CART( algorithm, hw, target)'''
 
-
-
-
-
-    def get_rules_new(self, algorithm, hw, target):
-        """Returns the logic rules for GridEx, GridREx CReEPy and CART
-           called by get_rules()
-        """
         rules_path = self.__get_rules_path(algorithm, hw, target)
 
         if not os.path.exists(rules_path):
@@ -355,7 +204,7 @@ class LogicModels():
                                 new_rule["if"]["type"].append("<=")
                             break  # only one
                 new_rules.append(new_rule)
-
+            #print(new_rules)
             for rule in new_rules:
                 vars = rule["if"]["var"]
                 values = rule["if"]["value"]

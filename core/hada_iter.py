@@ -49,68 +49,42 @@ def HADA(db: ConfigDB,
     var_type = db.get_type_per_var(request.algorithm)
     var_type['price'] = 'float'
     var_type = {var : cplex_type[var_type[var]] for var in var_type.keys()}
-
+    for var, bounds in var_bounds.items():
+        if bounds['ub'] == float('inf'):
+            var_bounds[var]['ub'] = mdl.infinity
+        if bounds["lb"] == float('-inf'):
+            var_bounds[var]["lb"] = -mdl.infinity
     ####### VARIABLES #######
     # A binary variable for each hw, specifying whether this hw is selected or not
     for hw in hws:
         mdl.binary_var(name = f"b_{hw}")
 
-    ml_var = {}
 
     # A variable for each hyperparameter, whose type matches the hyperparameter's type
-    # If the hyperparameter is non-continuous, it also requires an auxiliary continuous variable and 
-    # an integrality constraint: the auxiliary variable is used as input to the predictive models (emllib 
-    # accepts only continuous variables), the integrality (equality) constraint is used to convert the 
-    # auxiliary variable back into the binary/integer one
     for hyperparam in hyperparams:
         mdl.var(name = hyperparam, 
                 vartype = var_type[hyperparam],
                 lb = var_bounds[hyperparam]['lb'],
                 ub = var_bounds[hyperparam]['ub'])
-        ml_var[hyperparam] = hyperparam
-        if var_type[hyperparam] != mdl.continuous_vartype:
-            mdl.var(name = f"auxiliary_{hyperparam}", 
-                    vartype = mdl.continuous_vartype,
-                    lb = var_bounds[hyperparam]['lb'],
-                    ub = var_bounds[hyperparam]['ub'])
-            mdl.add_constraint(mdl.get_var_by_name(hyperparam) == mdl.get_var_by_name(f"auxiliary_{hyperparam}"), ctname = f"{hyperparam}_integrality_constraint")
-            ml_var[hyperparam] = f'auxiliary_{hyperparam}'
 
     for input_var in input_vars:
         mdl.var(name = input_var,
                 vartype = var_type[input_var],
                 lb = var_bounds[input_var]['lb'],
                 ub = var_bounds[input_var]['ub'])
-        ml_var[input_var] = input_var
-        if var_type[input_var] != mdl.continuous_vartype:
-            mdl.var(name = f"auxiliary_{input_var}",
-                    vartype = mdl.continuous_vartype,
-                    lb = var_bounds[input_var]['lb'],
-                    ub = var_bounds[input_var]['ub'])
-            mdl.add_constraint(mdl.get_var_by_name(input_var) == mdl.get_var_by_name(f"auxiliary_{input_var}"), ctname = f"{input_var}_integrality_constraint")
-            ml_var[input_var] = f'auxiliary_{input_var}'
 
 
     #constraints for input variables
     for input_var in request.inputs.get_inputs().keys():
         mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
-    # A variable for each target and hw, whose type matches the target's type. 
-    # Also in this case, if the target is non-continuous, it requires auxiliary variables and constraints
+    # A variable for each target and hw, whose type matches the target's type.
     for target in targets:
         for hw in hws:
             mdl.var(name = f"{hw}_{target}", 
                     vartype = var_type[target],
                     lb = var_bounds[target]['lb'],
                     ub = var_bounds[target]['ub'])
-            ml_var[f'{hw}_{target}'] = f'{hw}_{target}'
-            if var_type[target] != mdl.continuous_vartype:
-                mdl.var(name = f"auxiliary_{hw}_{target}", 
-                    vartype = mdl.continuous_vartype,
-                    lb = var_bounds[target]['lb'],
-                    ub = var_bounds[target]['ub'])
-                mdl.add_constraint(mdl.get_var_by_name(f'{hw}_{target}') == mdl.get_var_by_name(f"auxiliary_{hw}_{target}"), ctname = f"{hw}_{target}_integrality_constraint")
-                ml_var[f'{hw}_{target}'] = f'auxiliary_{hw}_{target}'
 
     ####### CONSTRAINTS ######
     # HW Selection Constraint, enabling the selection of a single hw platform
@@ -177,23 +151,23 @@ def HADA(db: ConfigDB,
             for j, var in enumerate(if_con["var"]):
                 if if_con["type"][j] == "range":
                     con1 = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j][1],
-                                              ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                              ctname=f'ub_{var}_rule_{i}_{j}_{target}_{hw}')
                     con0 = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j][0],
-                                              ctname=f'lb_{var}_{i}_{j}_{target}_{hw}')
+                                              ctname=f'lb_{var}_rule_{i}_{j}_{target}_{hw}')
                     last_constraints.append(con0)
                     last_constraints.append(con1)
                 if if_con["type"][j] == ">=" or if_con["type"][j] == ">":
                     con = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j],
-                                             ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                             ctname=f'ub_{var}_rule_{i}_{j}_{target}_{hw}')
                     last_constraints.append(con)
                 if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
                     con = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j],
-                                             ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                             ctname=f'lb_{var}_rule_{i}_{j}_{target}_{hw}')
                     last_constraints.append(con)
 
             then_con = rule["then"]
             for j, var in enumerate(then_con["var"]):
-                if then_con["type"][j] == "==":  # only one in gridrex
+                if then_con["type"][j] == "==":  # only one
                     expression = then_con["value"][j]
                     con = mdl.add_constraint(
                         mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)),
@@ -246,23 +220,23 @@ def HADA(db: ConfigDB,
                     for j, var in enumerate(if_con["var"]):
                         if if_con["type"][j] == "range":
                             con1 = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j][1],
-                                                      ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                                      ctname=f'ub_{var}_rule_{i}_{j}_{target}_{hw}')
                             con0 = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j][0],
-                                                      ctname=f'lb_{var}_{i}_{j}_{target}_{hw}')
+                                                      ctname=f'lb_{var}_rule_{i}_{j}_{target}_{hw}')
                             last_constraints.append(con0)
                             last_constraints.append(con1)
                         if if_con["type"][j] == ">=" or if_con["type"][j] == ">":
                             con = mdl.add_constraint(mdl.get_var_by_name(var) >= if_con["value"][j],
-                                                     ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                                     ctname=f'ub_{var}_rule_{i}_{j}_{target}_{hw}')
                             last_constraints.append(con)
                         if if_con["type"][j] == "<=" or if_con["type"][j] == "<":
                             con = mdl.add_constraint(mdl.get_var_by_name(var) <= if_con["value"][j],
-                                                     ctname=f'ub_{var}_{i}_{j}_{target}_{hw}')
+                                                     ctname=f'lb_{var}_rule_{i}_{j}_{target}_{hw}')
                             last_constraints.append(con)
 
                     then_con = rule["then"]
                     for j, var in enumerate(then_con["var"]):
-                        if then_con["type"][j] == "==":  # only one in gridrex
+                        if then_con["type"][j] == "==":  # only one
                             expression = then_con["value"][j]
                             con = mdl.add_constraint(
                                 mdl.get_var_by_name(f'{hw}_{var}') == eval(get_linear_expression(expression)),
@@ -271,7 +245,8 @@ def HADA(db: ConfigDB,
 
                     logic_constraints[f'{hw}_{target}'] = last_constraints
 
-
+        for target in targets:# if we pass at the next hw we remove all the previus constraints
+            mdl.remove(logic_constraints[f'{hw}_{target}'])
 
     #mdl.export_as_lp('model.lp') #export the model
 

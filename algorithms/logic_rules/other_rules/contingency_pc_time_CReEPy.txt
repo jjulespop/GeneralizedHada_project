@@ -1,4 +1,0 @@
-time(nTraces, time) :-
-    nTraces in [31.99, 100.00], time is 7.80 + 0.56 * nTraces.
-time(nTraces, time) :-
-    nTraces in [0.99, 100.00], time is 5.05 + 0.59 * nTraces.
