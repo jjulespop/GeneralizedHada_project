@@ -32,13 +32,15 @@ if __name__ == '__main__':
     #bounds = {"time": [60, 120, 180, 300, None], 'memory': [100, 200, 300, 350, None], 'sol': [300, 340, 380, 420, None]}
     #bounds = {"sol": [250, 314, 340, 363, 393, 538], 'memory': [59, 87, 88, 141, 241, 343], 'time': [1, 22, 41, 59, 151, 349]}
     #bounds = {"sol": [250, 314, 340, 363, 393, 538], 'memory': [88], 'time': [1, 22, 41, 59, 151, 349]}
-    bounds = {"sol": [250, 314, 340, 363, 393, None], 'memory': [59, 87, 88, 141, 241, None],
-              'time': [1, 22, 41, 59, 151, None]}
+    bounds = {"sol": [250, 314, 340, 363, 393, None], 'memory': [59, 87, 88, 141, 241, None], 'time': [1, 22, 41, 59, 151, None]}
+    #bounds = {"sol": [250, 313, 339, 362, 392, None], 'memory': [59, 86, 87, 140, 241, None], 'time': [1, 21, 40, 58, 150, None]}
+    #bounds = {"sol": [250, 313, 339, 362, 392, None], 'memory': [59, 86, 87, 140, 241, None],
+    #          'time': [1, 21, 40, 58, 150, None]}
     #bounds = {"time": [None], 'memory': [None], 'sol': [None]}
     db = ConfigDB.from_local(configs_path)
-    targets = db.get_targets('anticipate')
-    targets.pop()#removes price
-    targets = ['memory']#to do memory
+    #targets = db.get_targets('anticipate')
+    #targets.pop()#removes price
+    targets = ['sol', 'time', 'memory']
     for algorithm in ['anticipate', 'contingency']:
         for objective in targets:
             new_bounds = bounds.copy()
@@ -55,8 +57,8 @@ if __name__ == '__main__':
                             continue
                         current_bounds[bound_targets[1]] = second_bound"""
                     current_bounds[bound_targets[1]] = second_bound
-                    if first_bound is not None and second_bound is not None:
-                        continue
+                    """if first_bound is not None and second_bound is not None:
+                       continue"""
                     mem_bound = current_bounds["memory"]
                     sol_bound = current_bounds["sol"]
                     time_bound = current_bounds["time"]

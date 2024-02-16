@@ -4,7 +4,6 @@ from core.configdb import ConfigDB
 from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices, Inputs
 from core.datasets import Datasets
 from core.ml_models import MLModels
-
 if __name__ == '__main__':
 
     configs_path = './algorithms/configs'
@@ -20,7 +19,6 @@ if __name__ == '__main__':
     #datasets = Datasets.from_remote(db, storage_ws_url)
 
     models = MLModels(db, datasets, models_path)
-
     print(db.get_type_per_var('toyalg'))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm

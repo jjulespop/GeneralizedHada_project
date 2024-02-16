@@ -6,14 +6,14 @@
         {"ID": "nTraces",  "description": null, "type": "int", "LB": null, "UB": null}
     ],
     "targets": [
-        {"ID": "sol",  "description": null, "LB": 0.0, "UB": 420.0},
-        {"ID": "time",  "description": null, "LB": 0.0, "UB": 230.0},
-        {"ID": "memory",  "description": null, "LB": 0.0, "UB": 350.0}
+        {"ID": "sol",  "description": null, "LB": 0, "UB": Infinity},
+        {"ID": "time",  "description": null, "LB": 0, "UB": Infinity},
+        {"ID": "memory",  "description": null, "LB": 0, "UB": Infinity}
     ],
     "input_vars": [
-       {"ID": "pv_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
-        {"ID": "pv_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0},
-        {"ID": "load_mean",  "description": null, "type": "float", "LB": 0.0, "UB": 400.0},
-        {"ID": "load_std",  "description": null, "type": "float", "LB": 0.0, "UB": 1000.0}
+       {"ID": "pv_mean",  "description": null, "type": "float", "LB": 0, "UB": Infinity},
+        {"ID": "pv_std",  "description": null, "type": "float", "LB": 0, "UB": Infinity},
+        {"ID": "load_mean",  "description": null, "type": "float", "LB": 0, "UB": Infinity},
+        {"ID": "load_std",  "description": null, "type": "float", "LB": 0, "UB": Infinity}
     ]
 }

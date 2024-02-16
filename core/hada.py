@@ -44,6 +44,11 @@ def HADA(db: ConfigDB,
     var_type = db.get_type_per_var(request.algorithm)
     var_type['price'] = 'float'
     var_type = {var : cplex_type[var_type[var]] for var in var_type.keys()}
+    for var, bounds in var_bounds.items():
+        if bounds['ub'] == float('inf'):
+            var_bounds[var]['ub'] = mdl.infinity
+        if bounds["lb"] == float('-inf'):
+            var_bounds[var]["lb"] = -mdl.infinity
 
     ####### VARIABLES #######
     # A binary variable for each hw, specifying whether this hw is selected or not
@@ -92,6 +97,7 @@ def HADA(db: ConfigDB,
 
     # A variable for each target and hw, whose type matches the target's type. 
     # Also in this case, if the target is non-continuous, it requires auxiliary variables and constraints
+    #
     for target in targets:
         for hw in hws:
             mdl.var(name = f"{hw}_{target}", 
@@ -171,7 +177,7 @@ def HADA(db: ConfigDB,
         
     ##### SOLVE #####
     sol = mdl.solve()
-    print(mdl.solve_details)
+    #print(mdl.solve_details)
     solution = None
     if sol:
         for hw in hws:

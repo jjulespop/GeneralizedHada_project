@@ -1,4 +1,7 @@
 import time
+
+import pandas as pd
+
 from core.hada import HADA
 import multiprocessing as mp
 from core.configdb import ConfigDB
@@ -30,30 +33,38 @@ if __name__ == '__main__':
 
     datasets = Datasets.from_local(db, data_path)
     #datasets = Datasets.from_remote(db, storage_ws_url)
-    algorithm = 'contingency' # 'anticipate'#
+    algorithm = 'anticipate'#''contingency' #
     models = MLModels(db, datasets, models_path)
-
+    instance_index = 29
     print(db.get_type_per_var(algorithm))
     ##### Preparing a request #####
     # constraints can be added only for targets available to that algorithm
     user_constraints = UserConstraints(db, algorithm)
-    user_constraints.add_constraint('memory', 'leq', 400)
-    user_constraints.add_constraint('sol', 'leq', 400)
+    user_constraints.add_constraint('memory', 'leq', 200)
+    user_constraints.add_constraint('sol', 'leq', 363)
     user_constraints.add_constraint('sol', 'geq', 50)
-    user_constraints.add_constraint('time', 'leq', 200)
+    user_constraints.add_constraint('time', 'leq', 29)
+
+
     # setting input
     inputs = Inputs(db, algorithm)
-    inputs.add_input('load_std', 167)
+    """inputs.add_input('load_std', 167)
     inputs.add_input('load_mean',  314)
     inputs.add_input('pv_std',  276)
-    inputs.add_input('pv_mean',  268)
+    inputs.add_input('pv_mean',  268)"""
+    validation_set = pd.read_csv("algorithms/data/ValidationSet.csv")
+    instance = validation_set.iloc[instance_index]
+    inputs.add_input('load_std', float(instance['load_std']))
+    inputs.add_input('load_mean', float(instance['load_mean']))
+    inputs.add_input('pv_std', float(instance['pv_std']))
+    inputs.add_input('pv_mean', float(instance['pv_mean']))
     # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
     hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price('pc', 0)
     
-    robustness_factor = 0
+    robustness_factor = 0.9
 
-    request = OptimizationRequest(db, algorithm, 'time', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
+    request = OptimizationRequest(db, algorithm, 'memory', inputs, 'min',  robustness_factor, user_constraints, hws_prices)
 
     #print(request.inputs.get_inputs()["pv_std"])
     #print(request.user_constraints.get_constraints()["memory"])
@@ -77,3 +88,4 @@ if __name__ == '__main__':
     print(solution)
     #print(ex_time)
     #print(ex_memory)
+    #'time': 1.8999999999999488, 'memory': 60.08500000000001, 'sol': 367.685}; num_variables: 2555; num_constraints: 13034

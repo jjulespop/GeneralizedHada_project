@@ -111,9 +111,9 @@ class Datasets(ABC):
                     all_maxes_per_var[var].append(dataset[var].max())
 
             for var in lb_missing_vars:
-                lb_per_var[var] = min(all_mins_per_var[var]).item()
+                lb_per_var[var] = min(all_mins_per_var[var])
             for var in ub_missing_vars:
-                ub_per_var[var] = max(all_maxes_per_var[var]).item()
+                ub_per_var[var] = max(all_maxes_per_var[var])
 
             # checking that dtypes of variables are compatible with the bounds
             type_per_var = self.db.get_type_per_var(algorithm)
