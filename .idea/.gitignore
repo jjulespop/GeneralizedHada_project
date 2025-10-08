@@ -2,4 +2,4 @@
 /shelf/
 /workspace.xml
 **/__pycache__/
-*.bin
+/*.bin
