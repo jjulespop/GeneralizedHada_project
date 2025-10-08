@@ -4,7 +4,7 @@ class OptimizationRequest():
                  db,
                  algorithm,
                  target,
-                 inputs,
+                #  inputs,
                  opt_type,
                  robustness_fact,
                  user_constraints,
@@ -31,11 +31,11 @@ class OptimizationRequest():
             raise AttributeError("User constraints must be specified via UserConstraints class.")
         self.user_constraints = user_constraints
 
-        if not isinstance(inputs, Inputs):
-            raise AttributeError("Input must be specified via Inputs class.")
-        if set(inputs.get_inputs().keys()) != set(db.get_input_vars(algorithm)):
-            raise AttributeError("Must set a value for each input variable.")
-        self.inputs = inputs
+        # if not isinstance(inputs, Inputs):
+        #     raise AttributeError("Input must be specified via Inputs class.")
+        # if set(inputs.get_inputs().keys()) != set(db.get_input_vars(algorithm)):
+        #     raise AttributeError("Must set a value for each input variable.")
+        # self.inputs = inputs
 
         # no user input version; just read from config
         # otherwise we expect prices from user and what's in the configs is only for guidance.

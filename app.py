@@ -3,8 +3,9 @@ import os
 import json
 from flask import Flask, request, session, render_template, jsonify
 from core.configdb import ConfigDB
-from core.datasets import Datasets
+from core.datasets import Datasets, DatasetsLocal
 from core.ml_models import MLModels
+from core.logic_models import LogicModels
 from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
 from core.hada import HADA
 
@@ -21,12 +22,16 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 data_path = 'algorithms/data'
 models_path = 'algorithms/models'
 db = ConfigDB.from_local('algorithms/configs')
-datasets = Datasets.from_local(db, data_path)
+datasets: DatasetsLocal = Datasets.from_local(db, data_path)
 #db = ConfigDB.from_remote('http://localhost:5333')
 #datasets = Datasets.from_remote(db, 'http://localhost:5333')
 #db = ConfigDB.from_remote('http://172.28.0.2:5333')
 #datasets = Datasets.from_remote(db, 'http://172.28.0.2:5333')
 models = MLModels(db, datasets, models_path)
+
+logic_rules_path = 'algorithms/logic_rules'
+extractor = 'CART'
+logic_models = LogicModels(db, logic_rules_path, extractor)
 
 # ==============================================================================
 # Utility functions
@@ -36,7 +41,7 @@ def run_hada(optimization_request):
     var_bounds = datasets.get_var_bounds_all(optimization_request)
     robust_coeff = datasets.get_robust_coeff(models, optimization_request)
 
-    solution = HADA(db, optimization_request, models, var_bounds, robust_coeff)
+    solution = HADA(db, optimization_request, logic_models, var_bounds, robust_coeff)
     return solution
 
 def parse_request_form(algorithm, form_dict):
@@ -76,7 +81,7 @@ def parse_request_form(algorithm, form_dict):
                                                 
     return optimization_request
 
-def parse_request_json(data):
+def parse_request_json(data) -> OptimizationRequest:
     '''
     Example:
     {
@@ -235,3 +240,8 @@ def optimize():
         ret = {'error': str(e)}
 
     return jsonify(ret)
+
+
+
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000, debug=True)

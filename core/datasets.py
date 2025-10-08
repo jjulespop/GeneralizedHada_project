@@ -1,5 +1,6 @@
 import os
 import requests
+import numpy as np
 from abc import ABC,abstractmethod
 from collections import defaultdict
 from io import StringIO
@@ -113,8 +114,12 @@ class Datasets(ABC):
             for var in lb_missing_vars:
                 lb_per_var[var] = min(all_mins_per_var[var])
                 #lb_per_var[var] = min(all_mins_per_var[var]).item()
+                if type(lb_per_var[var]) is np.int64:
+                    lb_per_var[var] = int(lb_per_var[var])
             for var in ub_missing_vars:
                 ub_per_var[var] = max(all_maxes_per_var[var])
+                if type(ub_per_var[var]) is np.int64:
+                    ub_per_var[var] = int(ub_per_var[var])
 
             # checking that dtypes of variables are compatible with the bounds
             type_per_var = self.db.get_type_per_var(algorithm)

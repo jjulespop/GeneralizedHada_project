@@ -21,7 +21,7 @@ class ConfigDB():
         algo_hw_couples = []
         configs = []
 
-        # expected fnames: <algorithm>_<hw>.csv
+        # expected fnames: <algorithm>_<hw>.json
         for fname in fnames:
             algorithm, part = fname.split('_')
             hw = part.split('.')[0]
