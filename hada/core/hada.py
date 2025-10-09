@@ -3,9 +3,9 @@ from eml.backend import cplex_backend
 from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
 from docplex.mp.model_reader import ModelReader
-from core.configdb import ConfigDB
-from core.optimization_request import OptimizationSolution
-from core.logic_models import get_linear_expression
+from hada.core.configdb import ConfigDB
+from hada.core.optimization_request import OptimizationSolution
+from hada.core.logic_models import get_linear_expression
 import docplex.mp.conflict_refiner as cr
 
 def HADA(db: ConfigDB,

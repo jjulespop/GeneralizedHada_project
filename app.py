@@ -1,13 +1,19 @@
 #!/bin/python3
 import os
-import json
+import sys
 from flask import Flask, request, session, render_template, jsonify
-from core.configdb import ConfigDB
-from core.datasets import Datasets, DatasetsLocal
-from core.ml_models import MLModels
-from core.logic_models import LogicModels
-from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
-from core.hada import HADA
+from hada.core.configdb import ConfigDB
+from hada.core.datasets import Datasets, DatasetsLocal
+from hada.core.ml_models import MLModels
+from hada.core.logic_models import LogicModels
+from hada.core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
+from hada.core.hada import HADA
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from hada.config import config_loader
+
+config = config_loader.load_config(config_path="./hada/config/config.yaml")
 
 
 # ==============================================================================
@@ -19,18 +25,21 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # ==============================================================================
 # Init HADA
 # ==============================================================================
-data_path = 'algorithms/data'
-models_path = 'algorithms/models'
-db = ConfigDB.from_local('algorithms/configs')
-datasets: DatasetsLocal = Datasets.from_local(db, data_path)
-#db = ConfigDB.from_remote('http://localhost:5333')
-#datasets = Datasets.from_remote(db, 'http://localhost:5333')
-#db = ConfigDB.from_remote('http://172.28.0.2:5333')
-#datasets = Datasets.from_remote(db, 'http://172.28.0.2:5333')
-models = MLModels(db, datasets, models_path)
+data_path = config['paths']['data']
+models_path = config['paths']['models']
+algorithms_configs_path = config['paths']['algorithms_configs']
+logic_rules_path = config['paths']['logic_rules']
+extractor = config['paths']['extractor']
+# remote_localhost = config['paths']['remote_localhost']
+# remote_address = config['paths']['remote_address']
 
-logic_rules_path = 'algorithms/logic_rules'
-extractor = 'CART'
+db = ConfigDB.from_local(algorithms_configs_path)
+datasets: DatasetsLocal = Datasets.from_local(db, data_path)
+# db = ConfigDB.from_remote(remote_localhost)
+# datasets = Datasets.from_remote(db, remote_localhost)
+# db = ConfigDB.from_remote(remote_address)
+# datasets = Datasets.from_remote(db, remote_address)
+ml_models = MLModels(db, datasets, models_path)
 logic_models = LogicModels(db, logic_rules_path, extractor)
 
 # ==============================================================================
@@ -39,7 +48,7 @@ logic_models = LogicModels(db, logic_rules_path, extractor)
 def run_hada(optimization_request):
     
     var_bounds = datasets.get_var_bounds_all(optimization_request)
-    robust_coeff = datasets.get_robust_coeff(models, optimization_request)
+    robust_coeff = datasets.get_robust_coeff(logic_models, optimization_request)
 
     solution = HADA(db, optimization_request, logic_models, var_bounds, robust_coeff)
     return solution
@@ -243,5 +252,5 @@ def optimize():
 
 
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

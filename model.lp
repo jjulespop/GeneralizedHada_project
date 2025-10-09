@@ -5,112 +5,36 @@
 Minimize
  obj: [ 2 b_pc*pc_sol ]/2
 Subject To
- load_std_input_variable_constraint: load_std = 167
- load_mean_input_variable_constraint: load_mean = 314
- pv_std_input_variable_constraint: pv_std = 276
- pv_mean_input_variable_constraint: pv_mean = 268
  hw_selection: b_pc = 1
- one_rule_true_sol_pc: var_then_pc_sol_0 + var_then_pc_sol_1 = 1
- one_rule_true_memory_pc: var_then_pc_memory_0 + var_then_pc_memory_1
-                          + var_then_pc_memory_2 + var_then_pc_memory_3
-                          + var_then_pc_memory_4 = 1
- one_rule_true_time_pc: var_then_pc_time_0 + var_then_pc_time_1
-                        + var_then_pc_time_2 + var_then_pc_time_3
-                        + var_then_pc_time_4 = 1
- ub_nScenarios_rule_0_0_sol_pc: var_then_pc_sol_0 = 1 -> nScenarios <= 
-                                30.690000000000
+ one_rule_true_sol_pc: var_then_pc_sol_0 + var_then_pc_sol_1 + var_then_pc_sol_2
+                       + var_then_pc_sol_3 = 1
  lb_nScenarios_rule_0_0_sol_pc: var_then_pc_sol_0 = 1 -> nScenarios >= 
-                                0.990000000000
- _expression_0_0_sol_pc: var_then_pc_sol_0 = 1 -> pc_sol
-                         + 0.480000000000 nScenarios + 3.340000000000 pv_mean
-                         + 0.010000000000 pv_std - 3.530000000000 load_mean
-                         - 1.130000000000 load_std = -40.990000000000
- ub_nScenarios_rule_1_0_sol_pc: var_then_pc_sol_1 = 1 -> nScenarios <= 100
+                                44.500000000000
+ ub_nScenarios_rule_0_1_sol_pc: var_then_pc_sol_0 = 1 -> nScenarios <= 
+                                73.500000000000
+ _expression_0_0_sol_pc: var_then_pc_sol_0 = 1 -> pc_sol = 321.440000000000
  lb_nScenarios_rule_1_0_sol_pc: var_then_pc_sol_1 = 1 -> nScenarios >= 
-                                30.690000000000
- _expression_1_0_sol_pc: var_then_pc_sol_1 = 1 -> pc_sol
-                         + 0.950000000000 nScenarios + 3.340000000000 pv_mean
-                         - 3.530000000000 load_mean - 1.120000000000 load_std
-                          = -42.370000000000
- ub_nScenarios_rule_0_0_memory_pc: var_then_pc_memory_0 = 1 -> nScenarios <= 67
- lb_nScenarios_rule_0_0_memory_pc: var_then_pc_memory_0 = 1 -> nScenarios >= 
-                                   33.990000000000
- _expression_0_0_memory_pc: var_then_pc_memory_0 = 1 -> pc_memory
-                            - 2.540000000000 nScenarios = 87.060000000000
- ub_nScenarios_rule_1_0_memory_pc: var_then_pc_memory_1 = 1 -> nScenarios <= 
-                                   11.990000000000
- lb_nScenarios_rule_1_0_memory_pc: var_then_pc_memory_1 = 1 -> nScenarios >= 
-                                   0.990000000000
- _expression_1_0_memory_pc: var_then_pc_memory_1 = 1 -> pc_memory
-                            - 5.120000000000 nScenarios = 56.800000000000
- ub_nScenarios_rule_2_0_memory_pc: var_then_pc_memory_2 = 1 -> nScenarios <= 
-                                   33.990000000000
- lb_nScenarios_rule_2_0_memory_pc: var_then_pc_memory_2 = 1 -> nScenarios >= 
-                                   11.990000000000
- _expression_2_0_memory_pc: var_then_pc_memory_2 = 1 -> pc_memory
-                            - 2.670000000000 nScenarios = 84.460000000000
- ub_nScenarios_rule_3_0_memory_pc: var_then_pc_memory_3 = 1 -> nScenarios <= 78
- lb_nScenarios_rule_3_0_memory_pc: var_then_pc_memory_3 = 1 -> nScenarios >= 67
- _expression_3_0_memory_pc: var_then_pc_memory_3 = 1 -> pc_memory
-                            - 2.820000000000 nScenarios = 67.840000000000
- ub_nScenarios_rule_4_0_memory_pc: var_then_pc_memory_4 = 1 -> nScenarios <= 
-                                   100
- lb_nScenarios_rule_4_0_memory_pc: var_then_pc_memory_4 = 1 -> nScenarios >= 78
- _expression_4_0_memory_pc: var_then_pc_memory_4 = 1 -> pc_memory
-                            - 2.160000000000 nScenarios = 118.170000000000
- ub_nScenarios_rule_0_0_time_pc: var_then_pc_time_0 = 1 -> nScenarios <= 
-                                 20.790000000000
- lb_nScenarios_rule_0_0_time_pc: var_then_pc_time_0 = 1 -> nScenarios >= 
-                                 0.990000000000
- _expression_0_0_time_pc: var_then_pc_time_0 = 1 -> pc_time
-                          - 1.820000000000 nScenarios = -2.130000000000
- ub_nScenarios_rule_1_0_time_pc: var_then_pc_time_1 = 1 -> nScenarios <= 
-                                 40.600000000000
- lb_nScenarios_rule_1_0_time_pc: var_then_pc_time_1 = 1 -> nScenarios >= 
-                                 20.790000000000
- _expression_1_0_time_pc: var_then_pc_time_1 = 1 -> pc_time
-                          - 2.600000000000 nScenarios = -20.800000000000
- ub_nScenarios_rule_2_0_time_pc: var_then_pc_time_2 = 1 -> nScenarios <= 
-                                 60.400000000000
- lb_nScenarios_rule_2_0_time_pc: var_then_pc_time_2 = 1 -> nScenarios >= 
-                                 40.600000000000
- _expression_2_0_time_pc: var_then_pc_time_2 = 1 -> pc_time
-                          - 5.600000000000 nScenarios = -149.840000000000
- ub_nScenarios_rule_3_0_time_pc: var_then_pc_time_3 = 1 -> nScenarios <= 
-                                 80.200000000000
- lb_nScenarios_rule_3_0_time_pc: var_then_pc_time_3 = 1 -> nScenarios >= 
-                                 60.400000000000
- _expression_3_0_time_pc: var_then_pc_time_3 = 1 -> pc_time
-                          + 0.650000000000 nScenarios = 214.190000000000
- ub_nScenarios_rule_4_0_time_pc: var_then_pc_time_4 = 1 -> nScenarios <= 100
- lb_nScenarios_rule_4_0_time_pc: var_then_pc_time_4 = 1 -> nScenarios >= 
-                                 80.200000000000
- _expression_4_0_time_pc: var_then_pc_time_4 = 1 -> pc_time
-                          - 2.390000000000 nScenarios = -31.550000000000
- user_constraint_memory_pc: b_pc = 1 -> pc_memory <= 348.542124497686
- user_constraint_time_pc: b_pc = 1 -> pc_time <= 178.901949718497
+                                73.500000000000
+ _expression_1_0_sol_pc: var_then_pc_sol_1 = 1 -> pc_sol = 294.100000000000
+ ub_nScenarios_rule_2_0_sol_pc: var_then_pc_sol_2 = 1 -> nScenarios <= 
+                                30.500000000000
+ _expression_2_0_sol_pc: var_then_pc_sol_2 = 1 -> pc_sol = 370.490000000000
+ lb_nScenarios_rule_3_0_sol_pc: var_then_pc_sol_3 = 1 -> nScenarios >= 
+                                30.500000000000
+ ub_nScenarios_rule_3_1_sol_pc: var_then_pc_sol_3 = 1 -> nScenarios <= 
+                                44.500000000000
+ _expression_3_0_sol_pc: var_then_pc_sol_3 = 1 -> pc_sol = 342.173846000000
 
 Bounds
  0 <= b_pc <= 1
  1 <= nScenarios <= 100
  0 <= var_then_pc_sol_0 <= 1
  0 <= var_then_pc_sol_1 <= 1
- 0 <= var_then_pc_memory_0 <= 1
- 0 <= var_then_pc_memory_1 <= 1
- 0 <= var_then_pc_memory_2 <= 1
- 0 <= var_then_pc_memory_3 <= 1
- 0 <= var_then_pc_memory_4 <= 1
- 0 <= var_then_pc_time_0 <= 1
- 0 <= var_then_pc_time_1 <= 1
- 0 <= var_then_pc_time_2 <= 1
- 0 <= var_then_pc_time_3 <= 1
- 0 <= var_then_pc_time_4 <= 1
+ 0 <= var_then_pc_sol_2 <= 1
+ 0 <= var_then_pc_sol_3 <= 1
 
 Binaries
- b_pc var_then_pc_sol_0 var_then_pc_sol_1 var_then_pc_memory_0
- var_then_pc_memory_1 var_then_pc_memory_2 var_then_pc_memory_3
- var_then_pc_memory_4 var_then_pc_time_0 var_then_pc_time_1 var_then_pc_time_2
- var_then_pc_time_3 var_then_pc_time_4
+ b_pc var_then_pc_sol_0 var_then_pc_sol_1 var_then_pc_sol_2 var_then_pc_sol_3
 
 Generals
  nScenarios

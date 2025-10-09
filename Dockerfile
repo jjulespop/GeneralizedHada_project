@@ -12,8 +12,7 @@ RUN pip install -r requirements.txt
 # emllib bug fix
 COPY embed.py /usr/local/lib/python3.8/site-packages/eml/tree/embed.py
 
-COPY core ./core
-COPY algorithms ./algorithms
+COPY hada ./hada
 COPY app.py .
 COPY templates ./templates
 COPY static ./static

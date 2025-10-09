@@ -1,0 +1,8 @@
+paths:
+  data: './hada/data'
+  models: './hada/models'
+  algorithms_configs: './hada/config/algorithms'
+  logic_rules: './hada/logic_rules'
+  extractor: 'CART'
+  remote_localhost: 'http://localhost:5333'
+  remote_address: 'http://172.28.0.2:5333'
