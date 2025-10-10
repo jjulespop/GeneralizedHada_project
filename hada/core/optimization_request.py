@@ -46,6 +46,55 @@ class OptimizationRequest():
         self.hws_prices = hws_prices
 
 
+
+class OptimizationRequestTest():
+    """Class that represents and handles an optimization request for HADA. Arguments are checked."""
+    def __init__(self,
+                 db,
+                 algorithm,
+                 target,
+                 inputs,
+                 objective,
+                 robustness_factor,
+                 user_constraints,
+                 hws_prices):
+
+        if algorithm not in db.get_algorithms():
+            raise AttributeError(f'Algorithm {algorithm} not available.')
+        self.algorithm = algorithm
+
+        if target not in db.get_targets(algorithm):
+            raise AttributeError(f'Target {target} not available for algorithm {algorithm}.')
+        self.target = target
+
+
+        if objective not in ['min', 'max']:
+            raise AttributeError("Optimization type can only be one of 'min', 'max'.")
+        self.opt_type = objective
+
+        if not (type(robustness_factor) in [int, float] or robustness_factor is None):
+            raise AttributeError('Robustness factor must be numerical or None.')
+        self.robustness_fact = robustness_factor
+
+        if not isinstance(user_constraints, UserConstraints):
+            raise AttributeError("User constraints must be specified via UserConstraints class.")
+        self.user_constraints = user_constraints
+
+        if not isinstance(inputs, Inputs):
+            raise AttributeError("Input must be specified via Inputs class.")
+        if set(inputs.get_inputs().keys()) != set(db.get_input_vars(algorithm)):
+            raise AttributeError("Must set a value for each input variable.")
+        self.inputs = inputs
+
+        # no user input version; just read from config
+        # otherwise we expect prices from user and what's in the configs is only for guidance.
+        # self.prices = self.db.get_hw_prices(algorithm)
+
+        if not isinstance(hws_prices, HardwarePrices):
+            raise AttributeError("Hardware prices must be specified via HardwarePrices class.")
+        self.hws_prices = hws_prices
+
+
 class UserConstraints():
     """Class that represents an user's constraints to be included in a Request. Arguments are checked."""
     def __init__(self, configdb, algorithm) -> None:
@@ -73,6 +122,7 @@ class UserConstraints():
 
     def get_constraints(self):
         return self.constraints
+
 
 class Inputs():
     """Class that represents an user's input to be included in a Request. Arguments are checked."""

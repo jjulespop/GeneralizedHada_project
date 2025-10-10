@@ -6,3 +6,5 @@ Flask
 requests
 docplex
 pyyaml
+cplex
+memory-profiler

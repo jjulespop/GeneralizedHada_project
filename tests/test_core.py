@@ -1,52 +1,76 @@
+import os
+import sys
 import time
-from core.hada import HADA
-from core.configdb import ConfigDB
-from core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices, Inputs
-from core.datasets import Datasets
-from core.ml_models import MLModels
 
-if __name__ == '__main__':
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-    configs_path = './algorithms/configs'
-    data_path = './algorithms/data'
-    models_path = './algorithms/models'
-    storage_ws_url = 'http://localhost:5333'
+from hada.core.hada import HADA
+from hada.core.configdb import ConfigDB
+from hada.core.optimization_request import OptimizationRequestTest, UserConstraints, HardwarePrices, Inputs
+from hada.core.datasets import Datasets
+from hada.core.ml_models import MLModels
+from hada.config import config_loader
 
-    ##### Init #####
-    db = ConfigDB.from_local(configs_path)
-    #db = ConfigDB.from_remote(storage_ws_url)
+config = config_loader.load_config(config_path="./hada/config/config.yaml")
 
+
+if __name__ == "__main__":
+
+    # load paths from config
+    data_path = config["paths"]["data"]
+    models_path = config["paths"]["ml_models"]
+    algorithms_configs_path = config["paths"]["algorithms_configs"]
+    storage_ws_url = config["paths"]["storage_ws_url"]
+
+    ### Init ###
+    # db config
+    db = ConfigDB.from_local(algorithms_configs_path)
+    # db = ConfigDB.from_remote(storage_ws_url)
+
+    # datasets config
     datasets = Datasets.from_local(db, data_path)
-    #datasets = Datasets.from_remote(db, storage_ws_url)
+    # datasets = Datasets.from_remote(db, storage_ws_url)
 
     models = MLModels(db, datasets, models_path)
 
-    print(db.get_type_per_var('toyalg'))
-    ##### Preparing a request #####
-    # constraints can be added only for targets available to that algorithm
-    user_constraints = UserConstraints(db, 'toyalg')
-    user_constraints.add_constraint('memory', 'leq', 50)
-    user_constraints.add_constraint('price', 'leq', 250)
+    print(db.get_type_per_var("toyalg"))
 
-    # we have default values from configs (can be None); user can overwrite them; at the end no None values are accepted
-    hws_prices = HardwarePrices(db, 'toyalg')
-    hws_prices.add_hw_price('pc', 100)
-    hws_prices.add_hw_price('g100', 200)
-    hws_prices.add_hw_price('vm', 300)
-    
+    ### Prepare user request ###
+    # set user constraints
+    user_constraints = UserConstraints(db, "toyalg")
+    user_constraints.add_constraint("memory", "leq", 50)
+    user_constraints.add_constraint("price", "leq", 250)
+
+    # set hw prices
+    hws_prices = HardwarePrices(db, "toyalg")
+    hws_prices.add_hw_price("pc", 100)
+    hws_prices.add_hw_price("g100", 200)
+    hws_prices.add_hw_price("vm", 300)
+
+    # create optimitazione request
     robustness_factor = None
+    request = OptimizationRequestTest(
+                                db=db,
+                                algorithm="toyalg",
+                                target="time",
+                                inputs=Inputs(db, "toyalg"),
+                                objective="min",
+                                robustness_factor=robustness_factor,
+                                user_constraints=user_constraints,
+                                hws_prices=hws_prices
+                            )
 
-    request = OptimizationRequest(db, 'toyalg', 'time', Inputs(db, 'toyalg'), 'min',  robustness_factor, user_constraints, hws_prices)
-
-    ##### Handling datasets and models #####
-    # extracting info from datasets
+    ### Handling datasets and models ###
+    # extract info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
-    print(var_bounds)
+    print("Variable bounds:", var_bounds)
 
     robust_coeff = datasets.get_robust_coeff(models, request)
-    print(robust_coeff)
+    print("Robustness coefficients:", robust_coeff)
 
-    ##### Optimizing #####
-    # submitting request to HADA
+    ### Run optimization with HADA ###
     solution = HADA(db, request, models, var_bounds, robust_coeff)
+
+    print("\nSOLUTION")
     print(solution)
+

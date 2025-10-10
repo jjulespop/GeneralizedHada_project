@@ -1,8 +1,25 @@
 paths:
   data: './hada/data'
-  models: './hada/models'
+  ml_models: './hada/models'
   algorithms_configs: './hada/config/algorithms'
   logic_rules: './hada/logic_rules'
-  extractor: 'CART'
-  remote_localhost: 'http://localhost:5333'
+  results: './results'
+  storage_ws_url: 'http://localhost:5333'
   remote_address: 'http://172.28.0.2:5333'
+
+
+rules_types:
+  cart: 'CART'
+  creepy: 'CReEPY'
+  gridex: 'GridEx'
+  gridrex: 'GridREx'
+
+
+algorithms:
+  anticipate: 'anticipate'
+  contingency: 'contingency'
+  convolution: 'convolution'
+  correlation: 'correlation'
+  fwt: 'fwt'
+  saxpy: 'saxpy'
+  toyalg: 'toyalg'

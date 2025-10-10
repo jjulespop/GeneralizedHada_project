@@ -1,55 +1,76 @@
-from core.configdb import ConfigDB
-from core.logic_models import *
-import  pandas as pd
-if __name__ == '__main__':
-    path = './algorithms/configs'
+import os
+import sys
+import pandas as pd
 
-    # db = ConfigDB(path)
-    # db = ConfigDB.from_remote('http://localhost:5333')
-    algorithm = 'anticipate'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from hada.core.configdb import ConfigDB
+from hada.core.logic_models import *
+from hada.config import config_loader
+
+config = config_loader.load_config(config_path="./hada/config/config.yaml")
+
+
+if __name__ == '__main__':
+
+    # load paths from config
+    data_path = config['paths']['data']
+    algorithms_configs_path = config['paths']['algorithms_configs']
+    logic_rules_path = config['paths']['logic_rules']
+    storage_ws_url = config['paths']['storage_ws_url']
+
+    # variables setup
+    algorithm = config["algorithms"]["anticipate"]
+    rules_type = config["rules_types"]["cart"]
     target = 'sol'
-    if algorithm == 'anticipate':
-        param = "nScenarios"
-    else:
-        param = "nTraces"
-    db = ConfigDB.from_local('./algorithms/configs')
-    lr = LogicModels(db, "algorithms/logic_rules", 'CART')
+
+    param = "nScenarios" if algorithm == "anticipate" else "nTraces"
+
+    ### Init ###
+    # db config
+    db = ConfigDB.from_local(algorithms_configs_path)
+    # db = ConfigDB.from_remote(storage_ws_url)
+
+    lr = LogicModels(db, logic_rules_path, rules_type)
     rules = lr.get_rules(algorithm, 'pc', target)
-    #print(rules)
+
+    # print original rules
+    print("ORIGINAL RULES")
     for rule in rules:
         print(rule)
-    print("reducing domain")
+
+    # reduce rule domain
+    print("\nReducing domain")
     new_rules = lr.reduce_domain(rules)
-    print("new rules")
 
-
+    print("\nREDUCED RULES")
     for rule in new_rules:
         print(rule)
-    #exit(0)
-    dt = pd.read_csv(f'algorithms/data/{algorithm}_pc.csv')
-    input = dt[["load_mean", "load_std", param, "pv_mean", "pv_std"]]
-    output = lr.predict(new_rules, dt)
-    print(output)
-    print(len(output))
-    print((dt[target] - output).abs().mean())
-    """errors{"sol": {"gridrex": , "gridex": , "cart":, "creepy": }, 
-    "memory": {"gridrex": , "gridex": , "cart":, "creepy": }, 
-    time{"gridrex": , "gridex": , "cart":, "creepy": } }
+
+    # load dataset
+    dataset_path = f'{data_path}/{algorithm}_pc.csv'
+    dt = pd.read_csv(dataset_path)
+
+    # select input features
+    inputs_df = dt[["load_mean", "load_std", param, "pv_mean", "pv_std"]]
+
+    # generate predictions using the reduced rules
+    predictions = lr.predict(new_rules, dt)
+
+    print("\nPREDICTIONS")
+    print(predictions)
+    print(f"\nNumber of predictions: {len(predictions)}")
+
+    # Compute mean absolute error between actual and predicted values
+    mean_abs_error = (dt[target] - predictions).abs().mean()
+    print(f"Mean Absolute Error for target '{target}': {mean_abs_error}")
+
+    """
+    Example structure for storing model errors:
+    errors = {
+        "sol": {"gridrex": ..., "gridex": ..., "cart": ..., "creepy": ...},
+        "memory": {"gridrex": ..., "gridex": ..., "cart": ..., "creepy": ...},
+        "time": {"gridrex": ..., "gridex": ..., "cart": ..., "creepy": ...}
+    }
     """
 
-    #rules = lr.get_rules_new('contingency', 'pc', 'sol')
-    #print(rules)
-    #gr = (rules)
-    #df = pd.read_csv("algorithms/data/anticipate_pc.csv")
-    #pred = gr.predict(df)
-    #print(pred[0:100])
-    """# print(db.fnames)
-    # print(db.db)
-    print(db.get_algorithms())
-    print(db.get_hyperparams('anticipate'))
-    print(db.get_targets('anticipate'))
-    print(db.get_hws('anticipate'))
-    print(db.get_input_vars('anticipate'))
-    print(db.get_prices('anticipate'))
-    print(db.get_prices_per_hw('anticipate'))
-    print(db.get_type_per_var('anticipate'))"""
