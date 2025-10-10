@@ -26,21 +26,21 @@ app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K
 # Init HADA
 # ==============================================================================
 data_path = config['paths']['data']
-models_path = config['paths']['models']
+models_path = config['paths']['ml_models']
 algorithms_configs_path = config['paths']['algorithms_configs']
 logic_rules_path = config['paths']['logic_rules']
-extractor = config['paths']['extractor']
-# remote_localhost = config['paths']['remote_localhost']
+rules_type = config['rules_types']['cart']
+storage_ws_url = config['paths']['storage_ws_url']
 # remote_address = config['paths']['remote_address']
 
 db = ConfigDB.from_local(algorithms_configs_path)
 datasets: DatasetsLocal = Datasets.from_local(db, data_path)
-# db = ConfigDB.from_remote(remote_localhost)
-# datasets = Datasets.from_remote(db, remote_localhost)
+# db = ConfigDB.from_remote(storage_ws_url)
+# datasets = Datasets.from_remote(db, storage_ws_url)
 # db = ConfigDB.from_remote(remote_address)
 # datasets = Datasets.from_remote(db, remote_address)
 ml_models = MLModels(db, datasets, models_path)
-logic_models = LogicModels(db, logic_rules_path, extractor)
+logic_models = LogicModels(db, logic_rules_path, rules_type)
 
 # ==============================================================================
 # Utility functions
@@ -252,5 +252,5 @@ def optimize():
 
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000, debug=True)
