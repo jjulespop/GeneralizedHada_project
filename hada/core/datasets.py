@@ -6,18 +6,27 @@ from collections import defaultdict
 from io import StringIO
 from urllib.parse import urljoin
 import pandas as pd
-from core.optimization_request import OptimizationRequest
-from core.logic_models import LogicModels
+from hada.core.optimization_request import OptimizationRequest
+from hada.core.logic_models import LogicModels
+from hada.core.configdb import ConfigDB
 
 class Datasets(ABC):
     """Class that handles all the operations on the datasets."""
+
+
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, db: ConfigDB):
+        """
+        Args:
+            db (ConfigDB): an instance of the configuration database.
+        """
+        self.db = db
+
 
     @classmethod
-    def from_local(cls, db, data_path):
-        """Initialize Datasets using local datasets.
+    def from_local(cls, db: ConfigDB, data_path: str):
+        """
+        Create a Datasets instance using local datasets.
 
         Args:
             db (ConfigDB): instance of ConfigDB.
@@ -28,114 +37,172 @@ class Datasets(ABC):
         """
         return DatasetsLocal(db, data_path)
 
+
     @classmethod
-    def from_remote(cls, db, address):
-        """Initialize Datasets using remote datasets (VM storage ervice).
+    def from_remote(cls, db, base_url: str):
+        """
+        Create a Datasets instance using remote datasets (VM storage ervice).
 
         Args:
             db (ConfigDB): instance of ConfigDB.
-            address (str): complete URL relative to the service that handles the datasets.
+            base_url (str): complete URL relative to the service that handles the datasets.
 
         Returns:
             Datasets: instance of Datasets.
         """
-        return DatasetsRemote(db, address)
+        return DatasetsRemote(db, base_url)
+
 
     @abstractmethod
-    def get_dataset(self, algorithm, hw) -> pd.DataFrame:
+    def get_dataset(self, algorithm: str, hw) -> pd.DataFrame:
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
-    def _check_dataset_consistency(self, df, algorithm, hw):
-        """Checking the columns are the expected ones and that they are numericals."""
+
+    def _check_dataset_consistency(self, df: pd.DataFrame, algorithm: str, hw: str) -> None:
+        """
+        Validate that the dataset matches the configuration for a given (algorithm, hardware) pair.
+
+        Checks that:
+        1. All expected columns (hyperparameters, input vars, targets) are present and no extras exist.
+        2. All columns contain numeric data.
+        3. Data types are consistent with configuration specifications ('int', 'float', 'bin').
+
+        Args:
+            df (pd.DataFrame): the dataset to validate.
+            algorithm (str): algorithm identifier.
+            hw (str): hardware identifier.
+
+        Raises:
+            AttributeError: if expected columns are missing or contain non-numeric data.
+            ValueError: if a column violates declared type constraints.
+        """
+
+
         hyperparams = self.db.get_hyperparams(algorithm)
         input_vars = self.db.get_input_vars(algorithm)
-        data_targets = self.db.get_targets(algorithm)
-        data_targets.remove('price')
+        targets = self.db.get_targets(algorithm)
 
-        if set(df.columns) != set(hyperparams + data_targets+ input_vars):
-            raise AttributeError(f'Columns in the dataset for algorithm {algorithm} and hardware {hw} are not the expected ones.')
+        if 'price' in targets:
+            targets.remove('price')
+
+        expected_columns = set(hyperparams + input_vars + targets)
+        actual_columns = set(df.columns)
+
+        # check for missing or extra columns
+        if expected_columns != actual_columns:
+
+            missing = expected_columns - actual_columns
+            extra = actual_columns - expected_columns
+
+            raise AttributeError(
+                f"Dataset for algorithm '{algorithm}' on hardware '{hw}' "
+                f"has inconsistent columns.\n"
+                f"Missing: {sorted(missing) if missing else 'None'}\n"
+                f"Unexpected: {sorted(extra) if extra else 'None'}"
+        )
          
         #from pandas.api.types import is_numeric_dtype
         type_per_var = self.db.get_type_per_var(algorithm)
+
         for column in df.columns:
-            if not pd.api.types.is_numeric_dtype(df[column]):
-                raise AttributeError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is not numeric.')
+
+            series = df[column]
+            expected_dtype = type_per_var[column]
+
+            if not pd.api.types.is_numeric_dtype(series):
+                raise AttributeError(f"Column '{column}' in dataset ({algorithm}, {hw}) must be numeric, found {series.dtype}.")
 
             # checking consistency with vartype declared in configs: int, float or bin
             # float already checked: if it's numerical it can be interpreted as float
-            expected_dtype = type_per_var[column]
-            if expected_dtype == 'int' and not pd.api.types.is_integer_dtype(df[column]):
-                raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be integer, but has non-integer values.')
-            elif expected_dtype == 'bin' and set(df[column].unique()) != {0, 1}:
-                raise ValueError(f'Column {column} in the dataset for algorithm {algorithm} and hardware {hw} is expected to be binary, but has non-binary values.')
 
-    def extract_var_bounds(self, algorithm):
+            if expected_dtype == 'int' and not pd.api.types.is_integer_dtype(series):
+                raise ValueError(f"Column '{column}' in dataset ({algorithm}, {hw}) is expected to be integer but contains non-integer values.")
+            
+            elif expected_dtype == 'bin' and set(df[column].unique()) != {0, 1}:
+                unique_values = set(series.dropna().unique())
+                raise ValueError(f"Column '{column}' in dataset ({algorithm}, {hw}) is expected to be binary, but found values: {sorted(unique_values)}")
+
+
+    def extract_var_bounds(self, algorithm: str) -> tuple[dict, dict]:
         """
-        Compute upper and lower bounds of each variable.
-        If UB/LB specified in configs, use that instead of extracting from data.
+        Compute lower and upper bounds for each variable (hyperparameters, inputs, and targets).
+
+        The method uses bounds specified in the configuration when available.
+        If a bound (LB/UB) is missing in the config, it is inferred from the datasets across all hardware platforms.
 
         Args:
-            algorithm (str): algorithm for which we want to extract variable bounds.
+            algorithm (str): algorithm for which to compute variable bounds.
 
         Returns:
-            lb_per_var (dict): lower bound for each variable (hyperparameters and targets).
-            ub_per_var (dict): upper bound for each variable (hyperparameters and targets).
+            tuple[dict, dict]:
+                - lb_per_var: Lower bounds for each variable.
+                - ub_per_var: Upper bounds for each variable.
+
+        Raises:
+            ValueError: if inferred bounds are incompatible with declared variable types.
         """
-        # check if both UB and LB are specified in the configs
-        # otherwise add to "missing_bounds"; if any extract from data and calculate those
 
         # retrieving LBs/UBs from configs
         lb_per_var = self.db.get_lb_per_var(algorithm)
         ub_per_var = self.db.get_ub_per_var(algorithm)
 
-        # handling non-specified bounds by extracting them from data
+        # identify variables missing lower or upper bounds
         lb_missing_vars = [var for var,lb in lb_per_var.items() if lb is None]
         ub_missing_vars = [var for var,ub in ub_per_var.items() if ub is None]
         missing_vars = set(lb_missing_vars + ub_missing_vars)
 
         # at least one bound to be extracted
         if missing_vars:
-            # read one HW config at a time
-            # extract needed mins and max
-            # take overall min of minima and max of maxima
+
+            # prepare containers for collected min/max values across hardware datasets
             all_mins_per_var = defaultdict(list)
             all_maxes_per_var = defaultdict(list)
 
+            # aggregate observed minima/maxima across all hardware platforms
             for hw in self.db.get_hws(algorithm):
-            
                 dataset = self.get_dataset(algorithm, hw)
 
                 for var in lb_missing_vars:
-                    all_mins_per_var[var].append(dataset[var].min())
-                for var in ub_missing_vars:
-                    all_maxes_per_var[var].append(dataset[var].max())
+                    if var in dataset:
+                        all_mins_per_var[var].append(dataset[var].min())
 
+                for var in ub_missing_vars:
+                    if var in dataset:
+                        all_maxes_per_var[var].append(dataset[var].max())
+
+            # compute overall min/max for missing bounds
             for var in lb_missing_vars:
                 lb_per_var[var] = min(all_mins_per_var[var])
-                #lb_per_var[var] = min(all_mins_per_var[var]).item()
+
                 if type(lb_per_var[var]) is np.int64:
                     lb_per_var[var] = int(lb_per_var[var])
+            
             for var in ub_missing_vars:
                 ub_per_var[var] = max(all_maxes_per_var[var])
+                
                 if type(ub_per_var[var]) is np.int64:
                     ub_per_var[var] = int(ub_per_var[var])
 
-            # checking that dtypes of variables are compatible with the bounds
+            # check that computed bounds match expected variable types
             type_per_var = self.db.get_type_per_var(algorithm)
+
             for var, dtype in type_per_var.items():
                 var_lb = lb_per_var[var]
                 var_ub = ub_per_var[var]
+
                 if dtype == 'int':
                     if type(var_lb) is not int or type(var_ub) is not int:
-                        raise ValueError(f'Bound for variable {var} is not of the expected type (int).')
+                        raise ValueError(f"Variable '{var}' expects integer bounds, but found types ({type(var_lb).__name__}, {type(var_ub).__name__}).")
+                
                 elif dtype == 'bin':
                     if (var_lb not in [0,1]) or (var_ub not in [0,1]):
-                        raise ValueError(f'Bound for variable {var} is not of the expected type (bin): it must be 0 or 1.')
+                        raise ValueError(f"Variable '{var}' is binary but has invalid bounds: LB={var_lb}, UB={var_ub}. Expected 0 or 1.")
 
         return lb_per_var, ub_per_var
 
-    def get_var_bounds_all(self, request: OptimizationRequest):
+
+    def get_var_bounds_all(self, request: OptimizationRequest) -> dict:
         """
         Compute upper and lower bounds of each variable, including price.
         If UB/LB specified in configs, use that instead of extracting from data.
@@ -153,53 +220,93 @@ class Datasets(ABC):
             lb_per_var['price'] = min(request.hws_prices.get_prices_per_hw().values())
             ub_per_var['price'] = max(request.hws_prices.get_prices_per_hw().values())
 
-        var_bounds = {var: {'lb':lb_per_var[var], 'ub':ub_per_var[var]}
-                        for var in lb_per_var}
+        var_bounds = {var: {'lb':lb_per_var[var], 'ub':ub_per_var[var]} for var in lb_per_var}
+        
         return var_bounds
         
-    def get_robust_coeff(self, models, request):
+
+    def get_robust_coeff(self, logic_models: LogicModels, request: OptimizationRequest) -> dict:
         """
         Compute robustness coefficients for each predictive model, according to the specified robustness factor.
 
         Args:
-            models (MLModels): object that handles ML models.
-            request (OptimizationRequest): represents the user's request.
+            logic_models (LogicModels): object handling logic-based models (rule-based predictions).
+            request (OptimizationRequest): user request.
 
         Returns:
-            robust_coeff (dict): robustness coefficient for each predictive model.
+            robust_coeff (dict): dictionary {(hardware, target): robustness coefficient}; None if no robustness factor is set.
         """
-        hyperparams = self.db.get_hyperparams(request.algorithm)
-        input_vars = self.db.get_input_vars(request.algorithm)
-        if request.robustness_fact or request.robustness_fact == 0:
-            robust_coeff = {}
-            for target in self.db.get_targets(request.algorithm): 
-                for hw in self.db.get_hws(request.algorithm): 
-                    # The target price is not estimated: it does not require any robustness coefficient 
-                    if target == 'price': 
-                        robust_coeff[(hw, "price")] = 0
-                    else: 
-                        dataset = self.get_dataset(request.algorithm, hw)
-                        rules = models.get_rules(request.algorithm, hw, target)
-                        dataset[f'{target}_pred'] = LogicModels.predict(rules, dataset[hyperparams+input_vars])#col for col in dataset.columns if 'var' in col
-                        dataset[f'{target}_error'] = (dataset[f'{target}'] - dataset[f'{target}_pred']).abs()
-                        robust_coeff[(hw, target)] = dataset[f'{target}_error'].std() * dataset[f'{target}_error'].quantile(request.robustness_fact)
-            return robust_coeff
-        else:
-            return None 
+
+        # checking if robustness factor is defined
+        if request.robustness_fact is None:
+            return None
+
+        algorithm = request.algorithm
+        robustness_fact = request.robustness_fact
+
+        hyperparams = self.db.get_hyperparams(algorithm)
+        input_vars = self.db.get_input_vars(algorithm)
+        targets = self.db.get_targets(algorithm)
+        hardwares = self.db.get_hws(algorithm)
+
+        robust_coeff = {}
+
+        for hw in hardwares:
+            dataset = self.get_dataset(algorithm, hw)
+
+            for target in targets:
+                if target == "price":
+                    robust_coeff[(hw, target)] = 0
+                    continue
+
+                rules = logic_models.get_rules(algorithm, hw, target)
+
+                try:
+                    predictions = logic_models.predict(rules, dataset[hyperparams + input_vars])
+                    errors = (dataset[target] - predictions).abs()
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Error computing predictions for target '{target}' on hardware '{hw}': {e}"
+                    )
+
+                # computing robustness coefficient: std(error) * quantile(error)
+                error_std = errors.std()
+                error_quantile = errors.quantile(robustness_fact)
+                robust_coeff[(hw, target)] = error_std * error_quantile
+
+        return robust_coeff
 
 
 class DatasetsLocal(Datasets):
-    """Handles datasets stored locally."""
-    def __init__(self, db, data_path):
-        self.db = db
+    """Handles datasets stored in the local filesystem."""
+
+
+    def __init__(self, db: ConfigDB, data_path: str):
+        super().__init__(db)
         self.data_path = data_path
 
-    def get_dataset(self, algorithm, hw):
-        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
-        if not os.path.exists(dataset_path):
-            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
 
-        dataset = pd.read_csv(dataset_path)
+    def get_dataset(self, algorithm: str, hw: str) -> pd.DataFrame:
+        """
+        Load a dataset from the local filesystem.
+
+        Args:
+            algorithm (str): algorithm name.
+            hw (str): hardware used.
+
+        Returns:
+            pd.DataFrame: dataset.
+        """
+
+        dataset_path = os.path.join(self.data_path, f'{algorithm}_{hw}.csv')
+
+        if not os.path.exists(dataset_path):
+            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found at {dataset_path}.')
+
+        try:
+            dataset = pd.read_csv(dataset_path)
+        except Exception as e:
+            raise ValueError(f"Failed to read dataset CSV ({dataset_path}): {e}")
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw)
@@ -208,19 +315,38 @@ class DatasetsLocal(Datasets):
 
 
 class DatasetsRemote(Datasets):
-    """Handles retrieval of datasets from the storage web service."""
-    def __init__(self, db, address):
-        self.db = db
-        self.address = address
+    """Handles retrieval of datasets from a remote storage service."""
 
-    def get_dataset(self, algorithm, hw):
-        algo_hw_url = urljoin(self.address, f'/datasets/{algorithm}/{hw}')
-        req = requests.request('GET', algo_hw_url)
-        if req.status_code != 200:
-            raise FileNotFoundError(f'Dataset for ({algorithm}, {hw}) not found.')
-        csv_file = req.content
 
-        dataset = pd.read_csv(StringIO(csv_file.decode('utf-8')))
+    def __init__(self, db: ConfigDB, base_url: str):
+        super().__init__(db)
+        self.base_url = base_url
+
+
+    def get_dataset(self, algorithm: str, hw: str) -> pd.DataFrame:
+        """
+        Retrieve a dataset from the remote service.
+
+        Args:
+            algorithm (str): Algorithm name.
+            hw (str): Hardware identifier.
+
+        Returns:
+            pd.DataFrame: dataset.
+        """
+
+        dataset_url = urljoin(self.base_url, f'/datasets/{algorithm}/{hw}')
+
+        try:
+            response = requests.get(dataset_url)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            raise ConnectionError(f"Failed to fetch dataset ({algorithm}, {hw}) from {dataset_url}: {e}")
+        
+        try:
+            dataset = pd.read_csv(StringIO(response.text))
+        except Exception as e:
+            raise ValueError(f"Failed to parse CSV for ({algorithm}, {hw}): {e}")
 
         # checking if data complies to configs
         self._check_dataset_consistency(dataset, algorithm, hw)
