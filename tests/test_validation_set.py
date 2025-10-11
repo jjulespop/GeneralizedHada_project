@@ -1,3 +1,12 @@
+"""
+Usage of mprof command - needs to be installed.
+Test class for HADA algorithm with all the instances of the Validation Set, running the
+test_one_instance.py script.
+
+    - anticipate or contingency algorithms
+
+"""
+
 import os
 import sys
 import time

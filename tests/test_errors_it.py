@@ -1,3 +1,11 @@
+"""
+Testing error differences between prediction values and real values for an algorithm target variables.
+
+    - anticipate or contingency algorithm
+    - CART rules type
+
+"""
+
 import os
 import sys
 import pandas

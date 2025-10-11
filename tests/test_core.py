@@ -1,3 +1,14 @@
+"""
+Testing HADA core logic with:
+
+    - toyalg algorithm
+    - ML models
+
+DOES NOT WORK - the HADA algorithm uses the methos 'get_rules' on the models. and ML models do not have it
+TODO: fix it    
+
+"""
+
 import os
 import sys
 import time

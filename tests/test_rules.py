@@ -1,3 +1,15 @@
+"""
+Testing method to reduce logic rules.
+Default:
+
+    - anticipate algorithm
+    - cart rules type
+    - 'sol' target
+
+Returns the reduced rules, the respective predictions and the mean absolute error.
+
+"""
+
 import os
 import sys
 import pandas as pd

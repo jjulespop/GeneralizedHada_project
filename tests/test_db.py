@@ -1,3 +1,8 @@
+"""
+Testing ConfigDB methods for initialization and data retrieval
+
+"""
+
 import os
 import sys
 

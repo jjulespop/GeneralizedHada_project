@@ -1,3 +1,12 @@
+"""
+Testing HADA core logic with:
+
+    - anticipate algorithm
+    - CART rules type
+    - logic models
+
+"""
+
 import os
 import sys
 import time
@@ -33,7 +42,7 @@ if __name__ == "__main__":
 
     algorithm = config["algorithms"]["anticipate"]
     rules_type = config["rules_types"]["cart"]
-    models = LogicModels(db, logic_rules_path, rules_type)
+    logic_models = LogicModels(db, logic_rules_path, rules_type)
 
     print(db.get_type_per_var(algorithm))
 
@@ -59,29 +68,30 @@ if __name__ == "__main__":
 
     # create optimitazione request
     robustness_factor = 0.2
-    request = OptimizationRequestTest(db=db,
-                                  algorithm=algorithm,
-                                  target="sol",
-                                  inputs=inputs,
-                                  objective="min",
-                                  robustness_factor=robustness_factor,
-                                  user_constraints=user_constraints,
-                                  hws_prices=hws_prices
-                                 )
+    request = OptimizationRequestTest(
+                                    db=db,
+                                    algorithm=algorithm,
+                                    target="sol",
+                                    inputs=inputs,
+                                    objective="min",
+                                    robustness_factor=robustness_factor,
+                                    user_constraints=user_constraints,
+                                    hws_prices=hws_prices
+                                )
 
     ### Handling datasets and models ###
     # extract info from datasets
     var_bounds = datasets.get_var_bounds_all(request)
-    robust_coeff = datasets.get_robust_coeff(models, request)
+    robust_coeff = datasets.get_robust_coeff(logic_models, request)
     print("Robustness coefficients:", robust_coeff)
 
     ### Run optimization with HADA ###
-    solution = HADA(db, request, models, var_bounds, robust_coeff)
+    solution = HADA(db, request, logic_models, var_bounds, robust_coeff)
 
     print("\nSOLUTION")
     print(solution)
 
     # analyze results
     data = datasets.get_dataset(algorithm, "pc")
-    rules = models.get_rules(algorithm, "pc", "sol")
+    rules = logic_models.get_rules(algorithm, "pc", "sol")
 
