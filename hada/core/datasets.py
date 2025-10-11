@@ -18,7 +18,7 @@ class Datasets(ABC):
     def __init__(self, db: ConfigDB):
         """
         Args:
-            db (ConfigDB): an instance of the configuration database.
+            db (ConfigDB): instance of the configuration database.
         """
         self.db = db
 
@@ -136,8 +136,8 @@ class Datasets(ABC):
 
         Returns:
             tuple[dict, dict]:
-                - lb_per_var: Lower bounds for each variable.
-                - ub_per_var: Upper bounds for each variable.
+                - lb_per_var: lower bounds for each variable.
+                - ub_per_var: upper bounds for each variable.
 
         Raises:
             ValueError: if inferred bounds are incompatible with declared variable types.
@@ -328,8 +328,8 @@ class DatasetsRemote(Datasets):
         Retrieve a dataset from the remote service.
 
         Args:
-            algorithm (str): Algorithm name.
-            hw (str): Hardware identifier.
+            algorithm (str): algorithm name.
+            hw (str): hardware identifier.
 
         Returns:
             pd.DataFrame: dataset.

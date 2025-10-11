@@ -88,12 +88,10 @@ class ConfigDB():
 
         Args:
             configs (list[dict]): list of parsed configuration dictionaries.
-            algo_hw_pairs (list[tuple[str, str]]): list of (algorithm, hardware) pairs
-                corresponding to the configs, in order.
+            algo_hw_pairs (list[tuple[str, str]]): list of (algorithm, hardware) pairs corresponding to the configs, in order.
 
         Raises:
-            AttributeError: if hyperparameters, input variables, or targets
-                            are inconsistent across hardware for the same algorithm.
+            AttributeError: if hyperparameters, input variables, or targets are inconsistent across hardware for the same algorithm.
         """
         
         # scan path
