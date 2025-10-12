@@ -2,10 +2,10 @@
 import os
 import sys
 from flask import Flask, request, session, render_template, jsonify
-from hada.core.configdb import ConfigDB
-from hada.core.datasets import Datasets, DatasetsLocal
-from hada.core.ml_models import MLModels
-from hada.core.logic_models import LogicModels
+from hada.core.config.configdb import ConfigDB
+from hada.core.config.datasets import Datasets, DatasetsLocal
+from hada.core.models.ml_models import MLModels
+from hada.core.models.logic_models import LogicModels
 from hada.core.optimization.optimization_request import OptimizationRequest
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices

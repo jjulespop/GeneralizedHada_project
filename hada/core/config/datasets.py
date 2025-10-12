@@ -7,8 +7,8 @@ from collections import defaultdict
 from io import StringIO
 from urllib.parse import urljoin
 from hada.core.optimization.optimization_request import OptimizationRequest
-from hada.core.logic_models import LogicModels
-from hada.core.configdb import ConfigDB
+from hada.core.models.logic_models import LogicModels
+from hada.core.config.configdb import ConfigDB
 
 
 class Datasets(ABC):

@@ -7,8 +7,8 @@ import time
 import pandas as pd
 from multiprocessing import Process, Manager
 from sklearn.tree import DecisionTreeRegressor
-from hada.core.configdb import ConfigDB
-from hada.core.datasets import Datasets
+from hada.core.config.configdb import ConfigDB
+from hada.core.config.datasets import Datasets
 
 
 

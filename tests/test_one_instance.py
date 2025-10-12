@@ -19,13 +19,13 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from hada.core.hada import HADA
-from hada.core.configdb import ConfigDB
-from hada.core.logic_models import LogicModels
+from hada.core.config.configdb import ConfigDB
+from hada.core.models.logic_models import LogicModels
 from hada.core.optimization.optimization_request import OptimizationRequestTest
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices
 from hada.core.optimization.inputs import Inputs
-from hada.core.datasets import Datasets
+from hada.core.config.datasets import Datasets
 from hada.config import config_loader
 
 config = config_loader.load_config(config_path="./hada/config/config.yaml")

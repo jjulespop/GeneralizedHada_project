@@ -1,4 +1,4 @@
-from hada.core.configdb import ConfigDB
+from hada.core.config.configdb import ConfigDB
 
 
 class Inputs():

@@ -1,4 +1,4 @@
-from hada.core.configdb import ConfigDB
+from hada.core.config.configdb import ConfigDB
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices
 from hada.core.optimization.inputs import Inputs

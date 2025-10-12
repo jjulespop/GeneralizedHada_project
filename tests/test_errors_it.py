@@ -12,8 +12,8 @@ import pandas
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from hada.core.configdb import ConfigDB
-from hada.core.logic_models import LogicModels
+from hada.core.config.configdb import ConfigDB
+from hada.core.models.logic_models import LogicModels
 from hada.config import config_loader
 
 config = config_loader.load_config(config_path="./hada/config/config.yaml")
