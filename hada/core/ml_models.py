@@ -4,101 +4,105 @@ Class that handles operations that have to be carried out on the ML models.
 import os
 import pickle
 import time
+import pandas as pd
 from multiprocessing import Process, Manager
 from sklearn.tree import DecisionTreeRegressor
+from hada.core.configdb import ConfigDB
+from hada.core.datasets import Datasets
 
 
 
 
 class MLModels():
-    def __init__(self, db, datasets, models_path):
-        """Handles all operations on ML models.
+
+
+    def __init__(self, db: ConfigDB, datasets: Datasets, models_path: str):
+        """
+        Initialize the MLModels manager.
 
         Args:
-            db (ConfigDB): ConfigDB instance.
-            datasets (Datasets): Datasets instance.
-            models_path (str): local path where the models are stored.
+            db (ConfigDB): configuration database instance.
+            datasets (Datasets): datasets instance.
+            models_path (str): directory where trained models are stored.
         """
+
         self.db = db
         self.models_path = models_path
         self.datasets = datasets
 
-        # tracking state about (algorithm, hw, target) that are currently being trained
+        # tracks currently training models to avoid redundant runs
         self.ongoing_training = Manager().dict()
 
-    def __get_model_path(self, algorithm, hw, target):
+
+    def _get_model_path(self, algorithm: str, hw: str, target: str) -> str:
+        """Return the file path for the given model."""
         return os.path.join(self.models_path, f'{algorithm}_{hw}_{target}_DecisionTree_10')
 
-    def get_model(self, algorithm, hw, target):
-        """Returns the model (Decision).
+
+    def get_model(self, algorithm: str, hw: str, target: str) -> DecisionTreeRegressor:
+        """
+        Retrieve a trained model. If it doesn't exist, starts new training.
 
         Args:
-            algorithm (str): algorithm id.
-            hw (str): hardware platform id
-            target (str): target id.
+            algorithm (str): algorithm identifier.
+            hw (str): hardware platform identifier.
+            target (str): target variable name.
 
         Raises:
-            Exception: if model is not found and is already being trained.
+            RuntimeError: if a model is alredy being trained.
 
         Returns:
-            sklearn.tree.DecisionTreeRegressor: DT model.
+            DecisionTreeRegressor: trained Decision Tree model.
         """
-        model_path = self.__get_model_path(algorithm, hw, target) 
 
-        if not os.path.exists(model_path):
-            if (algorithm, hw, target) in self.ongoing_training:
-                raise Exception(f'Model for ({algorithm}, {hw}, {target}) training is ongoing. Come back later.')
-            else:
-                # launching training in background
-                dataset = self.datasets.get_dataset(algorithm, hw)
-                self.ongoing_training[(algorithm, hw, target)] = True
-                self.__run_training(algorithm, hw, target, dataset)
-                """p = Process(target=self.__run_training, args=(self, algorithm,
-                                                              hw,
-                                                              target,
-                                                              dataset))
-                p.start()
-                #raise FileNotFoundError(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started. Come back later.')
-                # without the Exception, nothing is shown in the GUI, but multiple models can be trained in a single
-                # request, while still keeping all the training part incapsulated in "get_model"
-                print(f'Model for ({algorithm}, {hw}, {target}) does not exist. Training started.')
-                p.join()"""
-                del self.ongoing_training[(algorithm, hw, target)]
-                print(f'Finished training model for ({algorithm}, {hw}, {target}).')
+        model_path = self._get_model_path(algorithm, hw, target) 
+
+        # case 1: model already exists - load and return it
+        if os.path.exists(model_path):
+            with open(model_path, "rb") as f:
+                return pickle.load(f)
+
+        # case 2: model is being trained elsewhere
+        if (algorithm, hw, target) in self.ongoing_training:
+            raise RuntimeError(f"Training already in progress for ({algorithm}, {hw}, {target}). Please retry later.")
+
+        # Case 3: model not found - start training
+        self.ongoing_training[(algorithm, hw, target)] = True
+        dataset = self.datasets.get_dataset(algorithm, hw)
+        self._train_and_save_model(algorithm, hw, target, dataset)
+        del self.ongoing_training[(algorithm, hw, target)]
+        print(f'Finished training model for ({algorithm}, {hw}, {target}).')
+
+        # load the newly trained model
+        with open(model_path, "rb") as f:
+            return pickle.load(f)
 
 
-        # model exists, load it
-        model = pickle.load(open(model_path, 'rb'))
-        return model
 
-    def __run_training(self, algorithm, hw, target, dataset):
+    def _train_and_save_model(self, algorithm: str, hw: str, target: str, dataset: pd.DataFrame):
         """
-        Trains a Decision Tree and stores it with pickle.
+        Train a Decision Tree model and save it to disk with pickle.
 
         Args:
-            algorithm (str): algorithm id.
-            hw (str): hardware platform id.
-            target (str): target id.
+            algorithm (str): algorithm identifier.
+            hw (str): hardware platform identifier.
+            target (str): target variable name.
             dataset (pd.DataFrame): training dataset.
-        
         """
-        #s = time.time()
-        model_path = self.__get_model_path(algorithm, hw, target)
 
-        # filtering dataset for the specific hyperparams, inputs and target
+        #s = time.time()
+        model_path = self._get_model_path(algorithm, hw, target)
+
+        # extract relevant columns for training
         hyperparams = self.db.get_hyperparams(algorithm)
         input_vars = self.db.get_input_vars(algorithm)
-        X = dataset[hyperparams+input_vars].values
+        X = dataset[hyperparams + input_vars].values
         y = dataset[[target]].values
 
         # training the DT
-        dt = DecisionTreeRegressor(max_depth=10, random_state=42)
-        dt.fit(X, y)
+        model = DecisionTreeRegressor(max_depth=10, random_state=42)
+        model.fit(X, y)
 
         # storing the DT
-        pickle.dump(dt, open(model_path, 'wb'))
-
-        #print(self.ongoing_training)
-        #print(f'Done in {time.time()-s}')
-        #del self.ongoing_training[(algorithm, hw, target)]
-        #print(self.ongoing_training)
+        with open(model_path, "wb") as f:
+            pickle.dump(model, f)

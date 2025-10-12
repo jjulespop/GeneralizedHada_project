@@ -4,7 +4,7 @@ from eml.tree.reader.sklearn_reader import read_sklearn_tree
 from eml.tree import embed 
 from docplex.mp.model_reader import ModelReader
 from hada.core.configdb import ConfigDB
-from hada.core.optimization_request import OptimizationSolution
+from hada.core.optimization.optimization_solution import OptimizationSolution
 from hada.core.logic_models import get_linear_expression
 import docplex.mp.conflict_refiner as cr
 
@@ -155,7 +155,7 @@ def HADA(db: ConfigDB,
                         mdl.get_var_by_name(f"{hw}_{target}") <= request.user_constraints.get_constraints()[target][1] + robust_coeff[(hw, target)], 1, name = f"user_constraint_{target}_{hw}_2")
 
     ##### OBJECTIVE #####
-    if request.opt_type == "min":
+    if request.objective == "min":
         mdl.minimize(mdl.sum( mdl.get_var_by_name(f"{hw}_{request.target}") * mdl.get_var_by_name(f"b_{hw}") for hw in hws))
     else: 
         mdl.maximize(mdl.sum(mdl.get_var_by_name(f"{hw}_{request.target}") * mdl.get_var_by_name(f"b_{hw}") for hw in hws))

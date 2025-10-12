@@ -6,7 +6,9 @@ from hada.core.configdb import ConfigDB
 from hada.core.datasets import Datasets, DatasetsLocal
 from hada.core.ml_models import MLModels
 from hada.core.logic_models import LogicModels
-from hada.core.optimization_request import OptimizationRequest, UserConstraints, HardwarePrices
+from hada.core.optimization.optimization_request import OptimizationRequest
+from hada.core.optimization.user_constraints import UserConstraints
+from hada.core.optimization.hardware_prices import HardwarePrices
 from hada.core.hada import HADA
 
 
@@ -82,8 +84,8 @@ def parse_request_form(algorithm, form_dict):
     optimization_request = OptimizationRequest(db=db,
                                                algorithm=algorithm,
                                                target=form_dict['target'],
-                                               opt_type=form_dict['objective_type'],
-                                               robustness_fact=sanitize_field(form_dict['robust_factor']),
+                                               objective=form_dict['objective_type'],
+                                               robustness_factor=sanitize_field(form_dict['robust_factor']),
                                                user_constraints=user_constraints,
                                                hws_prices=hws_prices)
 
@@ -122,8 +124,8 @@ def parse_request_json(data) -> OptimizationRequest:
     optimization_request = OptimizationRequest(db=db,
                                                algorithm=data['algorithm'],
                                                target=data['objective']['target'],
-                                               opt_type=data['objective']['type'],
-                                               robustness_fact=data['robustness_fact'],
+                                               objective=data['objective']['type'],
+                                               robustness_factor=data['robustness_fact'],
                                                user_constraints=user_constraints,
                                                hws_prices=hws_prices)
     return optimization_request
@@ -252,5 +254,5 @@ def optimize():
 
 
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

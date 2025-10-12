@@ -1,14 +1,15 @@
 import os
 import requests
 import numpy as np
+import pandas as pd
 from abc import ABC,abstractmethod
 from collections import defaultdict
 from io import StringIO
 from urllib.parse import urljoin
-import pandas as pd
-from hada.core.optimization_request import OptimizationRequest
+from hada.core.optimization.optimization_request import OptimizationRequest
 from hada.core.logic_models import LogicModels
 from hada.core.configdb import ConfigDB
+
 
 class Datasets(ABC):
     """Class that handles all the operations on the datasets."""
