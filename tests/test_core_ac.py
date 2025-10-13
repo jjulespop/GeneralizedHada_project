@@ -5,6 +5,8 @@ Testing HADA core logic with:
     - CART rules type
     - logic models
 
+Can be used for both HADA and HADA iterative version.
+
 """
 
 import os
@@ -13,7 +15,8 @@ import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from hada.core.hada import HADA
+from hada.core.hada_iter import HADA
+
 from hada.core.config.configdb import ConfigDB
 from hada.core.optimization.optimization_request import OptimizationRequestTest
 from hada.core.optimization.user_constraints import UserConstraints
