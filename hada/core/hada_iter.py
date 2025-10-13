@@ -128,9 +128,9 @@ def HADA(db: ConfigDB,
             ub = var_bounds[input_var]['ub']
         )
 
-    #constraints for input variables
-    for input_var in request.inputs.get_inputs().keys():
-        mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
+    # # constraints for input variables
+    # for input_var in request.inputs.get_inputs().keys():
+    #     mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
     # target variables for hardware
     for target in targets:
@@ -233,7 +233,7 @@ def HADA(db: ConfigDB,
             
                 if rule_indices[k] == rule_counts[k]:
             
-                    if k == len(targets)-1:
+                    if k == len(targets) - 1:
                         # no rule combination gives a feasible solution
                         while_condition = False 
                         break
@@ -261,7 +261,6 @@ def HADA(db: ConfigDB,
     ### SOLVE ###
     # export the model
     # mdl.export_as_lp('model.lp') 
-    solution = None
 
     if sol:
         for hw in hws:

@@ -71,39 +71,38 @@
             <h3>HADA (demo)</h3>
         </div>
 
+            <!-- Algorithm Selection -->
             <div class="row">
-                <div class="column column-100">
-                    <form action="/" method="POST" id="select_algorithm_form">
-                        <input value = "select_algo" type="hidden" name="form_id">
-                        <label class="label-inline">Algorithm</label>
-                        <select name="algorithm" id="algorithm">
-                            {% for algo in algorithms %}
-                            <option value="{{algo}}" {% if algo==selected_algo %}selected{% endif %}>{{algo}}</option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                </div>
-            </div>
-
-        <form action="/" method="POST" id="optimization_request_form">
-        <input value = "optimize" type="hidden" name="form_id">
-            <div class="row">
-                <div class="column column-50">
-                    <label class="label-inline">Target</label>
-                    <select name="target" id="target">
-                        {% for target in targets %}
-                        <option value="{{target}}">{{target}}</option>
+                <form action="/" method="POST" id="select_algorithm_form" class="column column-100">
+                    <input value="select_algo" type="hidden" name="form_id">
+                    <label for="algorithm" class="label-inline">Algorithm</label>
+                    <select name="algorithm" id="algorithm">
+                        {% for algo in algorithms %}
+                            <option value="{{algo}}" {% if algo == selected_algo %}selected{% endif %}>{{algo}}</option>
                         {% endfor %}
                     </select>
-                    <label class="label-inline">minimize</label>
-                    <input type="radio" name="objective_type" id="min" value="min" checked />
-                    <label class="label-inline">maximize</label>
-                    <input type="radio" name="objective_type" id="max" value="max" />
-                    <br />
+                </form>
+            </div>
+
+        <!-- Optimization Form -->
+        <form action="/" method="POST" id="optimization_request_form">
+        <input value="optimize" type="hidden" name="form_id">
+            <div class="row">
+                <div class="column column-50">
+                    <label for="target" class="label-inline">Target</label>
+                    <select name="target" id="target">
+                        {% for target in targets %}
+                            <option value="{{target}}">{{target}}</option>
+                        {% endfor %}
+                    </select>
+                    <div>
+                        <label class="label-inline"><input type="radio" name="objective_type" value="min" checked> minimize</label>
+                        <label class="label-inline"><input type="radio" name="objective_type" value="max"> maximize</label>
+                    </div>
                 </div>
 
                 <div class="column column-50">
-                    <label class="label-inline">Robustness factor</label>
+                    <label class="label-inline"> Robustness factor</label>
                     <input type="text" name="robust_factor" id="robust_factor" placeholder="None">
                 </div>
             </div>
@@ -115,10 +114,10 @@
             {% for target in targets %}
             <div class="row">
                 <div class="column column-15">
-                    <label class="label-inline">
+                    <label for="constraint_{{ target }}" class="label-inline">
                         {{target.capitalize()}}
                         {% if target in description_per_var.keys() and description_per_var[target] %}
-                        <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[target]}}">?</sup>
+                            <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[target]}}">?</sup>
                         {% endif %}
                     </label>
                 </div>
@@ -131,9 +130,9 @@
                 </div>
                 <div class="column column-75">
                     {% if target|lower=='price' %}
-                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
+                        <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="">
                     {% else %}
-                    <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="[{{lb_per_var[target]}},{{ub_per_var[target]}}]">
+                        <input type="text" name="constraint_{{target}}" id="constraint_{{target}}" placeholder="[{{lb_per_var[target]}},{{ub_per_var[target]}}]">
                     {% endif %}
                 </div>
                 </br>
@@ -169,42 +168,43 @@
         {{out}}
         {% endif %}-->
 
+        <!-- Output Section -->
         {% if out %}
-        {% if out is string %}
-        <div class="row">
-            <h4>{{out}}</h4>
-        </div>
-        {% else %}
-        <div class="row">
-            <h4>Solution</h4>
-        </div>
-
-        <div class="row">
-            <div class="center">
-                <table>
-                    <thead>
-                        <tr>
-                            {% for k in out.keys() %}
-                            <th>
-                            {{k}}
-                            {% if k in description_per_var.keys() and description_per_var[k] %}
-                            <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
-                            {% endif %}
-                            </th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for v in out.values() %}
-                            <td>{{v}}</td>
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
+            {% if out is string %}
+            <div class="row">
+                <h4>{{out}}</h4>
             </div>
-        </div>
-        {% endif %}
+            {% else %}
+            <div class="row">
+                <h4>Solution</h4>
+            </div>
+
+            <div class="row">
+                <div class="center">
+                    <table>
+                        <thead>
+                            <tr>
+                                {% for k in out.keys() %}
+                                <th>
+                                {{k}}
+                                {% if k in description_per_var.keys() and description_per_var[k] %}
+                                    <sup role="tooltip" data-microtip-position="top" aria-label="{{description_per_var[k]}}">?</sup>
+                                {% endif %}
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for v in out.values() %}
+                                    <td>{{v}}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         {% endif %}
 </body>
 
