@@ -7,9 +7,10 @@ from hada.core.config.datasets import Datasets, DatasetsLocal
 from hada.core.models.ml_models import MLModels
 from hada.core.models.logic_models import LogicModels
 from hada.core.optimization.optimization_request import OptimizationRequest
+from hada.core.optimization.optimization_solution import OptimizationSolution
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices
-from hada.core.hada import HADA
+from hada.core.hada_iter import HADA
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,6 +24,7 @@ config = config_loader.load_config(config_path="./hada/config/config.yaml")
 # ==============================================================================
 app = Flask(__name__)
 app.secret_key = ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K!@'
+
 
 # ==============================================================================
 # Init HADA
@@ -44,6 +46,7 @@ datasets: DatasetsLocal = Datasets.from_local(db, data_path)
 ml_models = MLModels(db, datasets, models_path)
 logic_models = LogicModels(db, logic_rules_path, rules_type)
 
+
 # ==============================================================================
 # Utility functions
 # ==============================================================================
@@ -54,6 +57,7 @@ def run_hada(optimization_request):
 
     solution = HADA(db, optimization_request, logic_models, var_bounds, robust_coeff)
     return solution
+
 
 def parse_request_form(algorithm, form_dict):
 
@@ -70,13 +74,16 @@ def parse_request_form(algorithm, form_dict):
         return x
 
     user_constraints = UserConstraints(db, algorithm)
+    
     for target in db.get_targets(algorithm):
+    
         if form_dict[f'constraint_{target}'] != '':
             user_constraints.add_constraint(target,
                                             form_dict[f'constraint_{target}_type'],
                                             sanitize_field(form_dict[f'constraint_{target}']))
 
     hws_prices = HardwarePrices(db, algorithm)
+    
     for hw in db.get_hws(algorithm):
         price = sanitize_field(form_dict[f'price_{hw}'])
         hws_prices.add_hw_price(hw, price)
@@ -88,9 +95,9 @@ def parse_request_form(algorithm, form_dict):
                                                robustness_factor=sanitize_field(form_dict['robust_factor']),
                                                user_constraints=user_constraints,
                                                hws_prices=hws_prices)
-
                                                 
     return optimization_request
+
 
 def parse_request_json(data) -> OptimizationRequest:
     '''
@@ -109,14 +116,18 @@ def parse_request_json(data) -> OptimizationRequest:
         ]
     }
     '''
+
     user_constraints = UserConstraints(db, data['algorithm'])
+    
     for constraint in data['constraints']:
         user_constraints.add_constraint(constraint['target'],
                                         constraint['type'],
                                         constraint['value'])
 
     hws_prices = HardwarePrices(db, data['algorithm'])
+    
     if 'price_per_hw' in data:
+    
         for hw_price in data['price_per_hw']:
             hws_prices.add_hw_price(hw_price['hw'], hw_price['price'])
 
@@ -128,17 +139,47 @@ def parse_request_json(data) -> OptimizationRequest:
                                                robustness_factor=data['robustness_fact'],
                                                user_constraints=user_constraints,
                                                hws_prices=hws_prices)
+    
     return optimization_request
 
 
+def format_solution(solution: OptimizationSolution) -> str | dict:
 
-def format_solution(solution):
-    sol_hw = {'hw': solution.chosen_hw}
-    sol_hyperparams = {hyperparam:val for hyperparam,val in solution.hyperparams_values.items()}
-    sol_targets = {target:val for target,val in solution.targets_values.items()}
+    if solution is None:
+        raise ValueError("format_solution: solution cannot be None")
+
+    # extract and validate each field
+    sol_hw = {}
+    
+    if solution.chosen_hw is not None:
+        sol_hw["hw"] = solution.chosen_hw
+
+    sol_hyperparams = {}
+    
+    if solution.hyperparams_values is not None:
+        sol_hyperparams = {
+            hyperparam: val
+            for hyperparam, val in solution.hyperparams_values.items()
+            if val is not None
+        }
+
+    sol_targets = {}
+    
+    if solution.targets_values is not None:
+        sol_targets = {
+            target: val
+            for target, val in solution.targets_values.items()
+            if val is not None
+        }
+
+    # Combine all valid parts
     out = {**sol_hw, **sol_hyperparams, **sol_targets}
 
+    if not out:
+        return str("No feasible solution found for the specifid constraints")
+
     return out
+
 
 # ==============================================================================
 # Routes (GUI)
@@ -149,13 +190,16 @@ def hada_gui():
     out = None
     if 'last_selected_algo' not in session:
         session['last_selected_algo'] = db.get_algorithms()[0]
+    
     try:
+        
         # two separate forms, one for algorithm selection and one for optimization requests
         if request.method == 'POST':
             form_dict = request.form.to_dict()
             
             if form_dict['form_id'] == 'select_algo':
                 session['last_selected_algo'] = form_dict['algorithm']
+            
             if form_dict['form_id'] == 'optimize':
                 optimization_request = parse_request_form(session['last_selected_algo'], form_dict)
                 solution = run_hada(optimization_request)
@@ -174,6 +218,7 @@ def hada_gui():
                             'lb_per_var': lb_per_var,
                             'ub_per_var': ub_per_var,
                             'description_per_var': description_per_var}
+        
         session['last_rendering_kwargs'] = rendering_kwargs
 
     except Exception as e:
@@ -189,12 +234,15 @@ def hada_gui():
                            selected_algo=session['last_selected_algo'],
                            out=out)
 
+
+
 # ==============================================================================
 # Routes (API)
 # ==============================================================================
 @app.route('/algorithms', methods=['GET'])
 def get_algorithms():
     return jsonify({'algorithms': db.get_algorithms()})
+
 
 @app.route('/algorithms/<algorithm>', methods=['GET'])
 def get_algo_info(algorithm):
@@ -235,14 +283,18 @@ def get_algo_info(algorithm):
 
     return jsonify(ret)
 
+
 @app.route('/optimize', methods=['POST'])
 def optimize():
+    
     data = request.get_json()
+    
     try:
         optimization_request = parse_request_json(data)
         solution = run_hada(optimization_request)
 
         ret = {'solution': None}
+    
         if solution:
             ret = {'solution': format_solution(solution)}
 
