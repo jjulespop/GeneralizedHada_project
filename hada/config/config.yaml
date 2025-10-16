@@ -23,3 +23,7 @@ algorithms:
   fwt: 'fwt'
   saxpy: 'saxpy'
   toyalg: 'toyalg'
+
+
+app:
+  secret_key: ';u_QC&vzGaAR;&67vma[(4_cHZ;(F!;]dwjh&tJRBF;S(7aWYz/e=z!]^Fhk.K!@'
