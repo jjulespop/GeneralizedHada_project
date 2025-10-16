@@ -4,7 +4,7 @@ pandas
 scikit-learn
 Flask
 requests
-docplex
+docplex==2.30.251
 pyyaml
 cplex
 memory-profiler
