@@ -103,6 +103,7 @@ if __name__ == '__main__':
                     sol_bound = current_bounds["sol"]
                     time_bound = current_bounds["time"]
 
+                    # set result file path
                     result_file = (
                         f'./hada/results/results_{algorithm}_{objective}_'
                         f'm{mem_bound}_t{time_bound}_s{sol_bound}.csv'
@@ -122,6 +123,7 @@ if __name__ == '__main__':
                             shell=True)
                         process.wait()
 
+                        # read mprof result file
                         try:
                             mean_mem, max_mem = read_mem_file()
                         except Exception as e:

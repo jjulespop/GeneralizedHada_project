@@ -12,7 +12,7 @@ from hada.core.optimization.optimization_request import OptimizationRequest
 from hada.core.optimization.optimization_solution import OptimizationSolution
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices
-from hada.core.hada_iter import HADA
+from hada.core.hada import HADA
 
 
 config = config_loader.load_config(config_path="./hada/config/config.yaml")
@@ -163,6 +163,7 @@ def format_solution(solution: OptimizationSolution) -> str | dict:
     # combine all valid parts
     out = {**sol_hw, **sol_hyperparams, **sol_targets}
 
+    # no solution found
     if not out:
         return str("No feasible solution found for the specified constraints")
 

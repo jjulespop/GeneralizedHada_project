@@ -81,9 +81,10 @@ def HADA(db: ConfigDB,
             ub = var_bounds[input_var]['ub']
         )
 
-    #constraints for input variables
-    # for input_var in request.inputs.get_inputs().keys():
-    #     mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
+    # constraints for input variables, IF PRESENT
+    if request.is_input_dependent():
+        for input_var in request.inputs.get_inputs().keys():
+            mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
     # target variables for hardware
     for target in targets:
@@ -101,7 +102,7 @@ def HADA(db: ConfigDB,
     mdl.add_constraint(mdl.sum(mdl.get_var_by_name(f"b_{hw}") for hw in hws) == 1, ctname = "hw_selection")
 
     
-    ### EMBED PREDICTIVE MODELS###
+    ### EMBED PREDICTIVE MODELS ###
     for target in targets:
 
         # target price is not predicted, but indicated by the hw provider: it does not require any dedicated predictive model
@@ -114,6 +115,7 @@ def HADA(db: ConfigDB,
             rules = logic_models.reduce_domain(rules)
             then_vars = []
             
+            # iterate on all rules
             for i, rule in enumerate(rules):
                 if_con = rule["if"]
                 then_var_name = f'var_then_{hw}_{target}_{i}'
@@ -135,7 +137,7 @@ def HADA(db: ConfigDB,
                     elif if_con["type"][j] == "<=" or if_con["type"][j] == "<":
                         mdl.add_indicator(then_var, var_obj <= if_con["value"][j], name=f'ub_{var}_rule_{i}_{j}_{target}_{hw}')
                 
-                #then part of the rule
+                # "then" part of the rule
                 then_con = rule["then"]
                 
                 for j, var in enumerate(then_con["var"]):

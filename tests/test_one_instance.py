@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from hada.core.hada import HADA
 from hada.core.config.configdb import ConfigDB
 from hada.core.models.logic_models import LogicModels
-from hada.core.optimization.optimization_request import OptimizationRequestTest
+from hada.core.optimization.optimization_request import OptimizationRequest
 from hada.core.optimization.user_constraints import UserConstraints
 from hada.core.optimization.hardware_prices import HardwarePrices
 from hada.core.optimization.inputs import Inputs
@@ -130,15 +130,15 @@ if __name__ == "__main__":
 
     # create optimitazione request
     robustness_factor = 0.9
-    request = OptimizationRequestTest(
+    request = OptimizationRequest(
                                 db=db,
                                 algorithm=algorithm,
                                 target=objective,
-                                inputs=inputs,
                                 objective="min",
                                 robustness_factor=robustness_factor,
                                 user_constraints=user_constraints,
-                                hws_prices=hws_prices
+                                hws_prices=hws_prices,
+                                inputs=inputs
                             )
 
     ### Handling datasets and models ###

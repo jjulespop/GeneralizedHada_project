@@ -129,8 +129,9 @@ def HADA(db: ConfigDB,
         )
 
     # # constraints for input variables
-    # for input_var in request.inputs.get_inputs().keys():
-    #     mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
+    if request.is_input_dependent():
+        for input_var in request.inputs.get_inputs().keys():
+            mdl.add_constraint(mdl.get_var_by_name(input_var) == request.inputs.get_inputs()[input_var], ctname = f"{input_var}_input_variable_constraint")
 
     # target variables for hardware
     for target in targets:
