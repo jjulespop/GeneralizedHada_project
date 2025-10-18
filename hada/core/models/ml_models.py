@@ -18,11 +18,11 @@ class MLModels():
 
     def __init__(self, db: ConfigDB, datasets: Datasets, models_path: str):
         """
-        Initialize the MLModels manager.
+        Initialize the MLModels and handle all operations.
 
         Args:
-            db (ConfigDB): configuration database instance.
-            datasets (Datasets): datasets instance.
+            db (ConfigDB): ConfigDB instance.
+            datasets (Datasets): Datasets instance.
             models_path (str): directory where trained models are stored.
         """
 
@@ -49,7 +49,7 @@ class MLModels():
             target (str): target variable name.
 
         Raises:
-            RuntimeError: if a model is alredy being trained.
+            RuntimeError: if a model is not found or is alredy being trained.
 
         Returns:
             DecisionTreeRegressor: trained Decision Tree model.
@@ -66,7 +66,7 @@ class MLModels():
         if (algorithm, hw, target) in self.ongoing_training:
             raise RuntimeError(f"Training already in progress for ({algorithm}, {hw}, {target}). Please retry later.")
 
-        # Case 3: model not found - start training
+        # case 3: model not found - start training
         self.ongoing_training[(algorithm, hw, target)] = True
         dataset = self.datasets.get_dataset(algorithm, hw)
         self._train_and_save_model(algorithm, hw, target, dataset)

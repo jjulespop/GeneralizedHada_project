@@ -48,8 +48,7 @@ def hada_gui():
                 solution = utility.run_hada(optimization_request)
                 out = utility.format_solution(solution)
 
-
-        # rendering
+        # rendering for both
         lb_per_var, ub_per_var = utility.get_datasets().extract_var_bounds(session['last_selected_algo'])
         description_per_var = utility.get_configdb().get_description_per_var(session['last_selected_algo'])
         
@@ -102,18 +101,30 @@ def get_algo_info(algorithm):
     ub_per_var['price'] = None
     description_per_var['price'] = None
 
-    hyperparams_with_bounds_and_desc = {hyperparam: {'description': description_per_var[hyperparam],
-                                                     'lb': lb_per_var[hyperparam],
-                                                     'ub': ub_per_var[hyperparam]}
-                               for hyperparam in hyperparams}
+    hyperparams_with_bounds_and_desc = {
+        hyperparam: {
+            'description': description_per_var[hyperparam],
+            'lb': lb_per_var[hyperparam],
+            'ub': ub_per_var[hyperparam]
+        }
+        for hyperparam in hyperparams
+    }
 
-    targets_with_bounds_and_desc = {target: {'description': description_per_var[target],
-                                             'lb': lb_per_var[target],
-                                             'ub': ub_per_var[target]} 
-                           for target in targets}
+    targets_with_bounds_and_desc = {
+        target: {
+            'description': description_per_var[target],
+            'lb': lb_per_var[target],
+            'ub': ub_per_var[target]
+        } 
+        for target in targets
+    }
 
-    hws_with_prices = {hw: {'default_price': price} 
-                       for hw,price in utility.get_configdb().get_prices_per_hw(algorithm).items()}
+    hws_with_prices = {
+        hw: {
+            'default_price': price
+        } 
+        for hw,price in utility.get_configdb().get_prices_per_hw(algorithm).items()
+    }
 
     ret = {
         'algorithm': algorithm,
