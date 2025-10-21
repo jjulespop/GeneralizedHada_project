@@ -13,7 +13,7 @@ CPLEX is required, it can be obtained [here](https://www.ibm.com/products/ilog-c
 ### Launching the service
 #### Locally
 CPLEX needs to be installed on the machine. 
-If the latest version is used (22.1.2), Pyhton packages `cplex` and `docplex` are required. To upgrade the packages to the unlimited version, `docplex` must be linked to the installed CPLEX with:
+If the latest version is used (22.1.2), Pyhton packages `cplex` and `docplex` are required. To upgrade the packages to their unlimited version, `docplex` must be linked to the installed CPLEX with:
 ```
 docplex config --upgrade <path_to_cplex_installation_folder>
 ```
