@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(db.get_hws(algorithm))
 
     print("\nINPUT VARIABLES")
-    print(db.get_input_vars(algorithm))
+    print(db.get_inputs(algorithm))
 
     print("\nPRICES")
     print(db.get_prices(algorithm))

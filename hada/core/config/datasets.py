@@ -14,7 +14,6 @@ from hada.core.config.configdb import ConfigDB
 class Datasets(ABC):
     """Class that handles all the operations on the datasets."""
 
-
     @abstractmethod
     def __init__(self, db: ConfigDB):
         """
@@ -55,7 +54,7 @@ class Datasets(ABC):
 
 
     @abstractmethod
-    def get_dataset(self, algorithm: str, hw) -> pd.DataFrame:
+    def get_dataset(self, algorithm: str, hw: str) -> pd.DataFrame:
         """Returns the dataset (Pandas DataFrame) relative to the (algorithm, hw), if present."""
         pass
 
@@ -78,10 +77,8 @@ class Datasets(ABC):
             AttributeError: if expected columns are missing or contain non-numeric data.
             ValueError: if a column violates declared type constraints.
         """
-
-
         hyperparams = self.db.get_hyperparams(algorithm)
-        input_vars = self.db.get_input_vars(algorithm)
+        input_vars = self.db.get_inputs(algorithm)
         targets = self.db.get_targets(algorithm)
 
         if 'price' in targets:
@@ -101,7 +98,7 @@ class Datasets(ABC):
                 f"has inconsistent columns.\n"
                 f"Missing: {sorted(missing) if missing else 'None'}\n"
                 f"Unexpected: {sorted(extra) if extra else 'None'}"
-        )
+            )
          
         #from pandas.api.types import is_numeric_dtype
         type_per_var = self.db.get_type_per_var(algorithm)
@@ -116,7 +113,6 @@ class Datasets(ABC):
 
             # checking consistency with vartype declared in configs: int, float or bin
             # float already checked: if it's numerical it can be interpreted as float
-
             if expected_dtype == 'int' and not pd.api.types.is_integer_dtype(series):
                 raise ValueError(f"Column '{column}' in dataset ({algorithm}, {hw}) is expected to be integer but contains non-integer values.")
             
@@ -143,7 +139,6 @@ class Datasets(ABC):
         Raises:
             ValueError: if inferred bounds are incompatible with declared variable types.
         """
-
         # retrieving LBs/UBs from configs
         lb_per_var = self.db.get_lb_per_var(algorithm)
         ub_per_var = self.db.get_ub_per_var(algorithm)
@@ -214,7 +209,6 @@ class Datasets(ABC):
         Returns:
             var_bounds (dict): lower bound and upper bound for each variable, including price.
         """
-
         lb_per_var, ub_per_var = self.extract_var_bounds(request.algorithm)
 
         if request.target == 'price' or 'price' in request.user_constraints.get_constraints():
@@ -237,7 +231,6 @@ class Datasets(ABC):
         Returns:
             robust_coeff (dict): dictionary {(hardware, target): robustness coefficient}; None if no robustness factor is set.
         """
-
         # checking if robustness factor is defined
         if request.robustness_fact is None:
             return None
@@ -246,7 +239,7 @@ class Datasets(ABC):
         robustness_fact = request.robustness_fact
 
         hyperparams = self.db.get_hyperparams(algorithm)
-        input_vars = self.db.get_input_vars(algorithm)
+        input_vars = self.db.get_inputs(algorithm)
         targets = self.db.get_targets(algorithm)
         hardwares = self.db.get_hws(algorithm)
 
@@ -280,7 +273,6 @@ class Datasets(ABC):
 
 class DatasetsLocal(Datasets):
     """Handles datasets stored in the local filesystem."""
-
 
     def __init__(self, db: ConfigDB, data_path: str):
         super().__init__(db)

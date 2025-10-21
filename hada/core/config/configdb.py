@@ -190,9 +190,7 @@ class ConfigDB():
                 self.db[algo_name]['hws'][hw_id] = hw_price
 
 
-    
     ### GET METHODS ###
-
 
     def get_algorithms(self) -> list[str]:
         """Return the list of all available algorithms."""
@@ -204,7 +202,7 @@ class ConfigDB():
         return list(self.db[algorithm]['hyperparams'].keys())
 
 
-    def get_input_vars(self, algorithm: str) -> list[str]:
+    def get_inputs(self, algorithm: str) -> list[str]:
         """Return the list of input variables for the given algorithm."""
         return list(self.db[algorithm]['input_vars'].keys())
 
@@ -286,6 +284,19 @@ class ConfigDB():
 
         return types
 
+
+    def get_str_vars(self, algorithm):
+        """Get names of all string variables (hyperparameters)."""
+        return [var for var, type in self.get_type_per_var(algorithm).items() if type == 'str']
+
+
+    def get_ml_input_vars(self, algorithm):
+        """Get variables that are fed as input to the ML models."""
+        input_vars = self.get_hyperparams(algorithm)
+        input_vars.extend(self.get_inputs(algorithm))
+
+        return input_vars
+    
 
     def __check_json(self, algorithm: str, hw: str, config: dict):
         """

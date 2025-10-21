@@ -2,6 +2,7 @@ paths:
   data: './hada/data'
   ml_models: './hada/models'
   algorithms_configs: './hada/config/algorithms'
+  categorical_mappings: './hada/config/categorical_mappings'
   logic_rules: './hada/logic_rules'
   results: './results'
   storage_ws_url: 'http://localhost:5333'

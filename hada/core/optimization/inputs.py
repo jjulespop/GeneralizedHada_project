@@ -39,7 +39,7 @@ class Inputs():
             AttributeError: if input variable is invalid, or value is not numeric.
         """
 
-        if input_var not in self.db.get_input_vars(self.algorithm):
+        if input_var not in self.db.get_inputs(self.algorithm):
             raise AttributeError(f'Input variable {input_var} not available for algorithm {self.algorithm}.')
         
         if not isinstance(value, (int, float)):

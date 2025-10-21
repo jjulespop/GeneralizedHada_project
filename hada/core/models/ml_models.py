@@ -95,7 +95,7 @@ class MLModels():
 
         # extract relevant columns for training
         hyperparams = self.db.get_hyperparams(algorithm)
-        input_vars = self.db.get_input_vars(algorithm)
+        input_vars = self.db.get_inputs(algorithm)
         X = dataset[hyperparams + input_vars].values
         y = dataset[[target]].values
 

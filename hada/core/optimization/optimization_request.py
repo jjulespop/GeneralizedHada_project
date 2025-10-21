@@ -45,7 +45,7 @@ class OptimizationRequest():
             self.input_dependent = True
             if not isinstance(inputs, Inputs):
                 raise AttributeError("Inputs must be specified via Inputs class.")
-            if set(inputs.get_inputs().keys()) != set(db.get_input_vars(algorithm)):
+            if set(inputs.get_inputs().keys()) != set(db.get_inputs(algorithm)):
                 raise AttributeError("Must provide a value for each input variable.")
             self.inputs = inputs
 

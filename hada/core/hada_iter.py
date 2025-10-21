@@ -92,7 +92,7 @@ def HADA(db: ConfigDB,
     targets = list(set(list(request.user_constraints.get_constraints().keys()) + [request.target]))
     list.sort(targets)
     hyperparams = db.get_hyperparams(request.algorithm)
-    input_vars = db.get_input_vars(request.algorithm)
+    input_vars = db.get_inputs(request.algorithm)
 
     # map variable types for CPLEX
     cplex_type = {'bin' : mdl.binary_vartype, 'int' : mdl.integer_vartype, 'float' : mdl.continuous_vartype}
