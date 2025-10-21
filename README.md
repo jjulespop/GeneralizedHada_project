@@ -8,12 +8,22 @@ Repository for development of the new (generalized) HADA version.
 Docker needs to be installed on the system.
 #### CPLEX
 CPLEX is required, it can be obtained [here](https://www.ibm.com/products/ilog-cplex-optimization-studio) (free for academic use).
-Docker can build the image once the file `cplex_studio2210.linux_x86_64.bin` is placed in the main directory and the execution permissions are granted with:
+
+
+### Launching the service
+#### Locally
+CPLEX needs to be installed on the machine. 
+If the latest version is used (22.1.2), Pyhton packages `cplex` and `docplex` are required. To upgrade the packages to the unlimited version, `docplex` must be linked to the installed CPLEX with:
+```
+docplex config --upgrade <path_to_cplex_installation_folder>
+```
+
+#### Docker
+Docker can build the image once the file `cplex_studio2212.linux_x86_64.bin` is placed in the main directory and the execution permissions are granted with:
 ```
 chmod +x cplex_studio2210.linux_x86_64.bin
 ```
 
-### Launching the service
 Once the requirements are satisfied, the service can be launched with:
 ```
 sudo docker compose up
