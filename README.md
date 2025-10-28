@@ -21,7 +21,7 @@ docplex config --upgrade <path_to_cplex_installation_folder>
 #### Docker
 Docker can build the image once the file `cplex_studio2212.linux_x86_64.bin` is placed in the main directory and the execution permissions are granted with:
 ```
-chmod +x cplex_studio2210.linux_x86_64.bin
+chmod +x cplex_studio2212.linux_x86_64.bin
 ```
 
 Once the requirements are satisfied, the service can be launched with:
