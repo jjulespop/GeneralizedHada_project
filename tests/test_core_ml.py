@@ -3,10 +3,6 @@ Testing HADA core logic with:
 
     - toyalg algorithm
     - ML models
-
-DOES NOT WORK - the HADA algorithm uses the methos 'get_rules' on the models. and ML models do not have it
-TODO: fix it    
-
 """
 
 import os
@@ -46,15 +42,24 @@ if __name__ == "__main__":
     datasets = Datasets.from_local(db, data_path, categories_path)
     # datasets = Datasets.from_remote(db, storage_ws_url)
 
+    algorithm = config["algorithms"]["anticipate"]
     models = MLModels(db, datasets, models_path)
 
     print(db.get_type_per_var("toyalg"))
 
     ### Prepare user request ###
     # set user constraints
-    user_constraints = UserConstraints(db, "toyalg")
-    user_constraints.add_constraint("memory", "leq", 50)
+    user_constraints = UserConstraints(db, algorithm)
+    user_constraints.add_constraint("memory", "leq", 350)
+    user_constraints.add_constraint("time", "leq", 200)
     user_constraints.add_constraint("price", "leq", 250)
+
+    # set input values
+    inputs = Inputs(db, algorithm)
+    inputs.add_input("load_std", 167)
+    inputs.add_input("load_mean", 314)
+    inputs.add_input("pv_std", 276)
+    inputs.add_input("pv_mean", 268)
 
     # set hw prices
     hws_prices = HardwarePrices(db, "toyalg")
@@ -66,13 +71,13 @@ if __name__ == "__main__":
     robustness_factor = 0.2
     request = OptimizationRequest(
                                 db=db,
-                                algorithm="toyalg",
-                                target="time",
+                                algorithm=algorithm,
+                                target="sol",
                                 objective="min",
                                 robustness_factor=robustness_factor,
                                 user_constraints=user_constraints,
                                 hws_prices=hws_prices,
-                                inputs=Inputs(db, "toyalg")
+                                inputs=inputs
                             )
 
     ### Handling datasets and models ###
