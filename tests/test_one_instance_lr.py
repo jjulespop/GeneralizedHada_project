@@ -1,6 +1,6 @@
 """
 Necessary to install package cplex.
-Test class for HADA algorithm (one instance). Takes arguments from command line - necessary at least one to set
+Test class for HADA logic rules algorithm (one instance). Takes arguments from command line - necessary at least one to set
 objective hyperparameter.
 
 Default:

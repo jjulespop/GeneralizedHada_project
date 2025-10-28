@@ -1,7 +1,7 @@
 """
 Usage of mprof command - needs to be installed.
-Test class for HADA algorithm with all the instances of the Validation Set, running the
-test_one_instance.py script.
+Test class for HADA decision tree algorithm with all the instances of the Validation Set, running the
+test_one_instance_dt.py script.
 
     - anticipate or contingency algorithms
 
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     # load paths from config
     data_path = config['paths']['data']
     algorithms_configs_path = config['paths']['algorithms_configs']
+    python_script = "tests/test_one_instance_ml.py"
 
     validation_set = pd.read_csv(f"{data_path}/ValidationSet.csv")
 
@@ -119,7 +120,7 @@ if __name__ == '__main__':
                     for idx, instance in validation_set.iterrows():
                         start_time = time.time()
                         process = subprocess.Popen(
-                            [f"mprof run tests/test_one_instance.py -a {algorithm} -i {str(idx)} -t {str(time_bound)} -m {str(mem_bound)} -s {str(sol_bound)}"],
+                            [f"mprof run {python_script} -a {algorithm} -i {str(idx)} -t {str(time_bound)} -m {str(mem_bound)} -s {str(sol_bound)}"],
                             shell=True)
                         process.wait()
 

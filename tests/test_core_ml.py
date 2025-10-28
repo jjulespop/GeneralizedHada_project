@@ -62,10 +62,10 @@ if __name__ == "__main__":
     inputs.add_input("pv_mean", 268)
 
     # set hw prices
-    hws_prices = HardwarePrices(db, "toyalg")
+    hws_prices = HardwarePrices(db, algorithm)
     hws_prices.add_hw_price("pc", 100)
-    hws_prices.add_hw_price("g100", 200)
-    hws_prices.add_hw_price("vm", 300)
+    # hws_prices.add_hw_price("g100", 200)
+    # hws_prices.add_hw_price("vm", 300)
 
     # create optimitazione request
     robustness_factor = 0.2
