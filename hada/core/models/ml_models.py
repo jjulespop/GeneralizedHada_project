@@ -9,8 +9,9 @@ from multiprocessing import Process, Manager
 from sklearn.tree import DecisionTreeRegressor
 from hada.core.config.configdb import ConfigDB
 from hada.core.config.datasets import Datasets
+from hada.config import config_loader
 
-
+config = config_loader.load_config(config_path="./hada/config/config.yaml")
 
 
 class MLModels():
@@ -90,7 +91,9 @@ class MLModels():
             dataset (pd.DataFrame): training dataset.
         """
 
-        #s = time.time()
+        file_path = config['paths']['ml_models_training_info']
+        file_name = f"{file_path}/dt_training_info"
+        start_time = time.time()
         model_path = self._get_model_path(algorithm, hw, target)
 
         # extract relevant columns for training
@@ -102,7 +105,28 @@ class MLModels():
         # training the DT
         model = DecisionTreeRegressor(max_depth=10, random_state=42)
         model.fit(X, y)
-
+        end_time = time.time()
+        
         # storing the DT
         with open(model_path, "wb") as f:
             pickle.dump(model, f)
+
+        training_time = end_time - start_time
+        data = {
+            "algorithm": algorithm,
+            "hw": hw,
+            "target": target,
+            "max_depth": 10,
+            "training_time": training_time
+        }
+        results = pd.DataFrame([data])
+
+        # append results or create new file
+        if not os.path.exists(file_name):
+            res_df = results
+        else:
+            res_df = pd.read_csv(file_name)
+            res_df = pd.concat([res_df, results], ignore_index = True)
+
+        # save to csv
+        res_df.to_csv(path_or_buf = file_name, index = False)

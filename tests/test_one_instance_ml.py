@@ -40,7 +40,7 @@ if __name__ == "__main__":
     storage_ws_url = config["paths"]["storage_ws_url"]
     results_path = config['paths']['results']
 
-    algorithm = config["algorithms"]["anticipate"]
+    algorithm = config["algorithms"]["contingency"]
 
     ### Init ###
     # db config
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument("--memory_bound", "-m", default = "300", help = "Memory constraint value or 'None'/'obj'.")
     parser.add_argument("--time_bound", "-t", default = "260", help = "Time constraint value or 'None'/'obj'.")
     parser.add_argument("--sol_bound", "-s", default = "260", help = "Solution constraint value or 'None'/'obj'.")
-    parser.add_argument("--algorithm", "-a", default = "anticipate", help = "Algorithm name to use.")
+    parser.add_argument("--algorithm", "-a", default = algorithm, help = "Algorithm name to use.")
     args = parser.parse_args()
 
     ### Extract argument values ###
@@ -153,19 +153,19 @@ if __name__ == "__main__":
     execution_time = time.time() - start_time
     print("Optimization completed")
 
-    if solution is None:
-        raise Exception("Solution is none")
-
     ### Extract solution details ###
-    n_vars = solution.num_variables
-    n_constraints = solution.num_constraints
+    if solution:
+        n_vars = solution.num_variables
+        n_constraints = solution.num_constraints
 
-    if solution.targets_values:
-        sol_sol = solution.targets_values.get("sol")
-        sol_time = solution.targets_values.get("time")
-        sol_memory = solution.targets_values.get("memory")
-        sol_hyperparams = list(solution.hyperparams_values.values())[0]
+        if solution.targets_values:
+            sol_sol = solution.targets_values.get("sol")
+            sol_time = solution.targets_values.get("time")
+            sol_memory = solution.targets_values.get("memory")
+            sol_hyperparams = list(solution.hyperparams_values.values())[0]
     else:
+        n_vars = None
+        n_constraints = None
         sol_sol = sol_time = sol_memory = sol_hyperparams = None
 
     print("\nOPTIMIZATION RESULTS")

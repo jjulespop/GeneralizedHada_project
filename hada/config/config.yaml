@@ -5,6 +5,7 @@ paths:
   categorical_mappings: './hada/config/categorical_mappings'
   logic_rules: './hada/logic_rules'
   results: './results'
+  ml_models_training_info: './hada/models/info'
   storage_ws_url: 'http://localhost:5333'
   remote_address: 'http://172.28.0.2:5333'
 

@@ -66,8 +66,10 @@ if __name__ == '__main__':
     # load paths from config
     data_path = config['paths']['data']
     algorithms_configs_path = config['paths']['algorithms_configs']
+    results_path = config['paths']['results']
     python_script = "tests/test_one_instance_lr.py"
 
+    rules_type = config['rules_types']['gridrex']
     validation_set = pd.read_csv(f"{data_path}/ValidationSet.csv")
 
     ### Define variable bounds ###
@@ -106,8 +108,8 @@ if __name__ == '__main__':
 
                     # set result file path
                     result_file = (
-                        f'./hada/results/results_{algorithm}_{objective}_'
-                        f'm{mem_bound}_t{time_bound}_s{sol_bound}.csv'
+                        f"{results_path}/{str(rules_type).lower()}_latest/results_{algorithm}_{objective}_"
+                        f"m{mem_bound}_t{time_bound}_s{sol_bound}.csv"
                     )
 
                     ex_memory_mean = []

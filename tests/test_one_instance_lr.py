@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
     # build file path
     file_name = (
-        f"{results_path}/{str(rules_type).lower()}/results_{algorithm}_{objective}_"
+        f"{results_path}/{str(rules_type).lower()}_latest/results_{algorithm}_{objective}_"
         f"m{mem_bound}_t{time_bound}_s{sol_bound}.csv"
     )
 
