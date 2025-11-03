@@ -12,7 +12,7 @@ paths:
 
 rules_types:
   cart: 'CART'
-  creepy: 'CReEPY'
+  creepy: 'CReEPy'
   gridex: 'GridEx'
   gridrex: 'GridREx'
 

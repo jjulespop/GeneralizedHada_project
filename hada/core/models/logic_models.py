@@ -107,7 +107,7 @@ class LogicModels():
                     then_constraint["value"].append(expr.strip()[0:-1])
                 
                 # case: intervals, e.g., "X in [a,b]"
-                if "[" in line:
+                elif "[" in line:
                     parts = re.split('][.,]', line)
 
                     for part in parts:
