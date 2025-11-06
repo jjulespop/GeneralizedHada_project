@@ -1,9 +1,9 @@
 paths:
-  data: './hada/data'
-  ml_models: './hada/models'
+  data: './hada/datasets'
+  ml_models: './hada/trained_models'
   algorithms_configs: './hada/config/algorithms'
   categorical_mappings: './hada/config/categorical_mappings'
-  logic_rules: './hada/logic_rules'
+  logic_rules: './hada/logic_rules_extracted'
   results: './results'
   ml_models_training_info: './hada/models/info'
   storage_ws_url: 'http://localhost:5333'
