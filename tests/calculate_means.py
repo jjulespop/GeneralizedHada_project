@@ -1,3 +1,5 @@
+'''Calculate solving results means, split by number of targets'''
+
 import os
 import sys
 import re

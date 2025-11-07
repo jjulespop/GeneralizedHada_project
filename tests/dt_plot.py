@@ -1,3 +1,5 @@
+'''Plots bar diagrams for solving results'''
+
 import os
 import sys
 import numpy as np
