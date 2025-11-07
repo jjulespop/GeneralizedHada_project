@@ -1,0 +1,7 @@
+extractor,algorithm,target,max_depth,error_threshold,training_time,extraction_time
+creepy,anticipate,sol,3,0.02,0.0278489589691162,2.471477031707764
+creepy,anticipate,time,3,0.02,0.0181062221527099,0.8258464336395264
+creepy,anticipate,memory,3,0.02,0.0120038986206054,1.4517500400543213
+creepy,contingency,sol,3,0.02,0.027576208114624,2.2671802043914795
+creepy,contingency,time,3,0.02,0.0099079608917236,0.9577550888061525
+creepy,contingency,memory,3,0.02,0.012534141540527344,0.7820520401000977
