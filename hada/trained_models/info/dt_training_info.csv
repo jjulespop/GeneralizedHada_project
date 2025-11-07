@@ -1,0 +1,7 @@
+algorithm,hw,target,max_depth,training_time
+anticipate,pc,sol,10,0.0209474563598632
+anticipate,pc,time,10,0.0288188457489013
+anticipate,pc,memory,10,0.0294930934906005
+contingency,pc,sol,10,0.0222876071929931
+contingency,pc,time,10,0.0376689434051513
+contingency,pc,memory,10,0.035805463790893555
