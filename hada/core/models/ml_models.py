@@ -92,7 +92,7 @@ class MLModels():
         """
 
         file_path = config['paths']['ml_models_training_info']
-        file_name = f"{file_path}/dt_training_info"
+        file_name = f"{file_path}/dt_training_info.csv"
         start_time = time.time()
         model_path = self._get_model_path(algorithm, hw, target)
 
