@@ -15,20 +15,29 @@ from psyke.tuning import Objective
 from psyke.tuning.pedro import PEDRO
 from psyke.utils.logic import pretty_theory
 from psyke.utils.metrics import mae, mse, r2
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from hada.config import config_loader
+
+config = config_loader.load_config(config_path="./hada/config/config.yaml")
     
 
 rule = 'gridex'
-file_name = f"./giulia/logic_rules/lr_extraction_info_{rule}.csv"
+data_path = config['paths'['data']]
+lr_path = config['paths']['logic_rules']
+lr_info_path = config['paths']['logic_rules_extraction_info']
+result_file_name = f"{lr_info_path}/lr_extraction_info_{rule}.csv"
 targets = ['sol', 'time', 'memory']
 
 for algorithm in ['anticipate', 'contingency']:
 
-    df = pd.read_csv(f"./giulia/datasets/{algorithm}_pc.csv")
+    df = pd.read_csv(f"{data_path}/{algorithm}_pc.csv")
     parameter = 'nScenarios' if algorithm == 'anticipate' else 'nTraces'
     
     for objective in targets:  
 
-        rules_path = f"./giulia/logic_rules/{rule}/{algorithm}_pc_{objective}.txt"  
+        rules_path = f"{lr_path}/{rule}/{algorithm}_pc_{objective}.txt"   
 
         # set x and y
         if objective == 'sol':
@@ -97,13 +106,13 @@ for algorithm in ['anticipate', 'contingency']:
         results = pd.DataFrame([data])
 
         # append results or create new file
-        if not os.path.exists(file_name):
+        if not os.path.exists(result_file_name):
             res_df = results
         else:
-            res_df = pd.read_csv(file_name)
+            res_df = pd.read_csv(result_file_name)
             res_df = pd.concat([res_df, results], ignore_index = True)
 
         # save to csv
-        res_df.to_csv(path_or_buf=file_name, index=False)
+        res_df.to_csv(path_or_buf=result_file_name, index=False)
 
     
