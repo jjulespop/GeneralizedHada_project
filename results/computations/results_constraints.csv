@@ -1,6 +1,6 @@
 rule,n_constraints_mean_1_target,n_constraints_mean_2_target,n_constraints_mean_3_target
-cart,8,11,14
-creepy,11,18,24
-gridex,8,12,16
-gridrex,8,12,16
+cart,17,29,42
+creepy,7,10,13
+gridex,21,37,54
+gridrex,10,15,21
 decision_trees,4086,8166,12247

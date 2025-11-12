@@ -1,6 +1,6 @@
 rule,n_vars_mean_1_target,n_vars_mean_2_target,n_vars_mean_3_target
-cart,7,8,9
-creepy,7,8,9
-gridex,7,8,9
-gridrex,7,8,9
+cart,11,16,21
+creepy,8,10,12
+gridex,12,18,24
+gridrex,11,15,20
 decision_trees,806,1605,2403

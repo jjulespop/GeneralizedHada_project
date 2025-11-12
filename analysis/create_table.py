@@ -18,7 +18,7 @@ if __name__ == '__main__':
     results_path = config['paths']['results']
     logic_rules_info_path = config['paths']['logic_rules_extraction_info']
     dt_info_path = config['paths']['ml_models_training_info']
-    output_file = f"{results_path}/rules_extraction/times_table.png"
+    output_file = f"{results_path}/plots/times_table.png"
 
     rules_types = enumerate(config['rules_types'])
 

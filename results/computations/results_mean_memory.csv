@@ -1,0 +1,6 @@
+rule,memory_mean_mean_1_target,memory_mean_mean_2_target,memory_mean_mean_3_target
+cart,103,103,103
+creepy,105,105,105
+gridex,104,104,104
+gridrex,106,106,106
+decision_trees,256,362,463
