@@ -40,7 +40,7 @@ if __name__ == "__main__":
     storage_ws_url = config["paths"]["storage_ws_url"]
     results_path = config['paths']['results']
 
-    rules_type = config['rules_types']['gridrex']
+    rules_type = config['rules_types']['cart']
 
     ### Init ###
     # db config
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     hws_prices.add_hw_price("pc", 0)
 
     # create optimitazione request
-    robustness_factor = 0.9
+    robustness_factor = None
     request = OptimizationRequest(
                                 db=db,
                                 algorithm=algorithm,

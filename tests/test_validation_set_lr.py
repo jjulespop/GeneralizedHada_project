@@ -69,7 +69,7 @@ if __name__ == '__main__':
     results_path = config['paths']['results']
     python_script = "tests/test_one_instance_lr.py"
 
-    rules_type = config['rules_types']['gridrex']
+    rules_type = config['rules_types']['cart']
     validation_set = pd.read_csv(f"{data_path}/ValidationSet.csv")
 
     ### Define variable bounds ###

@@ -129,7 +129,7 @@ if __name__ == "__main__":
     hws_prices.add_hw_price("pc", 0)
 
     # create optimitazione request
-    robustness_factor = 0.2
+    robustness_factor = None
     request = OptimizationRequest(
                                 db=db,
                                 algorithm=algorithm,
