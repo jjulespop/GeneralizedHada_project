@@ -2,5 +2,5 @@ rule,n_constraints_mean_1_target,n_constraints_mean_2_target,n_constraints_mean_
 cart,1,9,29
 creepy,1,3,10
 gridex,1,11,38
-gridrex,1,7,23
+gridrex,1,5,15
 decision_trees,114,2269,8505
