@@ -35,13 +35,16 @@ Once everything is completed, the service can be found at `localhost:5000`.
 Decision Trees are automatically trained, if not already present for a specific algorithm-hardware pair. Class `ml_models` oversees the training and the storing of the models.
 
 ### Rules Extraction
-It is possible to extract new logic rules with CART, CReEPy, GridEx and GridREx extractors, using Python library `psyke` and the scripts in the `hada/core/rules_extraction` folder. The library requires Python <= `3.11` and JDK 11+ (with `JAVA_HOME` variable properly configured).
+It is possible to extract new logic rules with CART, CReEPy, GridEx, and GridREx extractors, using the Python library `psyke` and the scripts in the `hada/core/rules_extraction` folder. The library requires Python <= `3.11` and JDK 11+ (with `JAVA_HOME` variable properly configured).
 
 ### Testing
-Both the version with Logic Rules and with Decision Trees can be tested on a standard dataset, the `ValidationDataset` . Scripts can be found in `tests` folder.
+Both the version with Logic Rules and with Decision Trees can be tested on a standard dataset, the `ValidationDataset`. Scripts can be found in the `tests` folder.
 
 ### Results
-Folder `results` contains the results of all the computation done on the `ValidationDataset`, as well as the results of the analysis done on those outputs (plots, tables, csv).
+Folder `results` contains the results of all the computations done on the `ValidationDataset`, as well as the results of the analysis done on those outputs (plots, tables, csv).
+
+### Analysis
+Folder `analysis` contains the script to analyze the previous results. It is possible to calculate the execution time, n. variables, and n. constraints means, mean and max memory  usages, and the ratio of valid solutions, as well as plot bar diagrams for these results.
 
 ### API usage
 
