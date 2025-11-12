@@ -52,10 +52,10 @@ if __name__ == '__main__':
         ex_times_mean_tot = [0, 0, 0]
         n_vars_mean_tot = [0, 0, 0]
         n_constraints_mean_tot = [0, 0, 0]
-        count = 0
+        count = [0, 0, 0]
 
         # check result folder existance
-        result_folder = f"{results_path}/{rule}_latest"
+        result_folder = f"{results_path}/{rule}"
         if not os.path.exists(result_folder):
             print(f"Result file not found: {result_folder}")
             continue
@@ -64,11 +64,8 @@ if __name__ == '__main__':
         for file in os.listdir(result_folder):
             result_df = pd.read_csv(f"{result_folder}/{file}")
 
-            # compute mean and median for ex_times
+            # compute mean for ex_times, n_vars, n_constraints
             ex_times_mean = result_df.loc[:, 'ex_times'].mean()
-            # ex_times_media = result_df.loc[:, 'ex_times'].median()
-
-            # compute mean for n_vars, n_constraints
             n_vars_mean = result_df.loc[:, 'n_vars'].mean()
             n_constraints_mean = result_df.loc[:, 'n_constraints'].mean()
 
@@ -79,39 +76,40 @@ if __name__ == '__main__':
                 ex_times_mean_tot[0] += ex_times_mean
                 n_vars_mean_tot[0] += n_vars_mean
                 n_constraints_mean_tot[0] += n_constraints_mean
+                count[0] +=1
             # two targets
             elif re.match(pattern_one_none, file):
                 ex_times_mean_tot[1] += ex_times_mean
                 n_vars_mean_tot[1] += n_vars_mean
                 n_constraints_mean_tot[1] += n_constraints_mean
+                count[1] +=1
             # three targets
             else:
                 ex_times_mean_tot[2] += ex_times_mean
                 n_vars_mean_tot[2] += n_vars_mean
                 n_constraints_mean_tot[2] += n_constraints_mean
-
-            count += 1
+                count[2] +=1
 
         # collect and save results
         new_data_time = {
             "rule": rule,
-            "ex_times_mean_1_target": (ex_times_mean_tot[0]/count),
-            "ex_times_mean_2_target": (ex_times_mean_tot[1]/count),
-            "ex_times_mean_3_target": (ex_times_mean_tot[2]/count)
+            "ex_times_mean_1_target": (ex_times_mean_tot[0]/count[0]),
+            "ex_times_mean_2_target": (ex_times_mean_tot[1]/count[1]),
+            "ex_times_mean_3_target": (ex_times_mean_tot[2]/count[2])
         }
 
         new_data_vars = {
             "rule": rule,
-            "n_vars_mean_1_target": int(math.ceil((n_vars_mean_tot[0]/count))),
-            "n_vars_mean_2_target": int(math.ceil((n_vars_mean_tot[1]/count))),
-            "n_vars_mean_3_target": int(math.ceil((n_vars_mean_tot[2]/count)))
+            "n_vars_mean_1_target": int(math.ceil((n_vars_mean_tot[0]/count[0]))),
+            "n_vars_mean_2_target": int(math.ceil((n_vars_mean_tot[1]/count[1]))),
+            "n_vars_mean_3_target": int(math.ceil((n_vars_mean_tot[2]/count[2])))
         }
 
         new_data_constraints = {
             "rule": rule,
-            "n_constraints_mean_1_target": int(math.ceil((n_constraints_mean_tot[0])/count)),
-            "n_constraints_mean_2_target": int(math.ceil((n_constraints_mean_tot[1])/count)),
-            "n_constraints_mean_3_target": int(math.ceil((n_constraints_mean_tot[2])/count))
+            "n_constraints_mean_1_target": int(math.ceil((n_constraints_mean_tot[0])/count[0])),
+            "n_constraints_mean_2_target": int(math.ceil((n_constraints_mean_tot[1])/count[1])),
+            "n_constraints_mean_3_target": int(math.ceil((n_constraints_mean_tot[2])/count[2]))
         }
 
         # create new dataframes
@@ -128,7 +126,7 @@ if __name__ == '__main__':
     ex_times_mean_tot = [0, 0, 0]
     n_vars_mean_tot = [0, 0, 0]
     n_constraints_mean_tot = [0, 0, 0]
-    count = 0
+    count = [0, 0, 0]
 
     # check result folder existance
     result_folder = f"{results_path}/hada"
@@ -139,11 +137,8 @@ if __name__ == '__main__':
     for file in os.listdir(result_folder):
         result_df = pd.read_csv(f"{result_folder}/{file}")
 
-        # compute mean and median for ex_times
-        ex_times_mean = result_df.loc[:, 'ex_times'].mean()
-        # ex_times_media = result_df.loc[:, 'ex_times'].median()
-
-        # compute mean for n_vars, n_constraints
+        # compute mean for ex_times, n_vars, n_constraints
+        ex_times_mean = result_df['ex_times'].mean()
         n_vars_mean = result_df.loc[:, 'n_vars'].mean()
         n_constraints_mean = result_df.loc[:, 'n_constraints'].mean()
 
@@ -154,39 +149,41 @@ if __name__ == '__main__':
             ex_times_mean_tot[0] += ex_times_mean
             n_vars_mean_tot[0] += n_vars_mean
             n_constraints_mean_tot[0] += n_constraints_mean
+            count[0] +=1
         # two targets
         elif re.match(pattern_one_none, file):
             ex_times_mean_tot[1] += ex_times_mean
             n_vars_mean_tot[1] += n_vars_mean
             n_constraints_mean_tot[1] += n_constraints_mean
+            count[1] +=1
         # three targets
         else:
             ex_times_mean_tot[2] += ex_times_mean
             n_vars_mean_tot[2] += n_vars_mean
             n_constraints_mean_tot[2] += n_constraints_mean
+            count[2] +=1
 
-        count += 1
 
     # collect and save results
     new_data_time = {
         "rule": "decision_trees",
-        "ex_times_mean_1_target": (ex_times_mean_tot[0]/count),
-        "ex_times_mean_2_target": (ex_times_mean_tot[1]/count),
-        "ex_times_mean_3_target": (ex_times_mean_tot[2]/count)
+        "ex_times_mean_1_target": (ex_times_mean_tot[0]/count[0]),
+        "ex_times_mean_2_target": (ex_times_mean_tot[1]/count[1]),
+        "ex_times_mean_3_target": (ex_times_mean_tot[2]/count[2])
     }
 
     new_data_vars = {
         "rule": "decision_trees",
-        "n_vars_mean_1_target": int(math.ceil((n_vars_mean_tot[0]/count))),
-        "n_vars_mean_2_target": int(math.ceil((n_vars_mean_tot[1]/count))),
-        "n_vars_mean_3_target": int(math.ceil((n_vars_mean_tot[2]/count)))
+        "n_vars_mean_1_target": int(math.ceil((n_vars_mean_tot[0]/count[0]))),
+        "n_vars_mean_2_target": int(math.ceil((n_vars_mean_tot[1]/count[1]))),
+        "n_vars_mean_3_target": int(math.ceil((n_vars_mean_tot[2]/count[2])))
     }
 
     new_data_constraints = {
         "rule": "decision_trees",
-        "n_constraints_mean_1_target": int(math.ceil((n_constraints_mean_tot[0]/count))),
-        "n_constraints_mean_2_target": int(math.ceil((n_constraints_mean_tot[1]/count))),
-        "n_constraints_mean_3_target": int(math.ceil((n_constraints_mean_tot[2]/count)))
+        "n_constraints_mean_1_target": int(math.ceil((n_constraints_mean_tot[0])/count[0])),
+        "n_constraints_mean_2_target": int(math.ceil((n_constraints_mean_tot[1])/count[1])),
+        "n_constraints_mean_3_target": int(math.ceil((n_constraints_mean_tot[2])/count[2]))
     }
 
     # create new dataframe
